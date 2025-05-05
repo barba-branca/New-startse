@@ -28,6 +28,8 @@ def cadastrar_empresa(request):
         pitch = request.FILES.get('pitch')
         logo = request.FILES.get('logo')
 
+       #    TODO: Realizar validaçao de campos
+       
         
         try:
             empresa = Empresas(
@@ -74,9 +76,9 @@ def empresa(request, id):
         documentos = Documento.objects.filter(empresa=empresa)
         propostas_investimentos = PropostaInvestimento.objects.filter(empresa=empresa)
         
-        propostas_investimentos_enviada = propostas_investimentos.filter(status='PE')
-        return render(request, 'empresa.html', {'empresa': empresa, 'documentos' : documentos, 'proposta_investimentos_enviada': propostas_investimentos_enviada})
-    
+        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')
+        return render(request, 'empresa.html', {'empresa': empresa, 'documentos' : documentos, 'proposta_investimentos_enviada': proposta_investimentos_enviada})
+        
 def add_doc(request, id):
     empresa = Empresas.objects.get(id=id)
     titulo = request.POST.get('titulo')
