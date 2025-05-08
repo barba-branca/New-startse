@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
 
+
+
 def cadastrar_empresa(request):
     if  not request.user.is_authenticated:
         return redirect('/usuarios/logar')
