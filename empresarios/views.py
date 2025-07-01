@@ -3,7 +3,10 @@ from .models import Empresas, Documento, Metricas
 from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
+<<<<<<< HEAD
 from django.http import HttpResponse, Http404
+=======
+>>>>>>> 1892e8bffbb807089d8216fc51bce544130b65d9
 
 
 
@@ -79,8 +82,12 @@ def empresa(request, id):
         documentos = Documento.objects.filter(empresa=empresa)
         propostas_investimentos = PropostaInvestimento.objects.filter(empresa=empresa)
         
+<<<<<<< HEAD
         
         proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')        
+=======
+        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')
+>>>>>>> 1892e8bffbb807089d8216fc51bce544130b65d9
         return render(request, 'empresa.html', {'empresa': empresa, 'documentos' : documentos, 'proposta_investimentos_enviada': proposta_investimentos_enviada})
         
 def add_doc(request, id):
@@ -137,6 +144,7 @@ def add_metrica(request, id):
     
     messages.add_message(request, constants.SUCCESS, "Métrica cadastrada com sucesso")
     return redirect(f'/empresarios/empresa/{empresa.id}')
+<<<<<<< HEAD
 
 def gerenciar_proposta(request, id):
     acao = request.GET.get('acao')
@@ -151,3 +159,5 @@ def gerenciar_proposta(request, id):
     
     pi.save()
     return redirect(f'/empresarios/empresa/{pi.empresa.id}')
+=======
+>>>>>>> 1892e8bffbb807089d8216fc51bce544130b65d9
