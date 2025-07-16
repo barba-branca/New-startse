@@ -140,14 +140,12 @@ def add_metrica(request, id):
 
 def gerenciar_proposta(request, id):
     acao = request.GET.get('acao')
-    pi = PropostaInvestimento.objects.get(id=id) 
+    pi = PropostaInvestimento.objects.get(id=id)
     
     if acao == 'aceitar':
         messages.add_message(request, constants.SUCCESS, 'Proposta aceita')
-        pi.status ='PA'
+        pi.status = 'PA'
     elif acao == 'recusar':
-          messages.add_message(request, constants.SUCCESS, 'Proposta recusada')
-          pi.status = "PR"
-    
-    pi.save()
-    return redirect(f'/empresarios/empresa/{pi.empresa.id}')
+        messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
+        pi.status = 'PR'
+    return redirect(f"/empresarios/empresa/{pi.empresa.id}")

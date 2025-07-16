@@ -20,12 +20,12 @@ class PropostaInvestimento(models.Model):
     rg = models.FileField(upload_to="rg", null=True, blank=True)
     
     def __str__(self):
-<<<<<<< HEAD
+
         return str(self.valor)
     
     @property
     def valuation(self):
         return(100 * float(self.valor)) / float(self.percentual)
-=======
+
         return str(self.valor)
->>>>>>> 1892e8bffbb807089d8216fc51bce544130b65d9
+
