@@ -31,24 +31,6 @@ def sugestao(request):
             if percentual >= 1:
                 empresas_selecionadas.append(empresa)
         return render(request, 'sugestao.html', {'areas': areas, 'empresas': empresas_selecionadas})
-
-
-
-        if tipo == 'C':
-            empresas = Empresas.objects.filter(tempo_existencia='+5').filter(estagio='E')
-
-        elif tipo == 'D':
-            empresas = Empresas.objects.filter(tempo_existencia__in=['-6', '+6', '+1']).exclude(estagio='E')
-
-        empresas = empresas.filter(area__in=area)
-        # TODO: Tipo generico
-        empresas_selecionadas =[]
-        for empresa in empresas:
-            percentual = float(valor) * 100 / float(empresa.valuation)
-            if percentual >= 1:
-                empresas_selecionadas.append(empresa)
-
-        return render(request, 'sugestao.html', {'areas': areas, 'empresas': empresas_selecionadas})
     
 
 def ver_empresa(request, id):
@@ -76,19 +58,17 @@ def realizar_proposta(request, id):
         messages.add_message(request, constants.WARNING, 'O percentual solicitado ultrapassa o percentual maximo.')
         return redirect(f'/investidores/ver_empresa/{id}')
     
-    valuation = (100 * int(valor)) / int (percentual)
-
-        
+    try:
+        valuation = (100 * float(valor)) / float(percentual)
+    except ZeroDivisionError:
+        messages.add_message(request, constants.WARNING, f'O percentual não pode ser zero')
+        return redirect(f'/investidores/ver_empresa/{id}')
+    except ValueError:
+        messages.add_message(request, constants.WARNING, f'Valor ou percentual inválido')
+        return redirect(f'/investidores/ver_empresa/{id}')
         
     if valuation < (int(empresa.valuation / 2)):
         messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation} e deve ser no mínimo {empresa.valuation / 2}')
-
-
-        
-        
-    if valuation < (int(empresa.valuation / 2)):
-        messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation} e deve ser no mínimo {empresa.valuation / 2 }')
-
         return redirect(f'/investidores/ver_empresa/{id}')
         
     pi = PropostaInvestimento(
@@ -98,15 +78,8 @@ def realizar_proposta(request, id):
         investidor=request.user
     )
     
-
     pi.save()
-    return redirect(f'/investidores/assinar_contrato/{pi.id}') 
-
-    
-    
-
-    pi.save()
-    return redirect(f'/investidores/assinar_contrato/{pi.id}') # vai dar erro por enquanto
+    return redirect(f'/investidores/assinar_contrato/{pi.id}')
 
 
 def assinar_contrato(request, id):

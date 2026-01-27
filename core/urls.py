@@ -9,7 +9,6 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),  # Inclui as URLs do app 'usuarios'
     path('empresarios/', include('empresarios.urls')),  # Rota para o app 'empresarios'
     path('investidores/', include('investidores.urls')),  # Rota para o app 'investidores'
-    path('', lambda request : redirect('/empresarios/cadastrar_empresa'))    # redireciona o usuario pra cadastrar empresa'), name='home'),  # Redireciona para a página de login
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Serve arquivos de mídia em desenvolvimento
 
 

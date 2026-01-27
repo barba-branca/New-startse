@@ -1,2 +1,5 @@
 media/vid_20240506_190111.mp4
 media/vid_20240506_190111.mp4
+__pycache__/
+*.pyc
+*.pyo

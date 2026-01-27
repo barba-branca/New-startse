@@ -93,7 +93,7 @@ def add_doc(request, id):
         messages.add_message(request,constants.ERROR, 'Essa empresa nao é sua.')
         return redirect(f'/empresarios/listar_empresas')
 
-    if extensao[1] != 'pdf':
+    if extensao[-1] != 'pdf':
         messages.add_message(request, constants.ERROR, "Envie apenas PDF's" )
         return redirect(f'/empresarios/empresa/{id}')
 
@@ -113,12 +113,11 @@ def add_doc(request, id):
     return redirect(f'/empresarios/empresa/{id}')
 
 def excluir_dc(request, id):
-    documento = Documento.objects. get(id=id)
+    documento = Documento.objects.get(id=id)
     if documento.empresa.user != request.user:
         messages.add_message(request, constants.ERROR, "Esse documento não é seu")
-        return redirect(f'/empresarios/empresa/{empresa.id}')
+        return redirect(f'/empresarios/empresa/{documento.empresa.id}')
     
-    documento = Documento.objects. get(id=id)
     documento.delete()
     messages.add_message(request, constants.SUCCESS, 'documento deletado com sucesso.')
     return redirect(f'/empresarios/empresa/{documento.empresa.id}')
@@ -148,4 +147,5 @@ def gerenciar_proposta(request, id):
     elif acao == 'recusar':
         messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
         pi.status = 'PR'
+    pi.save()
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
