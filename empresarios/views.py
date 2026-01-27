@@ -31,10 +31,19 @@ def cadastrar_empresa(request):
         pitch = request.FILES.get('pitch')
         logo = request.FILES.get('logo')
 
-       #    TODO: Realizar validaçao de campos
-       
-        
+        if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
+            messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+            return redirect('/empresarios/cadastrar_empresa')
+
         try:
+            if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
+                messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            if float(valor) <= 0:
+                messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+                return redirect('/empresarios/cadastrar_empresa')
+
             empresa = Empresas(
                 user=request.user,
                 nome=nome,
@@ -64,8 +73,12 @@ def listar_empresas(request):
     if  not request.user.is_authenticated:
         return redirect('/usuarios/logar')
     if request.method == "GET":
-        #TODO:realizar os filtro das empresas
+        nome = request.GET.get('nome')
         empresas = Empresas.objects.filter(user=request.user)
+
+        if nome:
+            empresas = empresas.filter(nome__icontains=nome)
+
         return render(request, 'listar_empresas.html', {'empresas': empresas})
     
 def empresa(request, id):

@@ -1,5 +1,6 @@
+
 from django.shortcuts import render
-from empresarios.models import Empresas, Documento
+from empresarios.models import Empresas, Documento, Metricas
 from django.http import HttpResponse, Http404
 from .models import PropostaInvestimento
 from django.shortcuts import redirect
@@ -36,8 +37,8 @@ def sugestao(request):
 def ver_empresa(request, id):
     empresa = Empresas.objects.get(id=id)
     documentos = Documento.objects.filter(empresa=empresa)
-    # TODO: Listar as metricas dinamicamente
-    return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos})
+    metricas = Metricas.objects.filter(empresa=empresa)
+    return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos, 'metricas': metricas})
 
 def realizar_proposta(request, id):
     valor = request.POST.get('valor')
@@ -105,3 +106,9 @@ def assinar_contrato(request, id):
         pi.save()
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
+
+def mock_payment(request):
+    return HttpResponse("<h3>Simulação de Pagamento</h3><p>O sistema de pagamentos ainda está em desenvolvimento.</p>")
+
+def mock_ai_analysis(request):
+    return HttpResponse('{"status": "success", "analysis": "A inteligência artificial identificou alto potencial de crescimento para este setor, com baixo risco inicial."}', content_type="application/json")
