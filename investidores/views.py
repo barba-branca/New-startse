@@ -6,6 +6,9 @@ from .models import PropostaInvestimento
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.messages import constants
+import mercadopago
+import os
+import google.generativeai as genai
 
 def sugestao(request):
     areas = Empresas.area_choices
@@ -107,8 +110,68 @@ def assinar_contrato(request, id):
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
 
+
+def realizar_pagamento(request):
+    sdk = mercadopago.SDK(os.environ.get('MERCADO_PAGO_ACCESS_TOKEN'))
+
+    payment_data = {
+        "items": [
+            {
+                "id": "1",
+                "title": "Investimento Start-SE",
+                "quantity": 1,
+                "currency_id": "BRL",
+                "unit_price": 100.00  # Valor fixo para teste
+            }
+        ],
+        "back_urls": {
+            "success": "http://127.0.0.1:8000/investidores/sucesso",
+            "failure": "http://127.0.0.1:8000/investidores/erro",
+            "pending": "http://127.0.0.1:8000/investidores/pendente"
+        },
+        "auto_return": "approved"
+    }
+
+    preference_response = sdk.preference().create(payment_data)
+    preference = preference_response["response"]
+
+    return redirect(preference["init_point"])
+
+def pagamento_sucesso(request):
+    return HttpResponse("<h3>Pagamento realizado com sucesso!</h3>")
+
+def pagamento_erro(request):
+    return HttpResponse("<h3>Erro ao realizar o pagamento.</h3>")
+
+def pagamento_pendente(request):
+    return HttpResponse("<h3>Pagamento pendente.</h3>")
+
+def realizar_analise_ia(request, id):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    genai.configure(api_key=api_key)
+
+    empresa = Empresas.objects.get(id=id)
+
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    prompt = f"""
+    Analise a seguinte empresa para um investidor:
+    Nome: {empresa.nome}
+    Área: {empresa.get_area_display()}
+    Descrição: {empresa.descricao}
+    Estágio: {empresa.get_estagio_display()}
+    Valuation Esperado: {empresa.valuation}
+
+    Dê 3 pontos positivos e 3 pontos de atenção para investir nesta empresa.
+    """
+
+    response = model.generate_content(prompt)
+
+    return render(request, 'analise_ia.html', {'analysis': response.text, 'empresa': empresa})
+
 def mock_payment(request):
     return HttpResponse("<h3>Simulação de Pagamento</h3><p>O sistema de pagamentos ainda está em desenvolvimento.</p>")
 
 def mock_ai_analysis(request):
     return HttpResponse('{"status": "success", "analysis": "A inteligência artificial identificou alto potencial de crescimento para este setor, com baixo risco inicial."}', content_type="application/json")
+

@@ -88,8 +88,13 @@
         </form>
         </div>
         <div class="col-md">
+
+            <a href="{% url 'realizar_pagamento' %}" class="btn btn-primary">Realizar Pagamento (Mercado Pago)</a>
+            <a href="{% url 'realizar_analise_ia' empresa.id %}" class="btn btn-info">Análise de IA</a>
+
             <a href="{% url 'mock_payment' %}" class="btn btn-primary">Simular Pagamento</a>
             <a href="{% url 'mock_ai_analysis' %}" class="btn btn-info">Análise de IA</a>
+
         </div>
         </div>
         </div>
