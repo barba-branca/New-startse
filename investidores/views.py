@@ -3,12 +3,14 @@ from empresarios.models import Empresas, Documento, Metricas
 from django.http import HttpResponse, Http404
 from .models import PropostaInvestimento
 from django.shortcuts import redirect
+from datetime import date
 from django.contrib import messages
 from django.contrib.messages import constants
 import mercadopago
 import os
 import google.generativeai as genai
 from .utils import realizar_kyc
+from django.urls import reverse
 
 def sugestao(request):
     areas = Empresas.area_choices
@@ -41,7 +43,24 @@ def ver_empresa(request, id):
     empresa = Empresas.objects.get(id=id)
     documentos = Documento.objects.filter(empresa=empresa)
     metricas = Metricas.objects.filter(empresa=empresa)
-    return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos, 'metricas': metricas})
+
+    # Calcular métricas de crowdfunding
+    propostas_aceitas = PropostaInvestimento.objects.filter(empresa=empresa).filter(status='PA')
+    total_captado = sum(p.valor for p in propostas_aceitas)
+    valuation_atual = (100 * float(total_captado)) / float(empresa.percentual_equity) if empresa.percentual_equity else 0
+    percentual_captado = (total_captado / empresa.valor) * 100 if empresa.valor else 0
+    total_apoiadores = propostas_aceitas.count()
+    dias_restantes = (empresa.data_final_captacao - date.today()).days
+
+    return render(request, 'ver_empresa.html', {
+        'empresa': empresa,
+        'documentos': documentos,
+        'metricas': metricas,
+        'total_captado': total_captado,
+        'percentual_captado': percentual_captado,
+        'total_apoiadores': total_apoiadores,
+        'dias_restantes': dias_restantes
+    })
 
 def realizar_proposta(request, id):
     valor = request.POST.get('valor')
@@ -125,9 +144,9 @@ def realizar_pagamento(request):
             }
         ],
         "back_urls": {
-            "success": "http://127.0.0.1:8000/investidores/sucesso",
-            "failure": "http://127.0.0.1:8000/investidores/erro",
-            "pending": "http://127.0.0.1:8000/investidores/pendente"
+            "success": request.build_absolute_uri(reverse('pagamento_sucesso')),
+            "failure": request.build_absolute_uri(reverse('pagamento_erro')),
+            "pending": request.build_absolute_uri(reverse('pagamento_pendente'))
         },
         "auto_return": "approved"
     }
