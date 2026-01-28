@@ -135,6 +135,15 @@ def realizar_pagamento(request):
 
     return redirect(preference["init_point"])
 
+def pagamento_sucesso(request):
+    return HttpResponse("<h3>Pagamento realizado com sucesso!</h3>")
+
+def pagamento_erro(request):
+    return HttpResponse("<h3>Erro ao realizar o pagamento.</h3>")
+
+def pagamento_pendente(request):
+    return HttpResponse("<h3>Pagamento pendente.</h3>")
+
 def realizar_analise_ia(request, id):
     api_key = os.environ.get("GEMINI_API_KEY")
     genai.configure(api_key=api_key)
