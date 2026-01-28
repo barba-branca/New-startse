@@ -6,6 +6,7 @@ from investidores.models import PropostaInvestimento
 from django.http import HttpResponse, Http404
 import google.generativeai as genai
 import os
+from .utils import realizar_due_diligence
 
 
 
@@ -64,6 +65,7 @@ def cadastrar_empresa(request):
             )
             
             empresa.save()
+            realizar_due_diligence(empresa)
         except:
             messages.add_message(request, constants.ERROR, 'Erro interno do servidor')
             return redirect('/empresarios/cadastrar_empresa')
