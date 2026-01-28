@@ -1,5 +1,6 @@
+
 from django.shortcuts import render
-from empresarios.models import Empresas, Documento
+from empresarios.models import Empresas, Documento, Metricas
 from django.http import HttpResponse, Http404
 from .models import PropostaInvestimento
 from django.shortcuts import redirect
@@ -31,31 +32,13 @@ def sugestao(request):
             if percentual >= 1:
                 empresas_selecionadas.append(empresa)
         return render(request, 'sugestao.html', {'areas': areas, 'empresas': empresas_selecionadas})
-
-
-
-        if tipo == 'C':
-            empresas = Empresas.objects.filter(tempo_existencia='+5').filter(estagio='E')
-
-        elif tipo == 'D':
-            empresas = Empresas.objects.filter(tempo_existencia__in=['-6', '+6', '+1']).exclude(estagio='E')
-
-        empresas = empresas.filter(area__in=area)
-        # TODO: Tipo generico
-        empresas_selecionadas =[]
-        for empresa in empresas:
-            percentual = float(valor) * 100 / float(empresa.valuation)
-            if percentual >= 1:
-                empresas_selecionadas.append(empresa)
-
-        return render(request, 'sugestao.html', {'areas': areas, 'empresas': empresas_selecionadas})
     
 
 def ver_empresa(request, id):
     empresa = Empresas.objects.get(id=id)
     documentos = Documento.objects.filter(empresa=empresa)
-    # TODO: Listar as metricas dinamicamente
-    return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos})
+    metricas = Metricas.objects.filter(empresa=empresa)
+    return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos, 'metricas': metricas})
 
 def realizar_proposta(request, id):
     valor = request.POST.get('valor')
@@ -76,19 +59,17 @@ def realizar_proposta(request, id):
         messages.add_message(request, constants.WARNING, 'O percentual solicitado ultrapassa o percentual maximo.')
         return redirect(f'/investidores/ver_empresa/{id}')
     
-    valuation = (100 * int(valor)) / int (percentual)
-
-        
+    try:
+        valuation = (100 * float(valor)) / float(percentual)
+    except ZeroDivisionError:
+        messages.add_message(request, constants.WARNING, f'O percentual não pode ser zero')
+        return redirect(f'/investidores/ver_empresa/{id}')
+    except ValueError:
+        messages.add_message(request, constants.WARNING, f'Valor ou percentual inválido')
+        return redirect(f'/investidores/ver_empresa/{id}')
         
     if valuation < (int(empresa.valuation / 2)):
         messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation} e deve ser no mínimo {empresa.valuation / 2}')
-
-
-        
-        
-    if valuation < (int(empresa.valuation / 2)):
-        messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation} e deve ser no mínimo {empresa.valuation / 2 }')
-
         return redirect(f'/investidores/ver_empresa/{id}')
         
     pi = PropostaInvestimento(
@@ -98,15 +79,8 @@ def realizar_proposta(request, id):
         investidor=request.user
     )
     
-
     pi.save()
-    return redirect(f'/investidores/assinar_contrato/{pi.id}') 
-
-    
-    
-
-    pi.save()
-    return redirect(f'/investidores/assinar_contrato/{pi.id}') # vai dar erro por enquanto
+    return redirect(f'/investidores/assinar_contrato/{pi.id}')
 
 
 def assinar_contrato(request, id):
@@ -132,3 +106,9 @@ def assinar_contrato(request, id):
         pi.save()
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
+
+def mock_payment(request):
+    return HttpResponse("<h3>Simulação de Pagamento</h3><p>O sistema de pagamentos ainda está em desenvolvimento.</p>")
+
+def mock_ai_analysis(request):
+    return HttpResponse('{"status": "success", "analysis": "A inteligência artificial identificou alto potencial de crescimento para este setor, com baixo risco inicial."}', content_type="application/json")

@@ -27,5 +27,3 @@ class PropostaInvestimento(models.Model):
     def valuation(self):
         return(100 * float(self.valor)) / float(self.percentual)
 
-        return str(self.valor)
-
