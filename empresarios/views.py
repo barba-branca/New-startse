@@ -162,3 +162,29 @@ def gerenciar_proposta(request, id):
         pi.status = 'PR'
     pi.save()
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
+
+def analise_ia_empresario(request, id):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    genai.configure(api_key=api_key)
+
+    empresa = Empresas.objects.get(id=id)
+    if empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Você não tem permissão para analisar esta empresa.")
+        return redirect(f'/empresarios/listar_empresas')
+
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    prompt = f"""
+    Analise o meu pitch como se fosse um investidor experiente:
+    Nome: {empresa.nome}
+    Área: {empresa.get_area_display()}
+    Descrição: {empresa.descricao}
+    Estágio: {empresa.get_estagio_display()}
+    Valuation Esperado: {empresa.valuation}
+
+    Dê 3 pontos fortes e 3 melhorias que eu poderia fazer no meu negócio ou descrição.
+    """
+
+    response = model.generate_content(prompt)
+
+    return render(request, 'analise_ia_empresario.html', {'analysis': response.text, 'empresa': empresa})

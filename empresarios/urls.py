@@ -10,6 +10,6 @@ urlpatterns = [
     path('add_doc/<int:id>', views.add_doc, name="add_doc"),
     path('excluir_dc/<int:id>', views.excluir_dc, name="excluir_dc"),
     path('add_metrica/<int:id>', views.add_metrica, name="add_metrica"),
-    path('gerenciar_proposta/<int:id>', views.gerenciar_proposta, name="gerenciar_proposta")
-
+    path('gerenciar_proposta/<int:id>', views.gerenciar_proposta, name="gerenciar_proposta"),
+    path('analise_ia_empresario/<int:id>', views.analise_ia_empresario, name="analise_ia_empresario")
 ]

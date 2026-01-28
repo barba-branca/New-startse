@@ -7,14 +7,9 @@ urlpatterns = [
     path('ver_empresa/<int:id>', views.ver_empresa, name="ver_empresa"),
     path('realizar_proposta/<int:id>', views.realizar_proposta, name="realizar_proposta"),
     path("assinar_contrato/<int:id>", views.assinar_contrato, name="assinar_contrato"),
-
     path("realizar_pagamento/", views.realizar_pagamento, name="realizar_pagamento"),
     path("realizar_analise_ia/<int:id>", views.realizar_analise_ia, name="realizar_analise_ia"),
     path("sucesso/", views.pagamento_sucesso, name="pagamento_sucesso"),
     path("erro/", views.pagamento_erro, name="pagamento_erro"),
     path("pendente/", views.pagamento_pendente, name="pagamento_pendente")
-
-    path("mock_payment/", views.mock_payment, name="mock_payment"),
-    path("mock_ai_analysis/", views.mock_ai_analysis, name="mock_ai_analysis")
-
 ]
