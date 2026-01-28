@@ -67,6 +67,10 @@
                     <br><br>
                     <a href="{% url 'analise_ia_empresario' empresa.id %}" class="btn btn-info">Análise de IA</a>
                 </div>
+                <div class="col-md">
+                    <h5>Projeção de Valuation (5 Anos)</h5>
+                    <canvas id="valuationChart"></canvas>
+                </div>
                 <div class="documentos">
                     <h3>Anexar documentos</h3>
                     <form action="{% url 'add_doc' empresa.id %}" method="POST" enctype='multipart/form-data'>{% csrf_token %}<form action="{% url 'add_doc' empresa.id %}" method="POST" enctype='multipart/form-data'>{% csrf_token %}
@@ -168,4 +172,30 @@
 </div>
 </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('valuationChart');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ valuation_labels|safe }},
+        datasets: [{
+          label: 'Valuation Projetado (R$)',
+          data: {{ valuation_data|safe }},
+          borderWidth: 1,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        }
+      }
+    });
+</script>
 {% endblock 'body' %}
