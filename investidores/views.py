@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from empresarios.models import Empresas, Documento, Metricas
 from django.http import HttpResponse, Http404
@@ -109,6 +110,7 @@ def assinar_contrato(request, id):
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
 
+
 def realizar_pagamento(request):
     sdk = mercadopago.SDK(os.environ.get('MERCADO_PAGO_ACCESS_TOKEN'))
 
@@ -166,3 +168,10 @@ def realizar_analise_ia(request, id):
     response = model.generate_content(prompt)
 
     return render(request, 'analise_ia.html', {'analysis': response.text, 'empresa': empresa})
+
+def mock_payment(request):
+    return HttpResponse("<h3>Simulação de Pagamento</h3><p>O sistema de pagamentos ainda está em desenvolvimento.</p>")
+
+def mock_ai_analysis(request):
+    return HttpResponse('{"status": "success", "analysis": "A inteligência artificial identificou alto potencial de crescimento para este setor, com baixo risco inicial."}', content_type="application/json")
+
