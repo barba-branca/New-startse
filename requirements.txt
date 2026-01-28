@@ -17,6 +17,7 @@ grpcio==1.76.0
 grpcio-status==1.71.2
 httplib2==0.31.2
 idna==3.11
+mercadopago==2.3.0
 pillow==12.1.0
 playwright==1.57.0
 proto-plus==1.27.0
@@ -28,6 +29,7 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 pyee==13.0.0
 pyparsing==3.3.2
+python-dotenv==1.2.1
 requests==2.32.5
 sqlparse==0.5.5
 tqdm==4.67.1
