@@ -31,10 +31,19 @@ def cadastrar_empresa(request):
         pitch = request.FILES.get('pitch')
         logo = request.FILES.get('logo')
 
-       #    TODO: Realizar validaçao de campos
-       
-        
+        if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
+            messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+            return redirect('/empresarios/cadastrar_empresa')
+
         try:
+            if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
+                messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            if float(valor) <= 0:
+                messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+                return redirect('/empresarios/cadastrar_empresa')
+
             empresa = Empresas(
                 user=request.user,
                 nome=nome,
@@ -64,8 +73,12 @@ def listar_empresas(request):
     if  not request.user.is_authenticated:
         return redirect('/usuarios/logar')
     if request.method == "GET":
-        #TODO:realizar os filtro das empresas
+        nome = request.GET.get('nome')
         empresas = Empresas.objects.filter(user=request.user)
+
+        if nome:
+            empresas = empresas.filter(nome__icontains=nome)
+
         return render(request, 'listar_empresas.html', {'empresas': empresas})
     
 def empresa(request, id):
@@ -93,7 +106,7 @@ def add_doc(request, id):
         messages.add_message(request,constants.ERROR, 'Essa empresa nao é sua.')
         return redirect(f'/empresarios/listar_empresas')
 
-    if extensao[1] != 'pdf':
+    if extensao[-1] != 'pdf':
         messages.add_message(request, constants.ERROR, "Envie apenas PDF's" )
         return redirect(f'/empresarios/empresa/{id}')
 
@@ -113,12 +126,11 @@ def add_doc(request, id):
     return redirect(f'/empresarios/empresa/{id}')
 
 def excluir_dc(request, id):
-    documento = Documento.objects. get(id=id)
+    documento = Documento.objects.get(id=id)
     if documento.empresa.user != request.user:
         messages.add_message(request, constants.ERROR, "Esse documento não é seu")
-        return redirect(f'/empresarios/empresa/{empresa.id}')
+        return redirect(f'/empresarios/empresa/{documento.empresa.id}')
     
-    documento = Documento.objects. get(id=id)
     documento.delete()
     messages.add_message(request, constants.SUCCESS, 'documento deletado com sucesso.')
     return redirect(f'/empresarios/empresa/{documento.empresa.id}')
@@ -148,4 +160,5 @@ def gerenciar_proposta(request, id):
     elif acao == 'recusar':
         messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
         pi.status = 'PR'
+    pi.save()
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
