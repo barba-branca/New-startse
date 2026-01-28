@@ -66,4 +66,14 @@ class Metricas(models.Model):
 
     def __str__(self):
         return self.titulo
+
+class DueDiligence(models.Model):
+    empresa = models.ForeignKey(Empresas, on_delete=models.CASCADE)
+    data_analise = models.DateField(auto_now_add=True)
+    status_compliance = models.BooleanField(default=False)
+    score_risco = models.IntegerField(default=0)
+    analise_detalhada = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f'Due Diligence - {self.empresa.nome}'
         

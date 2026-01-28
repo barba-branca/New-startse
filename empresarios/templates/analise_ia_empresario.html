@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+{% endblock 'head' %}
+{% block 'body' %}
+{% include "partials/barra_navegacao.html" %}
+<br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Consultoria de IA para seu Negócio: {{empresa.nome}}</h3>
+            <hr>
+            <div class="card">
+                <div class="card-body">
+                    {{analysis|linebreaks}}
+                </div>
+            </div>
+            <br>
+            <a href="{% url 'empresa' empresa.id %}" class="btn btn-secondary">Voltar para Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock 'body' %}

@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
 from django.http import HttpResponse, Http404
+import google.generativeai as genai
+import os
+from .utils import realizar_due_diligence
 
 
 
@@ -62,6 +65,7 @@ def cadastrar_empresa(request):
             )
             
             empresa.save()
+            realizar_due_diligence(empresa)
         except:
             messages.add_message(request, constants.ERROR, 'Erro interno do servidor')
             return redirect('/empresarios/cadastrar_empresa')
@@ -93,8 +97,24 @@ def empresa(request, id):
         propostas_investimentos = PropostaInvestimento.objects.filter(empresa=empresa)
         
         
-        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')        
-        return render(request, 'empresa.html', {'empresa': empresa, 'documentos' : documentos, 'proposta_investimentos_enviada': proposta_investimentos_enviada})
+        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')
+
+        # Valuation Projection Logic
+        current_valuation = float(empresa.valuation)
+        valuation_labels = ['Atual']
+        valuation_data = [current_valuation]
+
+        for i in range(1, 6):
+            valuation_labels.append(f'{2024 + i}') # Assuming current year is 2024, can be dynamic
+            valuation_data.append(current_valuation * (1.2 ** i)) # 20% annual growth
+
+        return render(request, 'empresa.html', {
+            'empresa': empresa,
+            'documentos': documentos,
+            'proposta_investimentos_enviada': proposta_investimentos_enviada,
+            'valuation_labels': valuation_labels,
+            'valuation_data': valuation_data
+        })
         
 def add_doc(request, id):
     empresa = Empresas.objects.get(id=id)

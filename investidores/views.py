@@ -8,6 +8,7 @@ from django.contrib.messages import constants
 import mercadopago
 import os
 import google.generativeai as genai
+from .utils import realizar_kyc
 
 def sugestao(request):
     areas = Empresas.area_choices
@@ -106,6 +107,7 @@ def assinar_contrato(request, id):
         pi.rg = rg
         pi.status = 'PE'
         pi.save()
+        realizar_kyc(request.user)
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
 
