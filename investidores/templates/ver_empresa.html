@@ -4,151 +4,156 @@
 <link rel="stylesheet" href="{% static 'empresarios/css/listar_empresas.css' %}">
 <link rel="stylesheet" href="{% static 'empresarios/css/empresa.css' %}">
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
-    {% endblock 'head' %}
-    {% block 'body' %}
-        {% include "partials/barra_navegacao.html" %}
-        <br><br>
-        <div class="container">
+{% endblock 'head' %}
+{% block 'body' %}
+{% include "partials/barra_navegacao.html" %}
+<br><br>
+<div class="container">
+    <div class="row">
+        <!-- Coluna Esquerda: Informações da Empresa -->
+        <div class="col-md-8">
             <div class="row">
-            <div class="col-md-7">
-            <div class="row">
+                <div class="col-md-3">
+                    <img src="{{empresa.logo.url}}" class="foto-empresa" alt="">
+                </div>
+                <div class="col-md-9">
+                    <h3>{{empresa.nome}}</h3>
+                    <span class="badge bg-primary">{{empresa.get_area_display}}</span>
+                    {% for dd in empresa.duediligence_set.all %}
+                        {% if dd.status_compliance %}
+                            <span class="badge bg-success" title="Score: {{dd.score_risco}}">✔ Compliance Aprovado</span>
+                        {% else %}
+                            <span class="badge bg-danger">⚠ Compliance Pendente</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+
             {% if messages %}
-        {% for message in messages %}
-        <section class="alert {{message.tags}}">
-            {{message}}
-        </section>
-        {% endfor %}
-        {% endif %}
-        <div class="col-md-3">
-            <img src="{{empresa.logo.url}}" class="foto-empresa" alt="">
-        </div>
-        <div class="col-md">
-            <h3>{{empresa.nome}}</h3>
-        <span class="badge bg-primary">
-            {{empresa.get_area_display}}</span>
-        {% for dd in empresa.duediligence_set.all %}
-            {% if dd.status_compliance %}
-                <span class="badge bg-success" title="Score: {{dd.score_risco}}">✔ Compliance Aprovado</span>
-            {% else %}
-                <span class="badge bg-danger">⚠ Compliance Pendente</span>
+                {% for message in messages %}
+                    <section class="alert {{message.tags}}">
+                        {{message}}
+                    </section>
+                {% endfor %}
             {% endif %}
-        {% endfor %}
-        </div>
-        
 
-        </div>
-        <br><br>
-
-        <div class="crowdfunding-stats">
-            <h2 style="font-weight: bold; color: #28a745;">{{ percentual_captado|floatformat:1 }}%</h2>
-            <span class="text-muted">da meta de R$ {{empresa.valor}}</span>
-
-            <div class="progress mt-2" style="height: 25px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentual_captado|stringformat:'f' }}%;" aria-valuenow="{{ percentual_captado }}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="video-container">
+                 <video name='demo' controls autoplay width='100%'>
+                    <source src="{{empresa.pitch.url}}" type="video/mp4"></source>
+                </video>
             </div>
-            <br>
 
-            <div class="row text-center">
+            <br>
+            <h5>Sobre a empresa</h5>
+            <p>{{empresa.descricao}}</p>
+
+            <br>
+            <h4 style="color: #92D5EB">Indicadores</h4>
+            <div class="row">
+                {% for metrica in metricas %}
                 <div class="col-md-4">
-                    <h3>R$ {{ total_captado|floatformat:2 }}</h3>
-                    <span class="text-muted">levantados</span>
+                    <div class="dark-color" style="padding: 20px; text-align: center; margin-bottom: 10px;">
+                        <h5>{{metrica.titulo}}</h5>
+                        <h6>R$ {{metrica.valor}}</h6>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h3>{{ total_apoiadores }}</h3>
-                    <span class="text-muted">apoiadores</span>
-                </div>
-                <div class="col-md-4">
-                    <h3>{{ dias_restantes }}</h3>
-                    <span class="text-muted">dias restantes</span>
-                </div>
+                {% endfor %}
             </div>
-        </div>
-        
-        <hr>
 
-        {% if percentual_captado >= 100 %}
-            <div class="alert alert-success">🎉 Esta campanha já atingiu a meta!</div>
-        {% elif dias_restantes < 0 %}
-            <div class="alert alert-danger">⌛ Campanha encerrada.</div>
-        {% else %}
-            <div class="alert alert-info">🚀 Campanha ativa! Apoie agora.</div>
-        {% endif %}
-
-        <hr>
-        <p>{{empresa.descricao}}</p>
-        <div class="col-md">
-            <h5>Valuation esperado</h5>
-            <span class="sub-fonte">Esperado: R$ {{empresa.valuation}}</span>
-            <br>
-            <br>
-            <h5>Percentual</h5>
-            <span class="sub-fonte">Total a venda: {{empresa.percentual_equity}}%</span>
-        </div>
-        <br>
-
-        <span class="badge bg-warning">{{empresa.publico_alvo}}</span>
-
-        <br><br>
-        <h4 style="color: #92D5EB">Indicadores |</h4>
-        
-        <div class="row">
-            {% for metrica in metricas %}
-            <div class="col-md-3" >
-            <div class="dark-color" style="padding: 20px; text-align: center;">
-            <h5>{{metrica.titulo}}</h5>
-        <h6>R$ {{metrica.valor}}</h6>
-        </div>
-        </div>
-        {% endfor %}
-        </div>
-        <hr>
-        <div class="row">
-            <h4>Apoiar este Projeto</h4>
-        <br><br>
-        <div class="col-md">
-            <form action="{% url 'realizar_proposta' empresa.id %}" method="POST"> {% csrf_token %}
-            <input type="number" name="valor" class="form-control" placeholder="Valor do Apoio (R$)">
-        <br>
-        <input type="submit" class="btn btn-success btn-lg" value="Confirmar Apoio">
-        </div>
-        <div class="col-md">
-            <input type="number" name="percentual" class="form-control" placeholder="Equity Solicitado (%)">
-        </form>
-        </div>
-        <div class="col-md">
-            <a href="{% url 'realizar_pagamento' %}" class="btn btn-primary btn-lg">Pagar com Mercado Pago</a>
-            <br><br>
-            <a href="{% url 'realizar_analise_ia' empresa.id %}" class="btn btn-info">Análise de Risco (IA)</a>
-        </div>
-        </div>
-        </div>
-        <div class="col-md-5 intereses-investimentos">
-            <video name='demo' controls autoplay width='100%'>
-                <source src="{{empresa.pitch.url}}" type="video/mp4"></source>
-            </video>
-        <hr>
-        {% for doc in documentos %} 
+            <hr>
+            <h5>Documentos</h5>
+            {% for doc in documentos %}
             <div class="list_documentos">
                 <div class="row">
-                <div class="col-md-2" style="text-align: center">
-                <a href="{{doc.arquivo.url}}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="color: white;" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-                </svg>
-            </a>
+                    <div class="col-md-2" style="text-align: center">
+                        <a href="{{doc.arquivo.url}}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" style="color: white;" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="col-md-10">{{doc.titulo}}</div>
+                </div>
             </div>
-            <div class="col-md-6">{{doc.titulo}}</div>
-            <div class="col-md-4" style="text-align: right;">
+            {% endfor %}
+        </div>
+
+        <!-- Coluna Direita: Investimento e Ações -->
+        <div class="col-md-4">
+            <div class="card dark-color" style="padding: 20px; border-radius: 10px;">
+                <h2 style="font-weight: bold; color: #28a745;">{{ percentual_captado|floatformat:1 }}%</h2>
+                <span class="text-muted">da meta de R$ {{empresa.valor}}</span>
+
+                <div class="progress mt-2" style="height: 10px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentual_captado|stringformat:'f' }}%;" aria-valuenow="{{ percentual_captado }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+                <br>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h5>R$ {{ total_captado|floatformat:2 }}</h5>
+                        <small class="text-muted">levantados</small>
+                    </div>
+                     <div class="col-6">
+                        <h5>{{ dias_restantes }}</h5>
+                        <small class="text-muted">dias restantes</small>
+                    </div>
+                </div>
+                 <div class="row text-center mt-2">
+                     <div class="col-12">
+                        <h5>{{ total_apoiadores }}</h5>
+                        <small class="text-muted">apoiadores</small>
+                    </div>
+                </div>
+            </div>
+
+            <br>
             
+            {% if percentual_captado >= 100 %}
+                <div class="alert alert-success">🎉 Meta atingida!</div>
+            {% elif dias_restantes < 0 %}
+                <div class="alert alert-danger">⌛ Encerrada.</div>
+            {% else %}
+                <div class="alert alert-info">🚀 Campanha ativa!</div>
+            {% endif %}
+
+            <div class="card dark-color" style="padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h5>Valuation esperado</h5>
+                <span class="sub-fonte">R$ {{empresa.valuation}}</span>
+                <br><br>
+                <h5>Equity a venda</h5>
+                <span class="sub-fonte">{{empresa.percentual_equity}}%</span>
+                <br><br>
+                 <span class="badge bg-warning">{{empresa.publico_alvo}}</span>
             </div>
+
+            <br>
+            <!-- Formulario de Proposta -->
+            <div class="card" style="padding: 20px; background-color: #2d2d2d; border: 1px solid #444; color: white;">
+                <h4>Faça sua proposta</h4>
+                <form action="{% url 'realizar_proposta' empresa.id %}" method="POST"> {% csrf_token %}
+                    <label>Valor do Apoio (R$)</label>
+                    <input type="number" name="valor" class="form-control" placeholder="R$ 200">
+                    <br>
+                    <label>Percentual Desejado (%)</label>
+                    <input type="number" name="percentual" class="form-control" placeholder="1%">
+                    <br>
+                    <div class="d-grid gap-2">
+                         <input type="submit" class="btn btn-success btn-lg" value="Salvar">
+                    </div>
+                </form>
             </div>
+
+            <br>
+            <div class="d-grid gap-2">
+                <a href="{% url 'realizar_pagamento' %}" class="btn btn-primary btn-lg">Pagar com Mercado Pago</a>
+                <a href="{% url 'realizar_analise_ia' empresa.id %}" class="btn btn-info">Análise de Risco (IA)</a>
             </div>
-        {% endfor %}
 
         </div>
     </div>
 </div>
-
 <br><br>
 {% endblock 'body' %}
