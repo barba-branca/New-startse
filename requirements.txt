@@ -17,7 +17,6 @@ grpcio==1.76.0
 grpcio-status==1.71.2
 httplib2==0.31.2
 idna==3.11
-mercadopago==2.3.0
 pillow==12.1.0
 playwright==1.57.0
 proto-plus==1.27.0

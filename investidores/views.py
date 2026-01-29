@@ -5,7 +5,6 @@ from .models import PropostaInvestimento
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.messages import constants
-import mercadopago
 import os
 import google.generativeai as genai
 from .utils import realizar_kyc
@@ -110,41 +109,6 @@ def assinar_contrato(request, id):
         realizar_kyc(request.user)
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
-
-def realizar_pagamento(request):
-    sdk = mercadopago.SDK(os.environ.get('MERCADO_PAGO_ACCESS_TOKEN'))
-
-    payment_data = {
-        "items": [
-            {
-                "id": "1",
-                "title": "Investimento Start-SE",
-                "quantity": 1,
-                "currency_id": "BRL",
-                "unit_price": 100.00  # Valor fixo para teste
-            }
-        ],
-        "back_urls": {
-            "success": "http://127.0.0.1:8000/investidores/sucesso",
-            "failure": "http://127.0.0.1:8000/investidores/erro",
-            "pending": "http://127.0.0.1:8000/investidores/pendente"
-        },
-        "auto_return": "approved"
-    }
-
-    preference_response = sdk.preference().create(payment_data)
-    preference = preference_response["response"]
-
-    return redirect(preference["init_point"])
-
-def pagamento_sucesso(request):
-    return HttpResponse("<h3>Pagamento realizado com sucesso!</h3>")
-
-def pagamento_erro(request):
-    return HttpResponse("<h3>Erro ao realizar o pagamento.</h3>")
-
-def pagamento_pendente(request):
-    return HttpResponse("<h3>Pagamento pendente.</h3>")
 
 def realizar_analise_ia(request, id):
     api_key = os.environ.get("GEMINI_API_KEY")
