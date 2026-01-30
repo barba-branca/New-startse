@@ -26,6 +26,13 @@
             <h3>{{empresa.nome}}</h3>
         <span class="badge bg-primary">
             {{empresa.get_area_display}}</span>
+        {% for dd in empresa.duediligence_set.all %}
+            {% if dd.status_compliance %}
+                <span class="badge bg-success" title="Score: {{dd.score_risco}}">✔ Compliance Aprovado</span>
+            {% else %}
+                <span class="badge bg-danger">⚠ Compliance Pendente</span>
+            {% endif %}
+        {% endfor %}
         </div>
         
 
@@ -64,19 +71,14 @@
         <h4 style="color: #92D5EB">Indicadores |</h4>
         
         <div class="row">
+            {% for metrica in metricas %}
             <div class="col-md-3" >
             <div class="dark-color" style="padding: 20px; text-align: center;">
-            <h5>CAC</h5>
-        <h6>R$ 200</h6>
+            <h5>{{metrica.titulo}}</h5>
+        <h6>R$ {{metrica.valor}}</h6>
         </div>
         </div>
-        <div class="col-md-3" >
-        <div class="dark-color" style="padding: 20px; text-align: center;">
-            <h5>CAC</h5>
-        <h6>R$ 200</h6>
-        </div>
-        </div> 
-        
+        {% endfor %}
         </div>
         <hr>
         <div class="row">
@@ -92,13 +94,16 @@
             <input type="number" name="percentual" class="form-control" placeholder="Percentual desejado">
         </form>
         </div>
-        
+        <div class="col-md">
+            <a href="{% url 'realizar_pagamento' %}" class="btn btn-primary">Realizar Pagamento (Mercado Pago)</a>
+            <a href="{% url 'realizar_analise_ia' empresa.id %}" class="btn btn-info">Análise de IA</a>
+        </div>
         </div>
         </div>
         <div class="col-md-5 intereses-investimentos">
             <video name='demo' controls autoplay width='100%'>
-            <source src="{{empresa.pitch.url}}" type="video/mp4"></source>
-        </video>
+                <source src="{{empresa.pitch.url}}" type="video/mp4"></source>
+            </video>
         <hr>
         {% for doc in documentos %} 
             <div class="list_documentos">

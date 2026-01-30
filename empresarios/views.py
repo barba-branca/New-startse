@@ -2,6 +2,13 @@ from django.shortcuts import render, redirect
 from .models import Empresas, Documento, Metricas
 from django.contrib import messages
 from django.contrib.messages import constants
+from investidores.models import PropostaInvestimento
+from django.http import HttpResponse, Http404
+import google.generativeai as genai
+import os
+from .utils import realizar_due_diligence
+
+
 
 def cadastrar_empresa(request):
     if  not request.user.is_authenticated:
@@ -27,8 +34,19 @@ def cadastrar_empresa(request):
         pitch = request.FILES.get('pitch')
         logo = request.FILES.get('logo')
 
-        
+        if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
+            messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+            return redirect('/empresarios/cadastrar_empresa')
+
         try:
+            if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
+                messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            if float(valor) <= 0:
+                messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+                return redirect('/empresarios/cadastrar_empresa')
+
             empresa = Empresas(
                 user=request.user,
                 nome=nome,
@@ -47,6 +65,7 @@ def cadastrar_empresa(request):
             )
             
             empresa.save()
+            realizar_due_diligence(empresa)
         except:
             messages.add_message(request, constants.ERROR, 'Erro interno do servidor')
             return redirect('/empresarios/cadastrar_empresa')
@@ -58,8 +77,12 @@ def listar_empresas(request):
     if  not request.user.is_authenticated:
         return redirect('/usuarios/logar')
     if request.method == "GET":
-        #TODO:realizar os filtro das empresas
+        nome = request.GET.get('nome')
         empresas = Empresas.objects.filter(user=request.user)
+
+        if nome:
+            empresas = empresas.filter(nome__icontains=nome)
+
         return render(request, 'listar_empresas.html', {'empresas': empresas})
     
 def empresa(request, id):
@@ -71,8 +94,28 @@ def empresa(request, id):
 
     if request.method == "GET":
         documentos = Documento.objects.filter(empresa=empresa)
-        return render(request, 'empresa.html', {'empresa': empresa, 'documentos' : documentos})
-    
+        propostas_investimentos = PropostaInvestimento.objects.filter(empresa=empresa)
+        
+        
+        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')
+
+        # Valuation Projection Logic
+        current_valuation = float(empresa.valuation)
+        valuation_labels = ['Atual']
+        valuation_data = [current_valuation]
+
+        for i in range(1, 6):
+            valuation_labels.append(f'{2024 + i}') # Assuming current year is 2024, can be dynamic
+            valuation_data.append(current_valuation * (1.2 ** i)) # 20% annual growth
+
+        return render(request, 'empresa.html', {
+            'empresa': empresa,
+            'documentos': documentos,
+            'proposta_investimentos_enviada': proposta_investimentos_enviada,
+            'valuation_labels': valuation_labels,
+            'valuation_data': valuation_data
+        })
+        
 def add_doc(request, id):
     empresa = Empresas.objects.get(id=id)
     titulo = request.POST.get('titulo')
@@ -83,7 +126,7 @@ def add_doc(request, id):
         messages.add_message(request,constants.ERROR, 'Essa empresa nao é sua.')
         return redirect(f'/empresarios/listar_empresas')
 
-    if extensao[1] != 'pdf':
+    if extensao[-1] != 'pdf':
         messages.add_message(request, constants.ERROR, "Envie apenas PDF's" )
         return redirect(f'/empresarios/empresa/{id}')
 
@@ -103,12 +146,11 @@ def add_doc(request, id):
     return redirect(f'/empresarios/empresa/{id}')
 
 def excluir_dc(request, id):
-    documento = Documento.objects. get(id=id)
+    documento = Documento.objects.get(id=id)
     if documento.empresa.user != request.user:
         messages.add_message(request, constants.ERROR, "Esse documento não é seu")
-        return redirect(f'/empresarios/empresa/{empresa.id}')
+        return redirect(f'/empresarios/empresa/{documento.empresa.id}')
     
-    documento = Documento.objects. get(id=id)
     documento.delete()
     messages.add_message(request, constants.SUCCESS, 'documento deletado com sucesso.')
     return redirect(f'/empresarios/empresa/{documento.empresa.id}')
@@ -127,3 +169,42 @@ def add_metrica(request, id):
     
     messages.add_message(request, constants.SUCCESS, "Métrica cadastrada com sucesso")
     return redirect(f'/empresarios/empresa/{empresa.id}')
+
+def gerenciar_proposta(request, id):
+    acao = request.GET.get('acao')
+    pi = PropostaInvestimento.objects.get(id=id)
+    
+    if acao == 'aceitar':
+        messages.add_message(request, constants.SUCCESS, 'Proposta aceita')
+        pi.status = 'PA'
+    elif acao == 'recusar':
+        messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
+        pi.status = 'PR'
+    pi.save()
+    return redirect(f"/empresarios/empresa/{pi.empresa.id}")
+
+def analise_ia_empresario(request, id):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    genai.configure(api_key=api_key)
+
+    empresa = Empresas.objects.get(id=id)
+    if empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Você não tem permissão para analisar esta empresa.")
+        return redirect(f'/empresarios/listar_empresas')
+
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    prompt = f"""
+    Analise o meu pitch como se fosse um investidor experiente:
+    Nome: {empresa.nome}
+    Área: {empresa.get_area_display()}
+    Descrição: {empresa.descricao}
+    Estágio: {empresa.get_estagio_display()}
+    Valuation Esperado: {empresa.valuation}
+
+    Dê 3 pontos fortes e 3 melhorias que eu poderia fazer no meu negócio ou descrição.
+    """
+
+    response = model.generate_content(prompt)
+
+    return render(request, 'analise_ia_empresario.html', {'analysis': response.text, 'empresa': empresa})

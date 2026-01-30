@@ -11,7 +11,7 @@ class Empresas(models.Model):
         ('+5', 'Mais de 5 anos')
     )
     estagio_choices = (
-        ('I', 'Tenho apenas uma idea'),
+        ('I', 'Tenho apenas uma ideia'),
         ('MVP', 'Possuo um MVP'),
         ('MVPP', 'Possuo um MVP com clientes pagantes'),
         ('E', 'Empresa pronta para escalar'),
@@ -49,7 +49,7 @@ class Empresas(models.Model):
     
     @property
     def valuation(self):
-        return f'{(100 * self.valor) / self.percentual_equity :.2f}'
+        return float (f'{(100 * self.valor) / self.percentual_equity:.2f}')
     
 class Documento(models.Model):
     empresa = models.ForeignKey(Empresas, on_delete=models.DO_NOTHING)
@@ -66,4 +66,14 @@ class Metricas(models.Model):
 
     def __str__(self):
         return self.titulo
+
+class DueDiligence(models.Model):
+    empresa = models.ForeignKey(Empresas, on_delete=models.CASCADE)
+    data_analise = models.DateField(auto_now_add=True)
+    status_compliance = models.BooleanField(default=False)
+    score_risco = models.IntegerField(default=0)
+    analise_detalhada = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f'Due Diligence - {self.empresa.nome}'
         

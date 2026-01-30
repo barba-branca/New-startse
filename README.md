@@ -1,6 +1,3 @@
-
----
-
 # **START-SE: Plataforma de Crowdfunding para Startups**
 
 A **START-SE** é uma plataforma inovadora de crowdfunding desenvolvida com Django, projetada para conectar empreendedores e investidores. O objetivo principal é oferecer um ambiente que facilite o encontro entre startups em busca de financiamento e investidores interessados em novas oportunidades.

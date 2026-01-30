@@ -15,16 +15,15 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 5px 30px;
+    
     background-color: #070514;
 }
 
-.navbar-home img {
-    width: 220px;
-}
 
 .navbar-home ul {
     list-style: none;
-    display: flex;
+    display: inline-block;
+    padding: 0px 20px;
 }
 
 .navbar-home li {
