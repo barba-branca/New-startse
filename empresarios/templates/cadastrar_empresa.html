@@ -27,10 +27,10 @@
                 <form action="{% url 'cadastrar_empresa' %}" method="POST" enctype='multipart/form-data'>
                     {% csrf_token %}
                     <label>Nome</label>
-                    <input type="text" name="nome" placeholder="Digite o nome da sua empresa ..." class="form-control">
+                    <input type="text" id="id_nome" name="nome" placeholder="Digite o nome da sua empresa ..." class="form-control">
                     <br>
                     <label>Cnpj</label>
-                    <input type="text" name="cnpj" placeholder="Digite o seu CNPJ ..." class="form-control">
+                    <input type="text" id="id_cnpj" name="cnpj" placeholder="Digite o seu CNPJ ..." class="form-control">
                     <br>
                     <label>Site</label>
                     <input type="text" name="site" placeholder="Digite o seu site ..." class="form-control">
@@ -93,4 +93,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('id_cnpj').addEventListener('blur', function() {
+            const cnpj = this.value.replace(/\D/g, '');
+            if (cnpj.length === 14) {
+                fetch(`/empresarios/api_cnpj/${cnpj}`)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('CNPJ não encontrado');
+                        }
+                    })
+                    .then(data => {
+                        const nomeInput = document.getElementById('id_nome');
+                        // Prefer nome_fantasia, if empty use razao_social
+                        nomeInput.value = data.nome_fantasia || data.razao_social;
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar CNPJ:', error);
+                    });
+            }
+        });
+    </script>
 {% endblock 'body' %}

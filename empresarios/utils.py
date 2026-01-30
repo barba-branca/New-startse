@@ -1,3 +1,24 @@
+import requests
+import re
+
+def consultar_cnpj(cnpj):
+    # Remove all non-digit characters
+    cnpj = re.sub(r'\D', '', str(cnpj))
+
+    # Check if the CNPJ has 14 digits
+    if len(cnpj) != 14:
+        return None
+
+    url = f"https://brasilapi.com.br/api/cnpj/v1/{cnpj}"
+
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+    except requests.exceptions.RequestException:
+        return None
 
 def realizar_due_diligence(empresa):
     # Simula uma validação automática

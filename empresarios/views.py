@@ -3,11 +3,20 @@ from .models import Empresas, Documento, Metricas
 from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
+from django.contrib.auth.decorators import login_required
 import google.generativeai as genai
 import os
-from .utils import realizar_due_diligence
+from .utils import realizar_due_diligence, consultar_cnpj
 
+
+@login_required
+def api_cnpj(request, cnpj):
+    data = consultar_cnpj(cnpj)
+    if data:
+        return JsonResponse(data)
+    else:
+        return JsonResponse({'erro': 'CNPJ inválido ou API indisponível'}, status=404)
 
 
 def cadastrar_empresa(request):
