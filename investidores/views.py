@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.messages import constants
 import os
-import google.generativeai as genai
+from google import genai
 from .utils import realizar_kyc
 
 def sugestao(request):
@@ -111,12 +111,7 @@ def assinar_contrato(request, id):
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
 
 def realizar_analise_ia(request, id):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-
     empresa = Empresas.objects.get(id=id)
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
 
     prompt = f"""
     Analise a seguinte empresa para um investidor:
@@ -129,6 +124,13 @@ def realizar_analise_ia(request, id):
     Dê 3 pontos positivos e 3 pontos de atenção para investir nesta empresa.
     """
 
-    response = model.generate_content(prompt)
+    api_key = os.environ.get("GEMINI_API_KEY")
 
-    return render(request, 'analise_ia.html', {'analysis': response.text, 'empresa': empresa})
+    try:
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+        analysis = response.text
+    except Exception as e:
+        analysis = f"Erro ao gerar análise. Verifique se a chave de API (GEMINI_API_KEY) está configurada corretamente. Detalhes: {e}"
+
+    return render(request, 'analise_ia.html', {'analysis': analysis, 'empresa': empresa})

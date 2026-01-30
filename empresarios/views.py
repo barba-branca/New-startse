@@ -4,11 +4,50 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
 from django.http import HttpResponse, Http404
-import google.generativeai as genai
+from google import genai
 import os
+import requests
+import re
 from .utils import realizar_due_diligence
 
 
+
+def validar_cnpj_cnep(cnpj):
+    # Remove caracteres não numéricos
+    cnpj_limpo = re.sub(r'\D', '', str(cnpj))
+
+    if len(cnpj_limpo) != 14:
+        return False, "CNPJ inválido (tamanho incorreto)."
+
+    # Formata CNPJ para o padrão XX.XXX.XXX/XXXX-XX
+    cnpj_formatado = f"{cnpj_limpo[:2]}.{cnpj_limpo[2:5]}.{cnpj_limpo[5:8]}/{cnpj_limpo[8:12]}-{cnpj_limpo[12:14]}"
+
+    url = "https://api.portaldatransparencia.gov.br/api-de-dados/cnep"
+    headers = {
+        "chave-api-dados": os.environ.get("PORTAL_TRANSPARENCIA_API_KEY", "bce6683559b3665a422b172fbf4eeb34")
+    }
+    params = {
+        "pagina": 1,
+        "codigoSancionado": cnpj_formatado
+    }
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+
+        if response.status_code == 200:
+            dados = response.json()
+            # Se a lista estiver vazia, não há sanções -> Aprovado
+            if not dados:
+                return True, None
+            else:
+                # Se houver itens na lista, a empresa está sancionada -> Reprovado
+                return False, "CNPJ consta no Cadastro Nacional de Empresas Punidas (CNEP)."
+        else:
+            # Erro na API (403, 500, etc)
+            return False, f"Erro na consulta à API de Transparência. Status: {response.status_code}"
+
+    except requests.RequestException as e:
+        return False, "Erro de conexão ao validar CNPJ."
 
 def cadastrar_empresa(request):
     if  not request.user.is_authenticated:
@@ -36,6 +75,12 @@ def cadastrar_empresa(request):
 
         if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
             messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+            return redirect('/empresarios/cadastrar_empresa')
+
+        # Validação de CNEP
+        is_valid, error_msg = validar_cnpj_cnep(cnpj)
+        if not is_valid:
+            messages.add_message(request, constants.ERROR, f'Validação falhou: {error_msg}')
             return redirect('/empresarios/cadastrar_empresa')
 
         try:
@@ -184,15 +229,10 @@ def gerenciar_proposta(request, id):
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
 
 def analise_ia_empresario(request, id):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-
     empresa = Empresas.objects.get(id=id)
     if empresa.user != request.user:
         messages.add_message(request, constants.ERROR, "Você não tem permissão para analisar esta empresa.")
         return redirect(f'/empresarios/listar_empresas')
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
 
     prompt = f"""
     Analise o meu pitch como se fosse um investidor experiente:
@@ -205,6 +245,13 @@ def analise_ia_empresario(request, id):
     Dê 3 pontos fortes e 3 melhorias que eu poderia fazer no meu negócio ou descrição.
     """
 
-    response = model.generate_content(prompt)
+    api_key = os.environ.get("GEMINI_API_KEY")
 
-    return render(request, 'analise_ia_empresario.html', {'analysis': response.text, 'empresa': empresa})
+    try:
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+        analysis = response.text
+    except Exception as e:
+        analysis = f"Erro ao gerar análise. Verifique a chave de API ou tente novamente. Detalhes: {e}"
+
+    return render(request, 'analise_ia_empresario.html', {'analysis': analysis, 'empresa': empresa})
