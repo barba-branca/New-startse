@@ -4,8 +4,12 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
 from django.http import HttpResponse, Http404
-import google.generativeai as genai
+import requests
 import os
+# ============================================================================
+# OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
+# import google.generativeai as genai
+# ============================================================================
 from .utils import realizar_due_diligence
 
 
@@ -184,27 +188,92 @@ def gerenciar_proposta(request, id):
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
 
 def analise_ia_empresario(request, id):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-
+    """
+    Análise de pitch usando IA
+    
+    OPÇÕES DISPONÍVEIS:
+    1. Ollama (Open Source - Local) - Ativo por padrão
+    2. Google Gemini (API) - Comentado abaixo
+    """
     empresa = Empresas.objects.get(id=id)
     if empresa.user != request.user:
         messages.add_message(request, constants.ERROR, "Você não tem permissão para analisar esta empresa.")
         return redirect(f'/empresarios/listar_empresas')
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    prompt = f"""Você é um investidor experiente analisando um pitch de startup.
 
-    prompt = f"""
-    Analise o meu pitch como se fosse um investidor experiente:
-    Nome: {empresa.nome}
-    Área: {empresa.get_area_display()}
-    Descrição: {empresa.descricao}
-    Estágio: {empresa.get_estagio_display()}
-    Valuation Esperado: {empresa.valuation}
+Analise a seguinte empresa:
 
-    Dê 3 pontos fortes e 3 melhorias que eu poderia fazer no meu negócio ou descrição.
-    """
+**Nome:** {empresa.nome}
+**Área de Atuação:** {empresa.get_area_display()}
+**Descrição:** {empresa.descricao}
+**Estágio:** {empresa.get_estagio_display()}
+**Valuation Esperado:** R$ {empresa.valuation}
 
-    response = model.generate_content(prompt)
+Por favor, forneça uma análise completa incluindo:
 
-    return render(request, 'analise_ia_empresario.html', {'analysis': response.text, 'empresa': empresa})
+## 💪 3 Pontos Fortes
+Liste 3 pontos fortes do seu negócio/pitch.
+
+## 📈 3 Melhorias Sugeridas
+Liste 3 melhorias que você poderia fazer no negócio ou na descrição.
+
+## 💡 Dica Final
+Dê uma dica valiosa para melhorar as chances de conseguir investimento.
+
+Responda em português brasileiro de forma clara e profissional."""
+
+    # ============================================================================
+    # OPÇÃO 1: OLLAMA (Open Source - Local) - ATIVO POR PADRÃO
+    # ============================================================================
+    
+    ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+    model = os.environ.get("OLLAMA_MODEL", "llama3.2")
+    
+    try:
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=120
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            analysis = result.get("response", "Não foi possível gerar a análise.")
+        else:
+            analysis = f"Erro ao conectar com Ollama: Status {response.status_code}. Verifique se o Ollama está rodando."
+            
+    except requests.exceptions.ConnectionError:
+        analysis = """⚠️ **Ollama não está rodando!**
+
+Para usar a Análise de IA, siga os passos:
+
+1. **Instale o Ollama:** https://ollama.ai/download
+2. **Baixe um modelo:** `ollama pull llama3.2`
+3. **O Ollama rodará automaticamente em segundo plano**
+
+Após isso, a análise funcionará automaticamente."""
+    except Exception as e:
+        analysis = f"Erro ao gerar análise: {str(e)}"
+    
+    # ============================================================================
+    # OPÇÃO 2: GOOGLE GEMINI (API) - COMENTADO
+    # Para ativar: descomente este bloco e comente o bloco OLLAMA acima
+    # ============================================================================
+    
+    # api_key = os.environ.get("GEMINI_API_KEY")
+    # genai.configure(api_key=api_key)
+    # model = genai.GenerativeModel("gemini-1.5-flash")
+    # 
+    # try:
+    #     response = model.generate_content(prompt)
+    #     analysis = response.text
+    # except Exception as e:
+    #     analysis = f"Erro ao gerar análise com Gemini: {str(e)}"
+
+    return render(request, 'analise_ia_empresario.html', {'analysis': analysis, 'empresa': empresa})
+

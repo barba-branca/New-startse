@@ -5,9 +5,13 @@ from .models import PropostaInvestimento
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.messages import constants
-import mercadopago
+
 import os
-import google.generativeai as genai
+import requests
+# ============================================================================
+# OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
+# import google.generativeai as genai
+# ============================================================================
 from .utils import realizar_kyc
 
 def sugestao(request):
@@ -111,60 +115,101 @@ def assinar_contrato(request, id):
         messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
 
-def realizar_pagamento(request):
-    sdk = mercadopago.SDK(os.environ.get('MERCADO_PAGO_ACCESS_TOKEN'))
-
-    payment_data = {
-        "items": [
-            {
-                "id": "1",
-                "title": "Investimento Start-SE",
-                "quantity": 1,
-                "currency_id": "BRL",
-                "unit_price": 100.00  # Valor fixo para teste
-            }
-        ],
-        "back_urls": {
-            "success": "http://127.0.0.1:8000/investidores/sucesso",
-            "failure": "http://127.0.0.1:8000/investidores/erro",
-            "pending": "http://127.0.0.1:8000/investidores/pendente"
-        },
-        "auto_return": "approved"
-    }
-
-    preference_response = sdk.preference().create(payment_data)
-    preference = preference_response["response"]
-
-    return redirect(preference["init_point"])
-
-def pagamento_sucesso(request):
-    return HttpResponse("<h3>Pagamento realizado com sucesso!</h3>")
-
-def pagamento_erro(request):
-    return HttpResponse("<h3>Erro ao realizar o pagamento.</h3>")
-
-def pagamento_pendente(request):
-    return HttpResponse("<h3>Pagamento pendente.</h3>")
 
 def realizar_analise_ia(request, id):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-
-    empresa = Empresas.objects.get(id=id)
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
-
-    prompt = f"""
-    Analise a seguinte empresa para um investidor:
-    Nome: {empresa.nome}
-    Área: {empresa.get_area_display()}
-    Descrição: {empresa.descricao}
-    Estágio: {empresa.get_estagio_display()}
-    Valuation Esperado: {empresa.valuation}
-
-    Dê 3 pontos positivos e 3 pontos de atenção para investir nesta empresa.
     """
+    Análise de empresa usando IA
+    
+    OPÇÕES DISPONÍVEIS:
+    1. Ollama (Open Source - Local) - Ativo por padrão
+    2. Google Gemini (API) - Comentado abaixo
+    
+    Para usar Gemini ao invés do Ollama:
+    1. Descomente o import do genai no topo do arquivo
+    2. Comente toda a seção "OLLAMA" abaixo
+    3. Descomente toda a seção "GEMINI" abaixo
+    4. Configure a variável de ambiente GEMINI_API_KEY
+    """
+    empresa = Empresas.objects.get(id=id)
+    
+    prompt = f"""Você é um analista de investimentos especializado em startups e crowdfunding.
+    
+Analise a seguinte empresa para um potencial investidor:
 
-    response = model.generate_content(prompt)
+**Nome:** {empresa.nome}
+**Área de Atuação:** {empresa.get_area_display()}
+**Descrição:** {empresa.descricao}
+**Estágio:** {empresa.get_estagio_display()}
+**Valuation Esperado:** R$ {empresa.valuation}
 
-    return render(request, 'analise_ia.html', {'analysis': response.text, 'empresa': empresa})
+Por favor, forneça uma análise completa incluindo:
+
+## 🟢 3 Pontos Positivos
+Liste 3 pontos fortes desta empresa que a tornam atrativa para investimento.
+
+## 🟡 3 Pontos de Atenção  
+Liste 3 riscos ou pontos que o investidor deve considerar antes de investir.
+
+## 📊 Recomendação
+Dê uma recomendação geral sobre este investimento (Conservador/Moderado/Agressivo).
+
+Responda em português brasileiro de forma clara e profissional."""
+
+    # ============================================================================
+    # OPÇÃO 1: OLLAMA (Open Source - Local) - ATIVO POR PADRÃO
+    # Modelos suportados: llama3, mistral, gemma, phi, etc.
+    # Instalação: https://ollama.ai/download
+    # ============================================================================
+    
+    ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+    model = os.environ.get("OLLAMA_MODEL", "llama3")
+    
+    try:
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=120
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            analysis = result.get("response", "Não foi possível gerar a análise.")
+        else:
+            analysis = f"Erro ao conectar com Ollama: Status {response.status_code}. Verifique se o Ollama está rodando."
+            
+    except requests.exceptions.ConnectionError:
+        analysis = """⚠️ **Ollama não está rodando!**
+
+Para usar a Análise de IA, siga os passos:
+
+1. **Instale o Ollama:** https://ollama.ai/download
+2. **Baixe um modelo:** `ollama pull llama3`
+3. **O Ollama rodará automaticamente em segundo plano**
+
+Após isso, a análise funcionará automaticamente."""
+    except Exception as e:
+        analysis = f"Erro ao gerar análise: {str(e)}"
+    
+    # ============================================================================
+    # OPÇÃO 2: GOOGLE GEMINI (API) - COMENTADO
+    # Para ativar: descomente este bloco e comente o bloco OLLAMA acima
+    # Requer: pip install google-generativeai
+    # Configure: GEMINI_API_KEY no arquivo .env
+    # ============================================================================
+    
+    # api_key = os.environ.get("GEMINI_API_KEY")
+    # genai.configure(api_key=api_key)
+    # 
+    # model = genai.GenerativeModel("gemini-1.5-flash")
+    # 
+    # try:
+    #     response = model.generate_content(prompt)
+    #     analysis = response.text
+    # except Exception as e:
+    #     analysis = f"Erro ao gerar análise com Gemini: {str(e)}"
+
+    return render(request, 'analise_ia.html', {'analysis': analysis, 'empresa': empresa})

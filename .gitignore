@@ -1,6 +1,10 @@
-media/vid_20240506_190111.mp4
-media/vid_20240506_190111.mp4
+# Arquivos de vídeo
+*.mp4
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+
+# Ambiente
 .env
