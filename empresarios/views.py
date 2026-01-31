@@ -8,7 +8,7 @@ import requests
 import os
 # ============================================================================
 # OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
-# import google.generativeai as genai
+import google.generativeai as genai
 # ============================================================================
 from .utils import realizar_due_diligence
 
@@ -225,31 +225,44 @@ Dê uma dica valiosa para melhorar as chances de conseguir investimento.
 Responda em português brasileiro de forma clara e profissional."""
 
     # ============================================================================
-    # OPÇÃO 1: OLLAMA (Open Source - Local) - ATIVO POR PADRÃO
+    # LÓGICA DE IA: Tenta Gemini primeiro, se tiver API Key, senão usa Ollama
     # ============================================================================
     
-    ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-    model = os.environ.get("OLLAMA_MODEL", "llama3.2")
+    api_key = os.environ.get("GEMINI_API_KEY")
     
-    try:
-        response = requests.post(
-            f"{ollama_url}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "stream": False
-            },
-            timeout=120
-        )
+    if api_key:
+        # USA GOOGLE GEMINI
+        try:
+            genai.configure(api_key=api_key)
+            model_gemini = genai.GenerativeModel("gemini-1.5-flash")
+            response = model_gemini.generate_content(prompt)
+            analysis = response.text
+        except Exception as e:
+            analysis = f"Erro ao gerar análise com Gemini: {str(e)}"
+    else:
+        # USA OLLAMA (Local)
+        ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+        model_ollama = os.environ.get("OLLAMA_MODEL", "llama3.2")
         
-        if response.status_code == 200:
-            result = response.json()
-            analysis = result.get("response", "Não foi possível gerar a análise.")
-        else:
-            analysis = f"Erro ao conectar com Ollama: Status {response.status_code}. Verifique se o Ollama está rodando."
+        try:
+            response = requests.post(
+                f"{ollama_url}/api/generate",
+                json={
+                    "model": model_ollama,
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=120
+            )
             
-    except requests.exceptions.ConnectionError:
-        analysis = """⚠️ **Ollama não está rodando!**
+            if response.status_code == 200:
+                result = response.json()
+                analysis = result.get("response", "Não foi possível gerar a análise.")
+            else:
+                analysis = f"Erro ao conectar com Ollama: Status {response.status_code}. Verifique se o Ollama está rodando."
+                
+        except requests.exceptions.ConnectionError:
+            analysis = """⚠️ **Ollama não está rodando!**
 
 Para usar a Análise de IA, siga os passos:
 
@@ -258,23 +271,8 @@ Para usar a Análise de IA, siga os passos:
 3. **O Ollama rodará automaticamente em segundo plano**
 
 Após isso, a análise funcionará automaticamente."""
-    except Exception as e:
-        analysis = f"Erro ao gerar análise: {str(e)}"
-    
-    # ============================================================================
-    # OPÇÃO 2: GOOGLE GEMINI (API) - COMENTADO
-    # Para ativar: descomente este bloco e comente o bloco OLLAMA acima
-    # ============================================================================
-    
-    # api_key = os.environ.get("GEMINI_API_KEY")
-    # genai.configure(api_key=api_key)
-    # model = genai.GenerativeModel("gemini-1.5-flash")
-    # 
-    # try:
-    #     response = model.generate_content(prompt)
-    #     analysis = response.text
-    # except Exception as e:
-    #     analysis = f"Erro ao gerar análise com Gemini: {str(e)}"
+        except Exception as e:
+            analysis = f"Erro ao gerar análise: {str(e)}"
 
     return render(request, 'analise_ia_empresario.html', {'analysis': analysis, 'empresa': empresa})
 
