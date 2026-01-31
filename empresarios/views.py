@@ -178,12 +178,13 @@ def gerenciar_proposta(request, id):
     acao = request.GET.get('acao')
     pi = PropostaInvestimento.objects.get(id=id)
     
-    if acao == 'aceitar':
+    if acao.lower() == 'aceitar':
         messages.add_message(request, constants.SUCCESS, 'Proposta aceita')
         pi.status = 'PA'
-    elif acao == 'recusar':
-        messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
+    elif acao.lower() == 'recusar' or acao.lower() == 'negar':
+        messages.add_message(request, constants.SUCCESS, 'Proposta recusada!')
         pi.status = 'PR'
+    
     pi.save()
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
 
