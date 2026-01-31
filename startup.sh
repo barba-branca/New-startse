@@ -1,11 +1,12 @@
-#!/bash
-# Script de inicialização para Azure
+#!/bin/bash
 
-# 1. Migrações
+# Script de inicialização para Azure App Service
+
+# 1. Aplicar migrações
 python manage.py migrate --noinput
 
-# 2. Estáticos
+# 2. Coletar arquivos estáticos
 python manage.py collectstatic --noinput
 
-# 3. Iniciar Gunicorn (o Azure precisa dele rodando na porta 8000 ou na porta da variável PORT)
+# 3. Iniciar o Gunicorn
 gunicorn --bind=0.0.0.0:8000 --timeout 600 core.wsgi:application
