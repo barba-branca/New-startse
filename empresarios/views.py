@@ -1,0 +1,279 @@
+from django.shortcuts import render, redirect
+from .models import Empresas, Documento, Metricas
+from django.contrib import messages
+from django.contrib.messages import constants
+from investidores.models import PropostaInvestimento
+from django.http import HttpResponse, Http404
+import requests
+import os
+# ============================================================================
+# OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
+# import google.generativeai as genai
+# ============================================================================
+from .utils import realizar_due_diligence
+
+
+
+def cadastrar_empresa(request):
+    if  not request.user.is_authenticated:
+        return redirect('/usuarios/logar')
+
+    if request.method == "GET":      
+        return render(request,'cadastrar_empresa.html',
+                      {'tempo_existencia': Empresas.tempo_existencia_choices,
+                       'areas': Empresas.area_choices})
+    
+    elif request.method == "POST":
+        nome = request.POST.get('nome')
+        cnpj = request.POST.get('cnpj')
+        site = request.POST.get('site')
+        tempo_existencia = request.POST.get('tempo_existencia')
+        descricao = request.POST.get('descricao')
+        data_final = request.POST.get('data_final')
+        percentual_equity = request.POST.get('percentual_equity')
+        estagio = request.POST.get('estagio')
+        area = request.POST.get('area')
+        publico_alvo = request.POST.get('publico_alvo')
+        valor = request.POST.get('valor')
+        pitch = request.FILES.get('pitch')
+        logo = request.FILES.get('logo')
+
+        if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
+            messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+            return redirect('/empresarios/cadastrar_empresa')
+
+        try:
+            if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
+                messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            if float(valor) <= 0:
+                messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            empresa = Empresas(
+                user=request.user,
+                nome=nome,
+                cnpj=cnpj,
+                site=site,
+                tempo_existencia=tempo_existencia,
+                descricao=descricao,
+                data_final_captacao=data_final,
+                percentual_equity=percentual_equity,
+                estagio=estagio,
+                area=area,
+                publico_alvo=publico_alvo,
+                valor=valor,
+                pitch=pitch,
+                logo=logo
+            )
+            
+            empresa.save()
+            realizar_due_diligence(empresa)
+        except:
+            messages.add_message(request, constants.ERROR, 'Erro interno do servidor')
+            return redirect('/empresarios/cadastrar_empresa')
+        
+        messages.add_message(request, constants.SUCCESS, 'Empresa criada com sucesso')
+        return redirect('/empresarios/cadastrar_empresa')
+
+def listar_empresas(request):
+    if  not request.user.is_authenticated:
+        return redirect('/usuarios/logar')
+    if request.method == "GET":
+        nome = request.GET.get('nome')
+        empresas = Empresas.objects.filter(user=request.user)
+
+        if nome:
+            empresas = empresas.filter(nome__icontains=nome)
+
+        return render(request, 'listar_empresas.html', {'empresas': empresas})
+    
+def empresa(request, id):
+    empresa = Empresas.objects.get(id=id)
+    if empresa.user != request.user:
+        messages.add_message(request,constants.ERROR, 'Essa empresa nao é sua.')
+        return redirect(f'/empresarios/listar_empresas')
+    
+
+    if request.method == "GET":
+        documentos = Documento.objects.filter(empresa=empresa)
+        propostas_investimentos = PropostaInvestimento.objects.filter(empresa=empresa)
+        
+        
+        proposta_investimentos_enviada = propostas_investimentos.filter(status='PE')
+
+        # Valuation Projection Logic
+        current_valuation = float(empresa.valuation)
+        valuation_labels = ['Atual']
+        valuation_data = [current_valuation]
+
+        for i in range(1, 6):
+            valuation_labels.append(f'{2024 + i}') # Assuming current year is 2024, can be dynamic
+            valuation_data.append(current_valuation * (1.2 ** i)) # 20% annual growth
+
+        return render(request, 'empresa.html', {
+            'empresa': empresa,
+            'documentos': documentos,
+            'proposta_investimentos_enviada': proposta_investimentos_enviada,
+            'valuation_labels': valuation_labels,
+            'valuation_data': valuation_data
+        })
+        
+def add_doc(request, id):
+    empresa = Empresas.objects.get(id=id)
+    titulo = request.POST.get('titulo')
+    arquivo = request.FILES.get('arquivo')
+    extensao = arquivo.name.split('.')
+
+    if empresa.user != request.user:
+        messages.add_message(request,constants.ERROR, 'Essa empresa nao é sua.')
+        return redirect(f'/empresarios/listar_empresas')
+
+    if extensao[-1] != 'pdf':
+        messages.add_message(request, constants.ERROR, "Envie apenas PDF's" )
+        return redirect(f'/empresarios/empresa/{id}')
+
+    if not arquivo:
+        messages.add_message(request, constants.ERROR, 'Envie um arquivo.')
+        return redirect(f'/empresarios/empresa/{id}')
+
+    documento = Documento(
+        empresa=empresa,
+        titulo=titulo,
+        arquivo=arquivo
+    )
+
+    documento.save()
+
+    messages.add_message(request, constants.SUCCESS, 'Arquivo cadastrado com sucesso')
+    return redirect(f'/empresarios/empresa/{id}')
+
+def excluir_dc(request, id):
+    documento = Documento.objects.get(id=id)
+    if documento.empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Esse documento não é seu")
+        return redirect(f'/empresarios/empresa/{documento.empresa.id}')
+    
+    documento.delete()
+    messages.add_message(request, constants.SUCCESS, 'documento deletado com sucesso.')
+    return redirect(f'/empresarios/empresa/{documento.empresa.id}')
+
+def add_metrica(request, id):
+    empresa = Empresas.objects.get(id=id)
+    titulo = request.POST.get('titulo')
+    valor = request.POST.get('valor')
+    
+    metrica = Metricas(
+        empresa=empresa,
+        titulo=titulo,
+        valor=valor
+    )
+    metrica.save()
+    
+    messages.add_message(request, constants.SUCCESS, "Métrica cadastrada com sucesso")
+    return redirect(f'/empresarios/empresa/{empresa.id}')
+
+def gerenciar_proposta(request, id):
+    acao = request.GET.get('acao')
+    pi = PropostaInvestimento.objects.get(id=id)
+    
+    if acao == 'aceitar':
+        messages.add_message(request, constants.SUCCESS, 'Proposta aceita')
+        pi.status = 'PA'
+    elif acao == 'recusar':
+        messages.add_message(request, constants.SUCCESS, 'proposta recusada!')
+        pi.status = 'PR'
+    pi.save()
+    return redirect(f"/empresarios/empresa/{pi.empresa.id}")
+
+def analise_ia_empresario(request, id):
+    """
+    Análise de pitch usando IA
+    
+    OPÇÕES DISPONÍVEIS:
+    1. Ollama (Open Source - Local) - Ativo por padrão
+    2. Google Gemini (API) - Comentado abaixo
+    """
+    empresa = Empresas.objects.get(id=id)
+    if empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Você não tem permissão para analisar esta empresa.")
+        return redirect(f'/empresarios/listar_empresas')
+
+    prompt = f"""Você é um investidor experiente analisando um pitch de startup.
+
+Analise a seguinte empresa:
+
+**Nome:** {empresa.nome}
+**Área de Atuação:** {empresa.get_area_display()}
+**Descrição:** {empresa.descricao}
+**Estágio:** {empresa.get_estagio_display()}
+**Valuation Esperado:** R$ {empresa.valuation}
+
+Por favor, forneça uma análise completa incluindo:
+
+## 💪 3 Pontos Fortes
+Liste 3 pontos fortes do seu negócio/pitch.
+
+## 📈 3 Melhorias Sugeridas
+Liste 3 melhorias que você poderia fazer no negócio ou na descrição.
+
+## 💡 Dica Final
+Dê uma dica valiosa para melhorar as chances de conseguir investimento.
+
+Responda em português brasileiro de forma clara e profissional."""
+
+    # ============================================================================
+    # OPÇÃO 1: OLLAMA (Open Source - Local) - ATIVO POR PADRÃO
+    # ============================================================================
+    
+    ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+    model = os.environ.get("OLLAMA_MODEL", "llama3.2")
+    
+    try:
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=120
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            analysis = result.get("response", "Não foi possível gerar a análise.")
+        else:
+            analysis = f"Erro ao conectar com Ollama: Status {response.status_code}. Verifique se o Ollama está rodando."
+            
+    except requests.exceptions.ConnectionError:
+        analysis = """⚠️ **Ollama não está rodando!**
+
+Para usar a Análise de IA, siga os passos:
+
+1. **Instale o Ollama:** https://ollama.ai/download
+2. **Baixe um modelo:** `ollama pull llama3.2`
+3. **O Ollama rodará automaticamente em segundo plano**
+
+Após isso, a análise funcionará automaticamente."""
+    except Exception as e:
+        analysis = f"Erro ao gerar análise: {str(e)}"
+    
+    # ============================================================================
+    # OPÇÃO 2: GOOGLE GEMINI (API) - COMENTADO
+    # Para ativar: descomente este bloco e comente o bloco OLLAMA acima
+    # ============================================================================
+    
+    # api_key = os.environ.get("GEMINI_API_KEY")
+    # genai.configure(api_key=api_key)
+    # model = genai.GenerativeModel("gemini-1.5-flash")
+    # 
+    # try:
+    #     response = model.generate_content(prompt)
+    #     analysis = response.text
+    # except Exception as e:
+    #     analysis = f"Erro ao gerar análise com Gemini: {str(e)}"
+
+    return render(request, 'analise_ia_empresario.html', {'analysis': analysis, 'empresa': empresa})
+
