@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Instalar dependências
+      - name: Instalar dependências localmente (para verificação)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -32,8 +32,9 @@ jobs:
         run: |
           python manage.py collectstatic --noinput
         env:
-          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'temporary-secret-for-build' }}
+          DJANGO_SECRET_KEY: 'temporary-key-for-build'
           DEBUG: 'False'
+          ALLOWED_HOSTS: '*'
 
       - name: Deploy para Azure Web App
         uses: azure/webapps-deploy@v3
