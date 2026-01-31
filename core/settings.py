@@ -32,6 +32,12 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1 .azurewebsites.net').split()
 
+# Segurança para formulários em produção
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.azurewebsites.net',
+    'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net'
+]
+
 
 # Application definition
 
