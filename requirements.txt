@@ -7,7 +7,7 @@ cryptography==46.0.4
 Django==5.1.1
 # ============================================================================
 # OPÇÃO: Para usar Google Gemini ao invés do Ollama, descomente a linha abaixo:
-# google-generativeai==0.8.6
+google-generativeai==0.8.6
 # ============================================================================
 greenlet==3.3.0
 httplib2==0.31.2
@@ -33,3 +33,4 @@ uritemplate==4.2.0
 urllib3==2.6.3
 gunicorn==23.0.0
 whitenoise==6.8.2
+psycopg2-binary==2.9.10
