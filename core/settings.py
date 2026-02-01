@@ -158,3 +158,16 @@ constants.SUCCESS: 'alert-success',
 constants.INFO: 'alert-info',
 constants.WARNING: 'alert-warning',
 }
+
+# ============================================================================
+# ZapSign - Assinatura Digital
+# ============================================================================
+ZAPSIGN_API_TOKEN = os.environ.get('ZAPSIGN_API_TOKEN', '')
+ZAPSIGN_TEMPLATE_ID = os.environ.get('ZAPSIGN_TEMPLATE_ID', '')
+
+# ============================================================================
+# Azure Storage - Data Room (Produção)
+# ============================================================================
+AZURE_STORAGE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME', '')
+AZURE_STORAGE_ACCOUNT_KEY = os.environ.get('AZURE_STORAGE_ACCOUNT_KEY', '')
+AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'dataroom')
