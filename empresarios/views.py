@@ -58,12 +58,33 @@ def cadastrar_empresa(request):
                 messages.add_message(request, constants.INFO, 
                     f"CNPJ validado: {resultado_cnpj.get('razao_social')} - {resultado_cnpj.get('situacao', 'N/A')}")
             
-            if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
-                messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+            # Validar campos numéricos
+            try:
+                percentual_equity_int = int(percentual_equity)
+                if percentual_equity_int <= 0 or percentual_equity_int > 100:
+                    messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
+                    return redirect('/empresarios/cadastrar_empresa')
+            except (ValueError, TypeError):
+                messages.add_message(request, constants.ERROR, 'Percentual de equity inválido')
                 return redirect('/empresarios/cadastrar_empresa')
 
-            if float(valor) <= 0:
-                messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+            try:
+                valor_decimal = float(valor)
+                if valor_decimal <= 0:
+                    messages.add_message(request, constants.ERROR, 'O valor deve ser positivo')
+                    return redirect('/empresarios/cadastrar_empresa')
+            except (ValueError, TypeError):
+                messages.add_message(request, constants.ERROR, 'Valor a captar inválido')
+                return redirect('/empresarios/cadastrar_empresa')
+
+            # Validar data
+            if not data_final:
+                messages.add_message(request, constants.ERROR, 'Data final é obrigatória')
+                return redirect('/empresarios/cadastrar_empresa')
+            
+            # Validar estágio
+            if not estagio:
+                messages.add_message(request, constants.ERROR, 'Selecione o estágio da empresa')
                 return redirect('/empresarios/cadastrar_empresa')
 
             empresa = Empresas(
@@ -74,11 +95,11 @@ def cadastrar_empresa(request):
                 tempo_existencia=tempo_existencia,
                 descricao=descricao,
                 data_final_captacao=data_final,
-                percentual_equity=percentual_equity,
+                percentual_equity=percentual_equity_int,
                 estagio=estagio,
                 area=area,
                 publico_alvo=publico_alvo,
-                valor=valor,
+                valor=valor_decimal,
                 pitch=pitch,
                 logo=logo
             )
@@ -94,11 +115,16 @@ def cadastrar_empresa(request):
             print(f"[ERRO CADASTRO EMPRESA] {type(e).__name__}: {str(e)}")
             print(traceback.format_exc())
             
-            # Mostra erro detalhado apenas em DEBUG mode
-            if settings.DEBUG:
-                messages.add_message(request, constants.ERROR, f'Erro: {type(e).__name__}: {str(e)}')
+            # Mensagem mais informativa (sem expor detalhes sensíveis)
+            erro_tipo = type(e).__name__
+            if 'date' in str(e).lower() or 'data' in str(e).lower():
+                messages.add_message(request, constants.ERROR, 'Erro: Data inválida. Use o formato correto.')
+            elif 'null' in str(e).lower() or 'none' in str(e).lower() or 'required' in str(e).lower():
+                messages.add_message(request, constants.ERROR, 'Erro: Preencha todos os campos obrigatórios.')
+            elif 'file' in str(e).lower() or 'upload' in str(e).lower():
+                messages.add_message(request, constants.ERROR, 'Erro: Problema no upload de arquivos. Tente novamente.')
             else:
-                messages.add_message(request, constants.ERROR, 'Erro interno do servidor. Tente novamente.')
+                messages.add_message(request, constants.ERROR, f'Erro no cadastro ({erro_tipo}). Verifique os dados e tente novamente.')
             return redirect('/empresarios/cadastrar_empresa')
         
         messages.add_message(request, constants.SUCCESS, 'Empresa criada com sucesso')
