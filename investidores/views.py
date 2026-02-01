@@ -48,46 +48,80 @@ def ver_empresa(request, id):
     return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos, 'metricas': metricas})
 
 def realizar_proposta(request, id):
+    # Verifica se usuário está autenticado
+    if not request.user.is_authenticated:
+        messages.add_message(request, constants.ERROR, 'Você precisa estar logado para fazer uma proposta.')
+        return redirect('/usuarios/logar')
+    
+    # Verifica se é POST
+    if request.method != 'POST':
+        return redirect(f'/investidores/ver_empresa/{id}')
+    
     valor = request.POST.get('valor')
     percentual = request.POST.get('percentual')
-    empresa = Empresas.objects.get(id=id)
-
     
-    propostas_aceitas = PropostaInvestimento.objects.filter(empresa=empresa).filter(status='PA')
-    
-    total = 0
-    for pa in propostas_aceitas:
-        total = total + pa.percentual
-
-
-       
-
-    if total + float(percentual) > empresa.percentual_equity:
-        messages.add_message(request, constants.WARNING, 'O percentual solicitado ultrapassa o percentual maximo.')
+    # Valida campos obrigatórios
+    if not valor or not percentual:
+        messages.add_message(request, constants.WARNING, 'Valor e percentual são obrigatórios.')
         return redirect(f'/investidores/ver_empresa/{id}')
     
     try:
-        valuation = (100 * float(valor)) / float(percentual)
-    except ZeroDivisionError:
-        messages.add_message(request, constants.WARNING, f'O percentual não pode ser zero')
-        return redirect(f'/investidores/ver_empresa/{id}')
+        # Busca a empresa
+        empresa = Empresas.objects.get(id=id)
+        
+        # Converte valores
+        valor_float = float(valor)
+        percentual_float = float(percentual)
+        
+        # Validações básicas
+        if valor_float <= 0:
+            messages.add_message(request, constants.WARNING, 'O valor deve ser maior que zero.')
+            return redirect(f'/investidores/ver_empresa/{id}')
+        
+        if percentual_float <= 0:
+            messages.add_message(request, constants.WARNING, 'O percentual deve ser maior que zero.')
+            return redirect(f'/investidores/ver_empresa/{id}')
+        
+        # Calcula propostas já aceitas
+        propostas_aceitas = PropostaInvestimento.objects.filter(empresa=empresa, status='PA')
+        total = sum(pa.percentual for pa in propostas_aceitas)
+
+        if total + percentual_float > empresa.percentual_equity:
+            messages.add_message(request, constants.WARNING, 'O percentual solicitado ultrapassa o percentual máximo disponível.')
+            return redirect(f'/investidores/ver_empresa/{id}')
+        
+        # Calcula valuation proposto
+        valuation = (100 * valor_float) / percentual_float
+        
+        # Verifica se valuation é aceitável (mínimo 50% do valuation da empresa)
+        valuation_minimo = empresa.valuation / 2
+        if valuation < valuation_minimo:
+            messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation:.2f} e deve ser no mínimo R${valuation_minimo:.2f}')
+            return redirect(f'/investidores/ver_empresa/{id}')
+        
+        # Cria a proposta
+        pi = PropostaInvestimento(
+            valor=valor_float,
+            percentual=percentual_float,
+            empresa=empresa,
+            investidor=request.user
+        )
+        
+        pi.save()
+        messages.add_message(request, constants.SUCCESS, 'Proposta criada com sucesso! Agora assine o contrato.')
+        return redirect(f'/investidores/assinar_contrato/{pi.id}')
+        
+    except Empresas.DoesNotExist:
+        messages.add_message(request, constants.ERROR, 'Empresa não encontrada.')
+        return redirect('/investidores/sugestao')
     except ValueError:
-        messages.add_message(request, constants.WARNING, f'Valor ou percentual inválido')
+        messages.add_message(request, constants.WARNING, 'Valor ou percentual inválido. Use apenas números.')
         return redirect(f'/investidores/ver_empresa/{id}')
-        
-    if valuation < (int(empresa.valuation / 2)):
-        messages.add_message(request, constants.WARNING, f'Seu valuation proposto foi R${valuation} e deve ser no mínimo {empresa.valuation / 2}')
+    except Exception as e:
+        # Log do erro para debugging
+        print(f"[ERRO PROPOSTA] {type(e).__name__}: {str(e)}")
+        messages.add_message(request, constants.ERROR, f'Erro ao criar proposta: {type(e).__name__}')
         return redirect(f'/investidores/ver_empresa/{id}')
-        
-    pi = PropostaInvestimento(
-        valor=valor,
-        percentual=percentual,
-        empresa=empresa,
-        investidor=request.user
-    )
-    
-    pi.save()
-    return redirect(f'/investidores/assinar_contrato/{pi.id}')
 
 
 def assinar_contrato(request, id):
