@@ -4,13 +4,15 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from investidores.models import PropostaInvestimento
 from django.http import HttpResponse, Http404
+from django.conf import settings
 import requests
 import os
+import traceback
 # ============================================================================
 # OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
 import google.generativeai as genai
 # ============================================================================
-from .utils import realizar_due_diligence
+from .utils import realizar_due_diligence, validar_cnpj_api
 
 
 
@@ -43,6 +45,19 @@ def cadastrar_empresa(request):
             return redirect('/empresarios/cadastrar_empresa')
 
         try:
+            # Validar CNPJ via API
+            resultado_cnpj = validar_cnpj_api(cnpj)
+            
+            if not resultado_cnpj.get('valido', False):
+                erro_cnpj = resultado_cnpj.get('erro', 'CNPJ inválido')
+                messages.add_message(request, constants.ERROR, f'Erro no CNPJ: {erro_cnpj}')
+                return redirect('/empresarios/cadastrar_empresa')
+            
+            # Se o CNPJ foi validado com sucesso e tem dados, mostra informação
+            if resultado_cnpj.get('razao_social'):
+                messages.add_message(request, constants.INFO, 
+                    f"CNPJ validado: {resultado_cnpj.get('razao_social')} - {resultado_cnpj.get('situacao', 'N/A')}")
+            
             if int(percentual_equity) <= 0 or int(percentual_equity) > 100:
                 messages.add_message(request, constants.ERROR, 'Percentual deve ser entre 0 e 100')
                 return redirect('/empresarios/cadastrar_empresa')
@@ -70,8 +85,20 @@ def cadastrar_empresa(request):
             
             empresa.save()
             realizar_due_diligence(empresa)
-        except:
-            messages.add_message(request, constants.ERROR, 'Erro interno do servidor')
+            
+        except ValueError as e:
+            messages.add_message(request, constants.ERROR, f'Valor inválido: {str(e)}')
+            return redirect('/empresarios/cadastrar_empresa')
+        except Exception as e:
+            # Log do erro para debugging
+            print(f"[ERRO CADASTRO EMPRESA] {type(e).__name__}: {str(e)}")
+            print(traceback.format_exc())
+            
+            # Mostra erro detalhado apenas em DEBUG mode
+            if settings.DEBUG:
+                messages.add_message(request, constants.ERROR, f'Erro: {type(e).__name__}: {str(e)}')
+            else:
+                messages.add_message(request, constants.ERROR, 'Erro interno do servidor. Tente novamente.')
             return redirect('/empresarios/cadastrar_empresa')
         
         messages.add_message(request, constants.SUCCESS, 'Empresa criada com sucesso')

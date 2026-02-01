@@ -1,13 +1,13 @@
-.container_empresas{
+.container_empresas {
     padding: 20px;
-    }
-    
+}
+
 .table {
     border-collapse: collapse !important;
     width: 100%;
 }
 
-.cabecalho{
+.cabecalho {
     background-color: transparent !important;
     border: none;
     color: white !important;
@@ -22,6 +22,52 @@
     color: white !important;
     border-bottom: 1px solid #6154a8;
 }
+
 th {
     background-color: var;
+}
+
+/* ============================================
+   RESPONSIVE STYLES - Listagem de Empresas
+   ============================================ */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .container_empresas {
+        padding: 15px;
+    }
+
+    .table {
+        font-size: 14px;
+    }
+
+    .linha {
+        padding: 15px;
+    }
+
+    .cabecalho {
+        font-size: 14px;
+    }
+}
+
+/* Mobile (576px and below) */
+@media (max-width: 576px) {
+    .container_empresas {
+        padding: 10px;
+        overflow-x: auto;
+    }
+
+    .table {
+        font-size: 12px;
+        min-width: 600px;
+    }
+
+    .linha {
+        padding: 10px;
+    }
+
+    .cabecalho {
+        font-size: 12px;
+        padding: 10px;
+    }
 }

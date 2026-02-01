@@ -1,54 +1,162 @@
-.intereses-investimentos{
+.intereses-investimentos {
     min-height: 80vh;
     padding: 30px
-    
 }
-   .card-investimento{
+
+.card-investimento {
     padding: 10px;
     text-align: center;
     vertical-align: middle;
 }
-   .foto-perfil{
+
+.foto-perfil {
     width: 60%;
     border-radius: 10px;
 }
-   .foto-empresa {
+
+.foto-empresa {
     width: 100%;
     border-radius: 10px;
 }
-   .sub-fonte{
-    color:rgb(117, 117, 117);
+
+.sub-fonte {
+    color: rgb(117, 117, 117);
     font-size: 17px;
     font-weight: bold;
 }
-   .sub-fonte2{
-    color:rgb(117, 117, 117);
+
+.sub-fonte2 {
+    color: rgb(117, 117, 117);
     font-size: 14px;
 }
-   .titulo2{
+
+.titulo2 {
     font-weight: bold;
-   Aula 2 4
+    Aula 2 4
 }
-   .point-white{
+
+.point-white {
     width: 15px;
     height: 15px;
     background-color: white;
 }
-   .point-green{
+
+.point-green {
     width: 15px;
     height: 15px;
     background-color: #1d7e1d;
 }
-   .point-blue{
+
+.point-blue {
     width: 15px;
     height: 15px;
     background-color: #4351d4;
 }
-   .documentos{
+
+.documentos {
     width: 80%;
     margin-top: 40px;
 }
-   .list_documentos{
+
+.list_documentos {
     background-color: var(--dark-color);
     padding: 20px;
+}
+
+/* ============================================
+   RESPONSIVE STYLES - Página da Empresa
+   ============================================ */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .intereses-investimentos {
+        min-height: auto;
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .foto-empresa {
+        width: 100%;
+        max-width: 150px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .foto-perfil {
+        width: 80%;
+    }
+
+    .card-investimento {
+        padding: 15px;
+    }
+
+    .sub-fonte {
+        font-size: 15px;
+    }
+
+    .sub-fonte2 {
+        font-size: 13px;
+    }
+
+    .list_documentos {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+}
+
+/* Mobile (576px and below) */
+@media (max-width: 576px) {
+    .intereses-investimentos {
+        padding: 15px;
+        margin-top: 20px;
+    }
+
+    .foto-empresa {
+        max-width: 120px;
+        margin-bottom: 15px;
+    }
+
+    .foto-perfil {
+        width: 100%;
+    }
+
+    .card-investimento {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .sub-fonte {
+        font-size: 14px;
+    }
+
+    .sub-fonte2 {
+        font-size: 12px;
+    }
+
+    .list_documentos {
+        padding: 12px;
+    }
+
+    .list_documentos .row {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .list_documentos .col-md-2,
+    .list_documentos .col-md-6,
+    .list_documentos .col-md-4 {
+        margin-bottom: 10px;
+    }
+
+    .point-white,
+    .point-green,
+    .point-blue {
+        width: 12px;
+        height: 12px;
+    }
+
+    .documentos {
+        width: 100%;
+        margin-top: 20px;
+    }
 }

@@ -1,3 +1,21 @@
-.cont-sugestao{
-    padding: 40pg
+.cont-sugestao {
+    padding: 40px;
+}
+
+/* ============================================
+   RESPONSIVE STYLES - Página de Investidores
+   ============================================ */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .cont-sugestao {
+        padding: 25px;
+    }
+}
+
+/* Mobile (576px and below) */
+@media (max-width: 576px) {
+    .cont-sugestao {
+        padding: 15px;
+    }
 }
