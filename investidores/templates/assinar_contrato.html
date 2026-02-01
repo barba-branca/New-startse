@@ -29,7 +29,7 @@
                 <section class="alert {{message.tags}}">
 
                     {{message}}
- 
+
 
                 </section>
 
@@ -48,9 +48,9 @@
                     <h3>Assinar contrato</h3>
 
                 </div>
- 
 
-            </div> 
+
+            </div>
 
         </div>
 
@@ -59,26 +59,41 @@
             <h3>Contrato de investimento</h3>
 
             <p>Ao assinar esse contrato você concorda com todas as cláusulas abaixo</p>
- 
+
 
             <ol>
-<<<<<<< HEAD
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
-=======
+                <li><strong>OBJETO DO CONTRATO:</strong> O presente instrumento tem por objeto o mútuo de recursos
+                    financeiros pelo INVESTIDOR à EMPRESA, com opção de conversão em participação societária, nos termos
+                    e condições aqui estabelecidos.</li>
 
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
+                <li><strong>VALOR E PRAZO:</strong> O valor do investimento será de R$ {{pi.valor|floatformat:2}},
+                    correspondendo a {{pi.percentual}}% de participação, com prazo de conversão de 24 (vinte e quatro)
+                    meses a contar da data de assinatura deste instrumento.</li>
 
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
+                <li><strong>CONVERSÃO:</strong> O INVESTIDOR poderá, a seu exclusivo critério, converter o valor mutuado
+                    em participação societária da EMPRESA, mediante subscrição de quotas/ações ao preço por quota/ação
+                    definido no Valuation acordado entre as partes.</li>
 
-                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</li>
+                <li><strong>CONFIDENCIALIDADE:</strong> As partes comprometem-se a manter sigilo absoluto sobre todas as
+                    informações técnicas, comerciais, financeiras e estratégicas trocadas durante a vigência deste
+                    contrato, pelo prazo mínimo de 5 (cinco) anos.</li>
 
->>>>>>> 1892e8bffbb807089d8216fc51bce544130b65d9
+                <li><strong>GOVERNANÇA:</strong> O INVESTIDOR terá direito a informações trimestrais sobre o desempenho
+                    financeiro da EMPRESA, incluindo faturamento, despesas e projeções, sem prejuízo de outros direitos
+                    que venham a ser acordados.</li>
+
+                <li><strong>RESCISÃO:</strong> O presente contrato poderá ser rescindido por qualquer das partes
+                    mediante notificação prévia de 30 (trinta) dias, resguardados os direitos já adquiridos e as
+                    obrigações já assumidas.</li>
+
+                <li><strong>FORO:</strong> Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer questões
+                    oriundas deste instrumento, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
+                </li>
             </ol>
 
         </div>
-        <form action="{% url 'assinar_contrato' pi.id %}" enctype='multipart/form-data' method="POST" style="margin-top: 20px;"> {% csrf_token %}
+        <form action="{% url 'assinar_contrato' pi.id %}" enctype='multipart/form-data' method="POST"
+            style="margin-top: 20px;"> {% csrf_token %}
             <input type="file" name="selfie" class="form-control" style="width: 40%">
             <br>
             <input type="file" name="rg" class="form-control" style="width: 40%">
@@ -87,4 +102,4 @@
         </form>
     </div>
     <br><br>
-{% endblock 'body' %}
+    {% endblock 'body' %}
