@@ -1,0 +1,6 @@
+crewai
+langchain-community
+langchain-ollama
+pandas
+ollama
+python-dotenv
