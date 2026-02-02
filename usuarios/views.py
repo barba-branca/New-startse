@@ -11,7 +11,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 def cadastro(request):
     if request.method == "GET":
-        return render(request, 'cadastro.html', {'google_client_id': os.getenv('GOOGLE_CLIENT_ID')})
+        google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        context = {
+            'google_client_id': google_id,
+            'google_login_url': request.build_absolute_uri('/usuarios/google-login/')
+        }
+        return render(request, 'cadastro.html', context)
     
     elif request.method == "POST": 
         username = request.POST.get('username')
@@ -58,8 +63,9 @@ def google_login(request):
         data = response.json()
         
         # Validar o Client ID (opcional mas recomendado)
-        if data.get('aud') != os.getenv('GOOGLE_CLIENT_ID'):
-             messages.add_message(request, constants.ERROR, 'Tentativa de login inválida')
+        expected_client_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        if data.get('aud') != expected_client_id:
+             messages.add_message(request, constants.ERROR, 'Tentativa de login inválida: Client ID incorreto')
              return redirect('/usuarios/logar')
 
         email = data.get('email')
@@ -87,14 +93,19 @@ def google_login(request):
             
         auth.login(request, user)
         messages.add_message(request, constants.SUCCESS, 'Autenticado com sucesso via Google!')
-        return redirect('/empresarios/cadastrar_empresa')
+        return redirect('/empresarios/cadastrar_empresa/')
     
     return redirect('/usuarios/logar')
 
         
 def logar(request):
     if request.method == "GET":
-        return render(request, 'logar.html', {'google_client_id': os.getenv('GOOGLE_CLIENT_ID')})
+        google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        context = {
+            'google_client_id': google_id,
+            'google_login_url': request.build_absolute_uri('/usuarios/google-login/')
+        }
+        return render(request, 'logar.html', context)
     
     elif request.method == "POST":
         username = request.POST.get('username')
