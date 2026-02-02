@@ -6,266 +6,1238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="NEW START-SE - Plataforma digital que conecta investidores e empreendedores. Transformando desafios em oportunidades e oportunidades em grandes negócios.">
+        content="NEW START - Plataforma de investimento em startups com contratos digitais, IA e segurança jurídica. Conectamos investidores anjo a startups promissoras.">
+    <meta name="keywords" content="investimento, startups, investidor anjo, crowdfunding, equity, fintech, goiania">
 
     {% block 'head' %}
-    <title>{% block 'title' %}NEW START-SE{% endblock %}</title>
-
-    <link rel="stylesheet" href="{% static 'landingPage/css/styles.css' %}">
+    <title>{% block 'title' %}NEW START - Investimentos em Startups{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;0,600;0,700;1,200&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           ROOT & VARIABLES - Paleta Dark Mode Sofisticada
+           ========================================================================== */
+        :root {
+            /* Cores principais */
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-elevated: #1a1a25;
+
+            /* Roxo Neon (S.A.K.A.) */
+            --purple-neon: #a855f7;
+            --purple-glow: rgba(168, 85, 247, 0.3);
+            --purple-dark: #7c3aed;
+
+            /* Verde Esmeralda (Conversão) */
+            --emerald: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.3);
+            --emerald-dark: #059669;
+
+            /* Textos */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+
+            /* Bordas */
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.12);
+
+            /* Gradientes */
+            --gradient-purple: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            --gradient-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-dark: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+        }
+
+        /* ==========================================================================
+           RESET & BASE
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ==========================================================================
+           NAVBAR
+           ========================================================================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .navbar-brand .brand-text {
+            font-weight: 700;
+            font-size: 20px;
+            background: var(--gradient-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--purple-neon);
+        }
+
+        .nav-cta {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--purple-neon);
+            color: var(--purple-neon);
+        }
+
+        .btn-primary {
+            background: var(--gradient-emerald);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--emerald-glow);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 5% 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--purple-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--emerald-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 650px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50px;
+            font-size: 13px;
+            color: var(--purple-neon);
+            margin-bottom: 25px;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--emerald);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 35px;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 16px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 50px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat .number {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--gradient-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat .label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* ==========================================================================
+           SECTION COMMON STYLES
+           ========================================================================== */
+        .section {
+            padding: 100px 5%;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .section-header .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--purple-neon);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================================================
+           TECH STACK SECTION
+           ========================================================================== */
+        .tech-stack {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .tech-stack .section-header {
+            margin-bottom: 50px;
+        }
+
+        .tech-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .tech-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 30px 40px;
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--purple-neon);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px var(--purple-glow);
+        }
+
+        .tech-item .icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .tech-item .tech-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .tech-item .tech-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ==========================================================================
+           FEATURES SECTION
+           ========================================================================== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 35px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--purple-neon);
+            transform: translateY(-5px);
+        }
+
+        .feature-card .icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* ==========================================================================
+           PRICING SECTION
+           ========================================================================== */
+        .pricing {
+            background: var(--bg-dark);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            padding: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--purple-neon);
+            background: linear-gradient(180deg, rgba(168, 85, 247, 0.1) 0%, var(--bg-card) 100%);
+        }
+
+        .pricing-card.popular:hover {
+            box-shadow: 0 20px 60px var(--purple-glow);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-purple);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .pricing-card h3 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .pricing-card .price {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .pricing-card .price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .pricing-card .price-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            color: var(--text-secondary);
+            font-size: 15px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features li i {
+            color: var(--emerald);
+            font-size: 14px;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 15px;
+        }
+
+        /* ==========================================================================
+           FAQ SECTION
+           ========================================================================== */
+        .faq {
+            background: var(--bg-card);
+        }
+
+        .faq-grid {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .faq-question {
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .faq-question i {
+            color: var(--purple-neon);
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 30px 25px;
+            max-height: 300px;
+        }
+
+        .faq-answer p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* ==========================================================================
+           CTA SECTION
+           ========================================================================== */
+        .cta-section {
+            background: var(--gradient-purple);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 35px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-section .btn {
+            background: white;
+            color: var(--purple-dark);
+        }
+
+        .cta-section .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        footer {
+            background: var(--bg-dark);
+            padding: 80px 5% 30px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto 50px;
+        }
+
+        .footer-brand {
+            max-width: 300px;
+        }
+
+        .footer-brand .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .footer-brand .brand-text {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .footer-column h4 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: var(--purple-neon);
+        }
+
+        .footer-contact p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .footer-contact i {
+            color: var(--purple-neon);
+            width: 18px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-bottom p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ==========================================================================
+           RESPONSIVE
+           ========================================================================== */
+        @media (max-width: 992px) {
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .nav-links,
+            .nav-cta {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .tech-logos {
+                gap: 20px;
+            }
+
+            .tech-item {
+                padding: 20px;
+            }
+        }
+    </style>
     {% endblock 'head' %}
 </head>
 
 <body>
     {% block 'body' %}
-    <!-- Navbar -->
-    <nav class="navbar-home">
-        <div class="navbar-brand-mobile">
-            <span class="brand-text">NEW START-SE</span>
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-                <i class="fas fa-bars"></i>
-            </button>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="logo-icon">N</div>
+            <span class="brand-text">NEW START</span>
         </div>
 
-        <ul id="navMenu" class="nav-menu">
-            <li><a href="{% url 'landingPage' %}">Início</a></li>
-            <li><a href="#solucoes">Soluções</a></li>
-            <li><a href="#diferencial">Nosso diferencial</a></li>
-            <li><a href="#planos">Planos</a></li>
+        <ul class="nav-links">
+            <li><a href="#features">Funcionalidades</a></li>
+            <li><a href="#tech">Tecnologia</a></li>
+            <li><a href="#pricing">Planos</a></li>
+            <li><a href="#faq">FAQ</a></li>
         </ul>
+
+        <div class="nav-cta">
+            <a href="{% url 'logar' %}" class="btn btn-outline">Entrar</a>
+            <a href="{% url 'cadastro' %}" class="btn btn-primary">Começar Grátis</a>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
     </nav>
 
+    <!-- ========== HERO ========== -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                Plataforma 100% Digital e Segura
+            </div>
+
+            <h1>
+                Invista em <span class="highlight">Startups</span> com
+                Segurança Jurídica
+            </h1>
+
+            <p>
+                Conectamos investidores anjo a startups promissoras com contratos
+                digitais válidos, análise por IA e total transparência nas transações.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{% url 'cadastro' %}" class="btn btn-primary btn-large">
+                    <i class="fas fa-rocket"></i> &nbsp; Começar a Investir
+                </a>
+                <a href="#features" class="btn btn-outline btn-large">
+                    Saiba Mais
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="number">R$ 2M+</div>
+                    <div class="label">Captados na Plataforma</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number">150+</div>
+                    <div class="label">Startups Cadastradas</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number">500+</div>
+                    <div class="label">Investidores Ativos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== TECH STACK ========== -->
+    <section id="tech" class="section tech-stack">
+        <div class="section-header">
+            <span class="badge">Infraestrutura</span>
+            <h2>Tecnologia de Ponta</h2>
+            <p>Utilizamos as melhores tecnologias do mercado para garantir segurança, escalabilidade e inovação.</p>
+        </div>
+
+        <div class="tech-logos">
+            <div class="tech-item">
+                <div class="icon">
+                    <img src="https://img.icons8.com/fluency/60/azure-1.png" alt="Microsoft Azure">
+                </div>
+                <div class="tech-name">Microsoft Azure</div>
+                <div class="tech-desc">Cloud Computing<br>& Segurança</div>
+            </div>
+
+            <div class="tech-item">
+                <div class="icon">
+                    <img src="https://img.icons8.com/color/60/google-logo.png" alt="Google Gemini">
+                </div>
+                <div class="tech-name">Google Gemini</div>
+                <div class="tech-desc">Inteligência Artificial<br>para Análises</div>
+            </div>
+
+            <div class="tech-item">
+                <div class="icon" style="font-size: 40px;">✍️</div>
+                <div class="tech-name">ZapSign</div>
+                <div class="tech-desc">Assinatura Digital<br>com Validade Jurídica</div>
+            </div>
+
+            <div class="tech-item">
+                <div class="icon" style="font-size: 40px;">🔒</div>
+                <div class="tech-name">LGPD</div>
+                <div class="tech-desc">100% em Conformidade<br>com a Lei</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FEATURES ========== -->
+    <section id="features" class="section">
+        <div class="section-header">
+            <span class="badge">Funcionalidades</span>
+            <h2>Por que escolher a New Start?</h2>
+            <p>Uma plataforma completa para conectar investidores e startups de forma segura e eficiente.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h3>Análise por IA (Kamila)</h3>
+                <p>Nossa IA analisa startups em critérios como escalabilidade, saúde financeira e riscos, gerando um
+                    Score de Viabilidade de 1 a 10.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Valuation Automatizado</h3>
+                <p>Cálculo de valuation pelo método DCF (Fluxo de Caixa Descontado) com projeções de 5 anos e gráficos
+                    interativos.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📝</div>
+                <h3>Contratos Digitais</h3>
+                <p>Mútuo Conversível com assinatura digital via ZapSign. Validade jurídica garantida pela MP
+                    2.200-2/2001.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🗂️</div>
+                <h3>Data Room Seguro</h3>
+                <p>Documentos confidenciais (DRE, Balanço) com controle de acesso e URLs temporárias criptografadas.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">✅</div>
+                <h3>KYC Automatizado</h3>
+                <p>Verificação de identidade do investidor com selfie + documento, garantindo segurança nas transações.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📈</div>
+                <h3>Dashboard Completo</h3>
+                <p>Métricas em tempo real, acompanhamento de propostas e relatórios detalhados para tomada de decisão.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PRICING ========== -->
+    <section id="pricing" class="section pricing">
+        <div class="section-header">
+            <span class="badge">Investimento</span>
+            <h2>Planos para Todos os Perfis</h2>
+            <p>Escolha o plano ideal para começar sua jornada de investimentos em startups.</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Plano Básico -->
+            <div class="pricing-card">
+                <h3>Básico</h3>
+                <div class="price">Grátis</div>
+                <p class="price-desc">Para quem quer conhecer a plataforma</p>
+
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Cadastro de 1 startup</li>
+                    <li><i class="fas fa-check"></i> Visualização de empresas</li>
+                    <li><i class="fas fa-check"></i> Análise básica por IA</li>
+                    <li><i class="fas fa-check"></i> Dashboard simplificado</li>
+                </ul>
+
+                <a href="{% url 'cadastro' %}" class="btn btn-outline" style="display: block; text-align: center;">
+                    Começar Grátis
+                </a>
+            </div>
+
+            <!-- Plano Profissional (Popular) -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">⭐ Mais Popular</div>
+                <h3>Profissional</h3>
+                <div class="price">R$ 97<span>/mês</span></div>
+                <p class="price-desc">Para investidores ativos</p>
+
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Startups ilimitadas</li>
+                    <li><i class="fas fa-check"></i> Participação em leilões</li>
+                    <li><i class="fas fa-check"></i> Análise avançada por IA</li>
+                    <li><i class="fas fa-check"></i> Acesso ao Data Room</li>
+                    <li><i class="fas fa-check"></i> Contratos digitais ilimitados</li>
+                    <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                </ul>
+
+                <a href="{% url 'cadastro' %}" class="btn btn-primary" style="display: block; text-align: center;">
+                    Assinar Agora
+                </a>
+            </div>
+
+            <!-- Plano Corporativo -->
+            <div class="pricing-card">
+                <h3>Corporativo</h3>
+                <div class="price">R$ 297<span>/mês</span></div>
+                <p class="price-desc">Para fundos e family offices</p>
+
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Tudo do Profissional</li>
+                    <li><i class="fas fa-check"></i> Dashboard personalizado</li>
+                    <li><i class="fas fa-check"></i> API de integração</li>
+                    <li><i class="fas fa-check"></i> Relatórios customizados</li>
+                    <li><i class="fas fa-check"></i> Gerente de conta dedicado</li>
+                </ul>
+
+                <a href="{% url 'cadastro' %}" class="btn btn-outline" style="display: block; text-align: center;">
+                    Falar com Vendas
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FAQ ========== -->
+    <section id="faq" class="section faq">
+        <div class="section-header">
+            <span class="badge">Dúvidas</span>
+            <h2>Perguntas Frequentes</h2>
+            <p>Esclarecemos as principais dúvidas sobre segurança, contratos e validade jurídica.</p>
+        </div>
+
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">
+                    Os contratos digitais têm validade jurídica?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p><strong>Sim, 100% válidos.</strong> Utilizamos a ZapSign, plataforma certificada ICP-Brasil. Os
+                        contratos são assinados eletronicamente conforme a Medida Provisória 2.200-2/2001, que equipara
+                        a assinatura digital à assinatura de próprio punho. Cada contrato possui carimbo de tempo e
+                        certificado digital.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como a plataforma protege meus dados?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Utilizamos <strong>Microsoft Azure</strong> com criptografia em repouso e em trânsito (AES-256).
+                        Seguimos rigorosamente a LGPD (Lei 13.709/2018). O acesso ao Data Room é restrito por
+                        autenticação e as URLs de documentos expiram em 30 minutos.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    O que é o Mútuo Conversível?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>O <strong>Mútuo Conversível</strong> é um contrato de empréstimo que pode ser convertido em
+                        participação societária (equity) em um evento futuro (nova rodada de investimento, venda da
+                        empresa, etc.). É o modelo mais utilizado no mercado de venture capital por sua flexibilidade e
+                        segurança jurídica.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Qual a garantia de que a startup é real?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Realizamos <strong>validação de CNPJ</strong> via API oficial da Receita Federal, verificamos
+                        documentos da empresa no Data Room e aplicamos Due Diligence automática. Além disso, nossa IA
+                        Kamila analisa a coerência das informações fornecidas.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como funciona a verificação KYC?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>O investidor envia uma <strong>selfie segurando o documento</strong> e o RG/CNH. Verificamos a
+                        autenticidade e armazenamos de forma segura. Isso previne fraudes e garante a identidade de
+                        todas as partes do contrato.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Posso cancelar minha assinatura?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sim, você pode cancelar a qualquer momento sem multa. Os contratos de investimento já assinados
+                        permanecem válidos. Entre em contato pelo e-mail <strong>contato@newstart.com.br</strong> para
+                        solicitar o cancelamento.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CTA SECTION ========== -->
+    <section class="section cta-section">
+        <div class="cta-content">
+            <h2>Pronto para Investir no Futuro?</h2>
+            <p>Junte-se a centenas de investidores que já estão descobrindo as próximas grandes startups do Brasil.</p>
+            <a href="{% url 'cadastro' %}" class="btn btn-large">
+                <i class="fas fa-rocket"></i> &nbsp; Criar Conta Gratuita
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <span class="brand-text">NEW START</span>
+                </div>
+                <p>Transformando o ecossistema de investimentos em startups no Brasil. Conectamos empreendedores e
+                    investidores com segurança, transparência e tecnologia.</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Plataforma</h4>
+                <ul>
+                    <li><a href="#features">Funcionalidades</a></li>
+                    <li><a href="#pricing">Planos</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="#">LGPD</a></li>
+                    <li><a href="#">Compliance</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column footer-contact">
+                <h4>Contato</h4>
+                <p><i class="fas fa-envelope"></i> contato@newstart.com.br</p>
+                <p><i class="fas fa-map-marker-alt"></i> Goiânia - GO, Brasil</p>
+                <p><i class="fas fa-phone"></i> (62) 99999-0000</p>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <a href="#" style="color: var(--text-muted); font-size: 20px;"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" style="color: var(--text-muted); font-size: 20px;"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="color: var(--text-muted); font-size: 20px;"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2024 New Start. Todos os direitos reservados. CNPJ: 00.000.000/0001-00</p>
+        </div>
+    </footer>
+
     <script>
-        // Menu toggle para mobile
-        document.getElementById('menuToggle').addEventListener('click', function () {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.classList.toggle('active');
-
-            // Alterna o ícone
-            const icon = this.querySelector('i');
-            if (navMenu.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-
-        // Fecha o menu ao clicar em um link
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                const navMenu = document.getElementById('navMenu');
-                const icon = document.querySelector('#menuToggle i');
-                navMenu.classList.remove('active');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+        // FAQ Toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
             });
         });
+
+        // Mobile menu
+        document.getElementById('menuToggle').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            const navCta = document.querySelector('.nav-cta');
+
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+                navCta.style.display = 'none';
+            } else {
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '80px';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'var(--bg-dark)';
+                navLinks.style.padding = '20px';
+                navCta.style.display = 'flex';
+                navCta.style.flexDirection = 'column';
+                navCta.style.position = 'absolute';
+                navCta.style.top = '200px';
+                navCta.style.left = '0';
+                navCta.style.right = '0';
+                navCta.style.background = 'var(--bg-dark)';
+                navCta.style.padding = '20px';
+            }
+        });
     </script>
-
-    <!-- Topo da página -->
-    <div class="topo-page">
-        <img src="{% static 'landingPage/img/Negócios-LinguagemInvestidores-17jan2020-GettyImages-Photographer-is-my-life-fotor-2024121162534.jpg' %}"
-            alt="Investidor com notebook na mão.">
-        <h1>NEW START-SE</h1>
-        <p>Transformando desafios em oportunidades, e oportunidades em grandes negócios.</p>
-        <!-- Link para o login -->
-        <a href="{% url 'logar' %}">
-            <button class="btn-rosa">
-                Entre ou cadastre-se!
-                <i class="fas fa-arrow-right"></i> <!-- Ícone de seta para frente -->
-            </button>
-        </a>
-    </div>
-
-    <!-- Descrição -->
-    <div class="descricao">
-        <img src="{% static 'landingPage/img/como-comprar-imovel-em-leilao.jpg' %}"
-            alt="Homem batendo o martelo, como se fosse um leilão em frente a um notebook.">
-        <div class="texto-descricao">
-            <h2>Quem somos?</h2>
-            <p>A NEW START-SE é uma plataforma digital que conecta investidores e empreendedores,
-                funcionando como uma "casa de leilões" online. Investidores avaliam startups,
-                participam de leilões e tomam decisões baseadas em métricas detalhadas.
-                Empreendedores cadastram suas startups, recebem propostas personalizadas e escolhem as melhores ofertas.
-                A plataforma facilita o registro, análise e transações financeiras, garantindo segurança e transparência
-                para todos os usuários.
-            </p>
-        </div>
-    </div>
-
-    <!-- Solução -->
-    <div id="solucoes" class="solucao">
-        <img src="{% static 'landingPage/img/Investidores.png' %}"
-            alt="Homem batendo o martelo, como se fosse um leilão em frente a um notebook.">
-        <div class="texto-solucao">
-            <h2>Soluções</h2>
-            <p>A NEW START-SE facilita o network entre empreendedores
-                e investidores, criando uma plataforma de crowdfunding completa, segura e
-                eficiente. Com funcionalidades que promovem transparência e interação,
-                garantimos que ambos os lados se beneficiem de forma significativa.
-            </p>
-            <!-- Diferencial -->
-            <div id="diferencial" class="diferencial">
-                <p>Nossos diferenciais</p>
-                <i class="fas fa-arrow-down"></i>
-            </div>
-        </div>
-    </div>
-    <!-- Segurança -->
-    <div class="seguranca">
-        <img src="{% static 'landingPage/img/seguranca.png' %}" alt="">
-        <div class="seguranca-descricao">
-            <h2>Segurança em transações</h2>
-            <p>A segurança é essencial para garantir a proteção de dados e transações na
-                plataforma. Utilizamos criptografia avançada, autenticação multifator e
-                monitoramento contínuo para prevenir acessos não autorizados e ataques.
-                Além disso, seguimos regulamentações de proteção de dados, como a LGPD
-                e o GDPR, oferecendo transparência e confiança aos nossos usuários.
-            </p>
-        </div>
-    </div>
-
-    <!-- Inteligência artificial -->
-    <div class="ia">
-        <img src="{% static 'landingPage/img/ia.png' %}" alt="">
-        <div class="ia-descricao">
-            <h2>Suporte com inteligência artificial</h2>
-            <p>Para os investidores, a NEW START-SE oferece recomendações de startups em áreas
-                promissoras, além de sugestões para diversificação de portfólio e análises
-                detalhadas de riscos, ajudando a tomar decisões mais seguras e estratégicas.
-                Já para os empreendedores, a plataforma disponibiliza análises de viabilidade
-                financeira, orientações para desenvolver estratégias eficazes de captação de
-                recursos e dicas práticas para otimizar propostas de investimento, maximizando
-                as chances de sucesso em suas campanhas.
-
-            </p>
-        </div>
-    </div>
-
-    <!-- Análise de gráficos -->
-    <div class="analise-graficos">
-        <img src="{% static 'landingPage/img/grafico.png' %}" alt="">
-        <div class="graficos-descricao">
-            <h2>Análise de gráficos</h2>
-            <p>A análise de gráficos é essencial para investidores e empreendedores.
-                Para investidores, facilita a visualização de tendências, avaliação de riscos
-                e identificação de oportunidades, tornando dados complexos mais claros e decisões
-                mais informadas. Para empreendedores, ajuda a monitorar métricas, planejar
-                melhorias e comunicar dados de forma persuasiva aos investidores.
-            </p>
-        </div>
-    </div>
-
-
-    <div id="planos" class="planos-title">
-        <h2>Planos</h2>
-    </div>
-    <div class="desc-planos">
-        <p>Escolha o plano ideal para suas necessidades, com recursos flexíveis e acessíveis.</p>
-    </div>
-    <div class="tipos-plano">
-        <div class="plano-basico">
-            <h3>Básico (Free)</h3>
-            <ul>
-                <li>Acesso limitado à plataforma para cadastrar 1 startup com funcionalidades básicas.</li>
-                <li>Acesso limitado para visualizar startups cadastradas, sem participar de leilões.</li>
-                <li>Testar a plataforma antes de se comprometer com um plano pago.</li>
-            </ul>
-            <button type="submit" class="contrate-agora">Contrate agora</button>
-        </div>
-
-        <div class="plano-profissional">
-            <div class="recomendado">Recomendado</div>
-            <h3>Profissional</h3>
-            <p>R$100 | Mensal</p>
-            <ul>
-                <li>Cadastrar múltiplas startups com acesso a métricas detalhadas e relatórios.</li>
-                <li>Participar de leilões de investimento e obter análises avançadas.</li>
-                <li>Relatórios analíticos e métricas de crescimento de startups.</li>
-            </ul>
-            <button type="submit" class="contrate-agora">Contrate agora</button>
-        </div>
-
-        <div class="plano-corporativo">
-            <h3>Corporativo</h3>
-            <p>R$200 | Mensal</p>
-            <ul>
-                <li>Funcionalidades personalizadas, dashboards exclusivos e suporte dedicado.</li>
-                <li>Planos personalizados, com acesso a relatórios detalhados e consultoria contínua.</li>
-            </ul>
-            <button type="submit" class="contrate-agora">Contrate agora</button>
-        </div>
-    </div>
-
-
-    </div>
-    <div class="duvidas">
-        <img src="{% static 'landingPage/img/teclado.png' %}" alt="">
-        <div class="conteudo">
-            <p class="duvida">Deixe sua mensagem e tire suas dúvidas</p>
-            <div class="inputs">
-                <input type="text" placeholder="Nome">
-                <input type="email" placeholder="Email">
-                <input type="number" placeholder="Telefone">
-                <textarea placeholder="Deixe a sua mensagem"></textarea>
-                <button>ENVIAR MENSAGEM</button>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <div class="footer-conteudo">
-            <div class="lado-esquerdo">
-                <div class="icones-redes-sociais">
-                    <!-- LinkedIn Icon -->
-                    <a href="https://www.linkedin.com" target="_blank" class="icon">
-                        <img src="https://img.icons8.com/ios-filled/50/xuvGCOXi8Wyg/linkedin.png" alt="LinkedIn">
-                    </a>
-
-                    <!-- Instagram Icon -->
-                    <a href="https://www.instagram.com" target="_blank" class="icon">
-                        <img src="https://img.icons8.com/ios-filled/50/instagram-new--v1.png" alt="Instagram">
-                    </a>
-
-                    <!-- YouTube Icon -->
-                    <a href="https://www.youtube.com" target="_blank" class="icon">
-                        <img src="https://img.icons8.com/ios-filled/50/youtube-play.png" alt="YouTube">
-                    </a>
-
-                    <!-- Facebook Icon -->
-                    <a href="https://www.facebook.com" target="_blank" class="icon">
-                        <img src="https://img.icons8.com/ios-filled/50/facebook-new.png" alt="Facebook">
-                    </a>
-                </div>
-                <div class="logo">
-                    <p>New Start.se</p>
-                </div>
-                <div class="slogan">
-                    <p>Transforme ideias em realidade</p>
-                </div>
-            </div>
-            <div class="informacoes">
-                <div class="endereco">
-                    <p>Algum lugar, 123, AlgumaCidade</p>
-                    <p>AlgumEstado, País</p>
-                    <p>(123) 456 7890</p>
-                </div>
-                <div class="email">
-                    <p>email@email.com</p>
-                </div>
-            </div>
-        </div>
-        <p class="copyright">Copyright © 2024 - NEW START-SE | Todos os direitos reservados</p>
-    </footer>
 
     {% endblock 'body' %}
 </body>
