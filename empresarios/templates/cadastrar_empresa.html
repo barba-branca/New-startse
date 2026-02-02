@@ -4,6 +4,371 @@
 
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
 
+<style>
+    /* =========================================================================
+       STEPPER - CADASTRO DE EMPRESA
+       ========================================================================= */
+
+    .stepper-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* Indicadores de passo */
+    .stepper-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .stepper-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .stepper-step:not(:last-child) {
+        margin-right: 80px;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    .stepper-step.active .step-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .stepper-step.completed .step-number {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+
+    .stepper-step.completed .step-number::after {
+        content: '✓';
+        font-size: 20px;
+    }
+
+    .stepper-step.completed .step-number span {
+        display: none;
+    }
+
+    .step-label {
+        margin-top: 10px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 500;
+    }
+
+    .stepper-step.active .step-label {
+        color: white;
+    }
+
+    .stepper-step.completed .step-label {
+        color: #10b981;
+    }
+
+    /* Linha conectora */
+    .stepper-line {
+        position: absolute;
+        top: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 1;
+    }
+
+    /* Container dos passos */
+    .step-content {
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .step-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Formulário */
+    .form-card {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .form-card h3 {
+        color: white;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-card h3 span {
+        font-size: 28px;
+    }
+
+    .form-card p.subtitle {
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 25px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        color: white;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .form-group label .required {
+        color: #f87171;
+        margin-left: 2px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: white;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-group small {
+        display: block;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Estágio - Radio Buttons */
+    .stage-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stage-option {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .stage-option:hover {
+        border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .stage-option.selected {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .stage-option input {
+        display: none;
+    }
+
+    .stage-option .stage-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .stage-option .stage-title {
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .stage-option .stage-desc {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Upload de arquivos */
+    .file-upload {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .file-upload:hover {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .file-upload .upload-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .file-upload .upload-text {
+        color: white;
+        font-weight: 500;
+    }
+
+    .file-upload .upload-hint {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .file-upload input {
+        display: none;
+    }
+
+    .preview-image {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    /* Botões de navegação */
+    .step-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        gap: 15px;
+    }
+
+    .btn-step {
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-prev {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .btn-prev:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-next {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .btn-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        flex: 1;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Validação visual */
+    .form-group.error input,
+    .form-group.error select {
+        border-color: #f87171;
+    }
+
+    .form-group .error-message {
+        color: #f87171;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .form-group.error .error-message {
+        display: block;
+    }
+</style>
+
 {% endblock 'head' %}
 
 
@@ -11,10 +376,8 @@
 
 {% include 'partials/barra_navegacao.html' %}
 
-<div class="container">
+<div class="stepper-container">
 
-    <br>
-    <br>
     {% if messages %}
     {% for message in messages %}
     <section class="alert {{message.tags}}">
@@ -22,102 +385,365 @@
     </section>
     {% endfor %}
     {% endif %}
-    <div class="row">
-        <div class="col-md">
-            <form action="{% url 'cadastrar_empresa' %}" method="POST" enctype='multipart/form-data'>
-                {% csrf_token %}
-                <label>Nome</label>
-                <input type="text" name="nome" placeholder="Digite o nome da sua empresa ..." class="form-control">
-                <br>
-                <label>CNPJ</label>
-                <input type="text" name="cnpj" id="cnpj" placeholder="00.000.000/0000-00" class="form-control"
-                    maxlength="18">
-                <small class="text-muted">O CNPJ será validado automaticamente</small>
-                <br>
-                <br>
-                <label>Site</label>
-                <input type="text" name="site" placeholder="Digite o seu site ..." class="form-control">
-                <br>
-                <label>A quanto tempo a startup existe ?</label>
-                <select name="tempo_existencia" class="form-select">
-                    {% for i in tempo_existencia %}
-                    <option value="{{i.0}}">{{i.1}}</option>
-                    {%endfor%}
-                </select>
-                <br>
-                <label>Descreva a sua empresa</label>
-                <textarea name="descricao" class="form-control"></textarea>
-                <br>
-                <label>Data final para captação</label>
-                <input type="date" name="data_final" class="form-control">
-                <br>
-                <label>Qual a porcentagem (%) de equity oferecida em contrapartida ao valor investido?</label>
-                <input type="number" name="percentual_equity" class="form-control">
-                <input type="submit" class="btn btn-lg btn-indigo" value="cadastrar">
+
+    <!-- Indicadores do Stepper -->
+    <div class="stepper-header">
+        <div class="stepper-line"></div>
+
+        <div class="stepper-step active" data-step="1">
+            <div class="step-number"><span>1</span></div>
+            <div class="step-label">Identidade</div>
         </div>
-        <div class="col-md">
-            <br>
-            <label>Qual o estágio da empresa ?</label>
-            <br>
-            <br>
-            <input type="checkbox" name="estagio" value="I"><span>&nbsp&nbsp Tenho apenas uma ideia</span>
-            <br>
-            <input type="checkbox" name="estagio" value="MVP"><span>&nbsp&nbsp Possuo um MVP</span>
-            <br>
-            <input type="checkbox" name="estagio" value="MVPP"><span>&nbsp&nbsp Possuo um MVP com clientes
-                pagantes</span>
-            <br>
-            <input type="checkbox" name="estagio" value="E"><span>&nbsp&nbsp Empresa pronta para escalar </span>
-            <br>
-            <br>
-            <label>Qual área sua startup está inseria ?</label>
-            <select name="area" class="form-select">
 
-                {% for i in areas %}
-                <option value="{{i.0}}">{{i.1}}</option>
-                {%endfor%}
+        <div class="stepper-step" data-step="2">
+            <div class="step-number"><span>2</span></div>
+            <div class="step-label">Pitch</div>
+        </div>
 
-            </select>
-            <br>
-            <label>Qual seu público alvo</label>
-            <select name="publico_alvo" class="form-select">
-                <option value="B2C">B2C</option>
-                <option value="B2B">B2B</option>
-            </select>
-            <br>
-            <label>Qual valor deseja captar ?</label>
-            <input type="number" name="valor" class="form-control">
-            <br>
-            <label>Envie o pitch de apresentação</label>
-            <input type="file" name="pitch" class="form-control">
-            <br>
-            <label>Envie a logo da empresa</label>
-            <input type="file" name="logo" class="form-control">
-            </form>
+        <div class="stepper-step" data-step="3">
+            <div class="step-number"><span>3</span></div>
+            <div class="step-label">Oferta</div>
         </div>
     </div>
 
-    <script>
-        // Máscara de CNPJ
-        document.getElementById('cnpj').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
+    <!-- Formulário -->
+    <form action="{% url 'cadastrar_empresa' %}" method="POST" enctype='multipart/form-data' id="cadastroForm">
+        {% csrf_token %}
 
-            if (value.length > 14) {
-                value = value.slice(0, 14);
+        <!-- ========== PASSO 1: IDENTIDADE ========== -->
+        <div class="step-content active" data-step="1">
+            <div class="form-card">
+                <h3><span>🏢</span> Identidade da Empresa</h3>
+                <p class="subtitle">Informações básicas sobre sua startup</p>
+
+                <div class="form-group">
+                    <label>Nome da Empresa <span class="required">*</span></label>
+                    <input type="text" name="nome" id="nome" placeholder="Ex: TechStart Soluções" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CNPJ <span class="required">*</span></label>
+                        <input type="text" name="cnpj" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18"
+                            required>
+                        <small>O CNPJ será validado automaticamente</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Site / LinkedIn</label>
+                        <input type="text" name="site" id="site" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Área de Atuação <span class="required">*</span></label>
+                        <select name="area" id="area" required>
+                            <option value="">Selecione...</option>
+                            {% for i in areas %}
+                            <option value="{{i.0}}">{{i.1}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tempo de Existência <span class="required">*</span></label>
+                        <select name="tempo_existencia" id="tempo_existencia" required>
+                            {% for i in tempo_existencia %}
+                            <option value="{{i.0}}">{{i.1}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Público Alvo <span class="required">*</span></label>
+                    <select name="publico_alvo" id="publico_alvo" required>
+                        <option value="B2B">B2B - Empresas</option>
+                        <option value="B2C">B2C - Consumidores</option>
+                        <option value="B2B2C">B2B2C - Ambos</option>
+                    </select>
+                </div>
+
+                <div class="step-buttons">
+                    <div></div>
+                    <button type="button" class="btn-step btn-next" onclick="nextStep()">
+                        Próximo →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PASSO 2: PITCH ========== -->
+        <div class="step-content" data-step="2">
+            <div class="form-card">
+                <h3><span>🎯</span> Pitch da Startup</h3>
+                <p class="subtitle">Apresente sua ideia para os investidores</p>
+
+                <div class="form-group">
+                    <label>Estágio da Empresa <span class="required">*</span></label>
+                    <div class="stage-options">
+                        <label class="stage-option">
+                            <input type="radio" name="estagio" value="I" required>
+                            <div class="stage-icon">💡</div>
+                            <div class="stage-title">Ideação</div>
+                            <div class="stage-desc">Tenho apenas uma ideia</div>
+                        </label>
+
+                        <label class="stage-option">
+                            <input type="radio" name="estagio" value="MVP">
+                            <div class="stage-icon">🛠️</div>
+                            <div class="stage-title">MVP</div>
+                            <div class="stage-desc">Produto mínimo viável</div>
+                        </label>
+
+                        <label class="stage-option">
+                            <input type="radio" name="estagio" value="MVPP">
+                            <div class="stage-icon">💰</div>
+                            <div class="stage-title">Tração</div>
+                            <div class="stage-desc">MVP com clientes pagantes</div>
+                        </label>
+
+                        <label class="stage-option">
+                            <input type="radio" name="estagio" value="E">
+                            <div class="stage-icon">🚀</div>
+                            <div class="stage-title">Escala</div>
+                            <div class="stage-desc">Pronto para escalar</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição do Negócio <span class="required">*</span></label>
+                    <textarea name="descricao" id="descricao" rows="4"
+                        placeholder="Descreva sua startup, o problema que ela resolve e sua proposta de valor única..."
+                        required></textarea>
+                    <small>Mínimo 100 caracteres</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Logo da Empresa <span class="required">*</span></label>
+                        <div class="file-upload" onclick="document.getElementById('logo').click()">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-text">Clique para enviar</div>
+                            <div class="upload-hint">PNG, JPG (máx. 2MB)</div>
+                            <input type="file" name="logo" id="logo" accept=".png,.jpg,.jpeg" required>
+                            <img id="logoPreview" class="preview-image" alt="Preview">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pitch Deck (PDF)</label>
+                        <div class="file-upload" onclick="document.getElementById('pitch').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Clique para enviar</div>
+                            <div class="upload-hint">PDF (máx. 10MB)</div>
+                            <input type="file" name="pitch" id="pitch" accept=".pdf">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-buttons">
+                    <button type="button" class="btn-step btn-prev" onclick="prevStep()">
+                        ← Voltar
+                    </button>
+                    <button type="button" class="btn-step btn-next" onclick="nextStep()">
+                        Próximo →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PASSO 3: OFERTA ========== -->
+        <div class="step-content" data-step="3">
+            <div class="form-card">
+                <h3><span>💎</span> Oferta de Investimento</h3>
+                <p class="subtitle">Defina os termos da captação</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor da Captação (R$) <span class="required">*</span></label>
+                        <input type="number" name="valor" id="valor" placeholder="500000" min="10000" required>
+                        <small>Mínimo R$ 10.000</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Equity Oferecido (%) <span class="required">*</span></label>
+                        <input type="number" name="percentual_equity" id="percentual_equity" placeholder="10" min="1"
+                            max="49" step="0.1" required>
+                        <small>Entre 1% e 49%</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data Final para Captação <span class="required">*</span></label>
+                    <input type="date" name="data_final" id="data_final" required>
+                    <small>Prazo máximo: 90 dias</small>
+                </div>
+
+                <!-- Resumo calculado -->
+                <div
+                    style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: #667eea; margin-bottom: 15px;">📊 Resumo da Oferta</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 12px;">VALUATION IMPLÍCITO</div>
+                            <div id="valuationCalc" style="color: white; font-size: 20px; font-weight: 700;">R$ 0,00
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 12px;">TICKET MÉDIO</div>
+                            <div id="ticketCalc" style="color: white; font-size: 20px; font-weight: 700;">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-buttons">
+                    <button type="button" class="btn-step btn-prev" onclick="prevStep()">
+                        ← Voltar
+                    </button>
+                    <button type="submit" class="btn-step btn-submit">
+                        ✅ Cadastrar Empresa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    function updateStepper() {
+        // Atualiza indicadores
+        document.querySelectorAll('.stepper-step').forEach(step => {
+            const stepNum = parseInt(step.dataset.step);
+            step.classList.remove('active', 'completed');
+
+            if (stepNum < currentStep) {
+                step.classList.add('completed');
+            } else if (stepNum === currentStep) {
+                step.classList.add('active');
             }
-
-            // Formata: XX.XXX.XXX/XXXX-XX
-            if (value.length > 12) {
-                value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
-            } else if (value.length > 8) {
-                value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
-            } else if (value.length > 5) {
-                value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
-            }
-
-            e.target.value = value;
         });
-    </script>
-    {% endblock 'body' %}
+
+        // Atualiza conteúdo
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.remove('active');
+            if (parseInt(content.dataset.step) === currentStep) {
+                content.classList.add('active');
+            }
+        });
+    }
+
+    function validateStep(step) {
+        const stepContent = document.querySelector(`.step-content[data-step="${step}"]`);
+        const requiredFields = stepContent.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value || (field.type === 'radio' && !stepContent.querySelector(`input[name="${field.name}"]:checked`))) {
+                isValid = false;
+                field.closest('.form-group')?.classList.add('error');
+            } else {
+                field.closest('.form-group')?.classList.remove('error');
+            }
+        });
+
+        return isValid;
+    }
+
+    function nextStep() {
+        if (validateStep(currentStep)) {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateStepper();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        } else {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStepper();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // Máscara de CNPJ
+    document.getElementById('cnpj').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 14) value = value.slice(0, 14);
+
+        if (value.length > 12) {
+            value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
+        } else if (value.length > 8) {
+            value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
+        } else if (value.length > 5) {
+            value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
+        } else if (value.length > 2) {
+            value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
+        }
+
+        e.target.value = value;
+    });
+
+    // Seleção de estágio
+    document.querySelectorAll('.stage-option').forEach(option => {
+        option.addEventListener('click', function () {
+            document.querySelectorAll('.stage-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+        });
+    });
+
+    // Preview de logo
+    document.getElementById('logo').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById('logoPreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Cálculo de valuation
+    function calcularValuation() {
+        const valor = parseFloat(document.getElementById('valor').value) || 0;
+        const equity = parseFloat(document.getElementById('percentual_equity').value) || 0;
+
+        if (valor > 0 && equity > 0) {
+            const valuation = (valor * 100) / equity;
+            const ticket = valor / 10; // Ticket médio assumindo 10 investidores
+
+            document.getElementById('valuationCalc').textContent =
+                'R$ ' + valuation.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('ticketCalc').textContent =
+                'R$ ' + ticket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    }
+
+    document.getElementById('valor').addEventListener('input', calcularValuation);
+    document.getElementById('percentual_equity').addEventListener('input', calcularValuation);
+
+    // Data mínima (amanhã)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('data_final').min = tomorrow.toISOString().split('T')[0];
+
+    // Data máxima (90 dias)
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 90);
+    document.getElementById('data_final').max = maxDate.toISOString().split('T')[0];
+</script>
+
+{% endblock 'body' %}

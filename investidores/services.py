@@ -232,8 +232,12 @@ def processar_webhook_zapsign(payload):
         - doc_signed: Assinatura realizada
         - doc_refused: Documento recusado
         - doc_finished: Todas as assinaturas concluídas
+    
+    Quando o contrato é totalmente assinado (SIGNED):
+        - ContratoDigital.status = 'SIGNED'
+        - PropostaInvestimento.status = 'PA' (Proposta Aceita/Paga)
     """
-    from .models import ContratoDigital, WebhookLog
+    from .models import ContratoDigital, WebhookLog, PropostaInvestimento
     
     evento = payload.get('event_type') or payload.get('event')
     documento_id = payload.get('doc_token') or payload.get('document_id') or payload.get('token')
@@ -260,6 +264,8 @@ def processar_webhook_zapsign(payload):
     
     # Processa baseado no evento
     try:
+        proposta_atualizada = False
+        
         if evento in ['doc_signed', 'signer_signed']:
             # Alguém assinou
             signer_email = payload.get('signer', {}).get('email', '')
@@ -273,6 +279,11 @@ def processar_webhook_zapsign(payload):
             if contrato.esta_totalmente_assinado:
                 contrato.status = 'SIGNED'
                 contrato.finalizado_em = timezone.now()
+                
+                # IMPORTANTE: Atualiza a PropostaInvestimento para PA (Paga/Aceita)
+                contrato.proposta.status = 'PA'
+                contrato.proposta.save()
+                proposta_atualizada = True
             else:
                 contrato.status = 'PARTIAL'
                 
@@ -280,8 +291,18 @@ def processar_webhook_zapsign(payload):
             contrato.status = 'SIGNED'
             contrato.finalizado_em = timezone.now()
             
+            # IMPORTANTE: Atualiza a PropostaInvestimento para PA (Paga/Aceita)
+            contrato.proposta.status = 'PA'
+            contrato.proposta.save()
+            proposta_atualizada = True
+            
         elif evento in ['doc_refused', 'doc_rejected']:
             contrato.status = 'REJECTED'
+            
+            # Atualiza a PropostaInvestimento para PR (Recusada)
+            contrato.proposta.status = 'PR'
+            contrato.proposta.save()
+            proposta_atualizada = True
             
         elif evento == 'doc_expired':
             contrato.status = 'EXPIRED'
@@ -292,7 +313,12 @@ def processar_webhook_zapsign(payload):
         log.processado_em = timezone.now()
         log.save()
         
-        return {'sucesso': True, 'status_atualizado': contrato.status}
+        return {
+            'sucesso': True, 
+            'status_contrato': contrato.status,
+            'proposta_atualizada': proposta_atualizada,
+            'status_proposta': contrato.proposta.status if proposta_atualizada else None
+        }
         
     except Exception as e:
         log.erro = str(e)
