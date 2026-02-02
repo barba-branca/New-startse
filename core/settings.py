@@ -171,3 +171,8 @@ ZAPSIGN_TEMPLATE_ID = os.environ.get('ZAPSIGN_TEMPLATE_ID', '')
 AZURE_STORAGE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME', '')
 AZURE_STORAGE_ACCOUNT_KEY = os.environ.get('AZURE_STORAGE_ACCOUNT_KEY', '')
 AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'dataroom')
+
+# ============================================================================
+# Google OAuth
+# ============================================================================
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')

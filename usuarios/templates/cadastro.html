@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {%load static %}
 {% block 'head' %}
-    <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
 {% endblock 'head' %}
 
 
@@ -16,11 +16,11 @@
             <div class="container-form">
                 <h1 class="text-logo">START.SE</h1>
                 {% if messages %}
-                    {% for message in messages %}
-                        <section class="alert {{message.tags}}">
-                            {{message}}
-                        </section>    
-                    {% endfor %}
+                {% for message in messages %}
+                <section class="alert {{message.tags}}">
+                    {{message}}
+                </section>
+                {% endfor %}
                 {% endif %}
                 <h1>Cadastre-se</h1>
                 <br>
@@ -28,18 +28,33 @@
                     {% csrf_token %}
                     <input type="hidden" name="csrf_token" value="">
                     <label>Username</label>
-                    <input type="text" class="form-control input-pers" name="username" placeholder="Digite seu username">
+                    <input type="text" class="form-control input-pers" name="username"
+                        placeholder="Digite seu username">
                     <br>
                     <label>Senha</label>
                     <input type="password" class="form-control input-pers" name="senha" placeholder="Digite sua senha">
                     <br>
                     <label>Confirmar senha</label>
-                    <input type="password" class="form-control input-pers" name="confirmar_senha" placeholder="Confirme sua senha">
+                    <input type="password" class="form-control input-pers" name="confirmar_senha"
+                        placeholder="Confirme sua senha">
                     <div class="centralizar">
                         <input type="submit" class="btn btn-indigo" value="Cadastrar">
                         <a href="{% url 'logar' %}" class="texto">Já possuo uma conta</a>
                     </div>
                 </form>
+
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 25px 0;">
+
+                <div class="centralizar">
+                    <p class="texto" style="margin-bottom: 15px;">Ou cadastre-se com sua conta Google:</p>
+                    <script src="https://accounts.google.com/gsi/client" async defer></script>
+                    <div id="g_id_onload" data-client_id="{{ google_client_id }}"
+                        data-login_uri="http://127.0.0.1:8000{% url 'google_login' %}" data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
+                        data-text="signup_with" data-shape="rectangular" data-logo_alignment="left">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
