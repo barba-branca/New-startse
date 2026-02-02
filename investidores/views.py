@@ -125,29 +125,77 @@ def realizar_proposta(request, id):
 
 
 def assinar_contrato(request, id):
-    pi = PropostaInvestimento.objects.get(id=id)
+    # Verifica autenticação
+    if not request.user.is_authenticated:
+        messages.add_message(request, constants.ERROR, 'Você precisa estar logado.')
+        return redirect('/usuarios/logar')
+    
+    try:
+        pi = PropostaInvestimento.objects.get(id=id)
+    except PropostaInvestimento.DoesNotExist:
+        messages.add_message(request, constants.ERROR, 'Proposta não encontrada.')
+        return redirect('/investidores/sugestao')
+    
+    # Verifica se o usuário é o dono da proposta
+    if pi.investidor != request.user:
+        messages.add_message(request, constants.ERROR, 'Você não tem permissão para acessar esta proposta.')
+        return redirect('/investidores/sugestao')
+    
+    # Verifica se a proposta ainda pode ser assinada
     if pi.status != 'AS':
-        raise Http404()
+        messages.add_message(request, constants.WARNING, 'Esta proposta já foi processada.')
+        return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
             
     if request.method == 'GET':
-        return render(request, 'assinar_contrato.html', {'pi' : pi})
+        return render(request, 'assinar_contrato.html', {'pi': pi})
     
-
-    #implementar inteligencia artificial para validar a self e o rg se é verdadeiro
-    
-
-
     elif request.method == 'POST':
         selfie = request.FILES.get('selfie')
         rg = request.FILES.get('rg')
+        aceite = request.POST.get('aceite')
         
-        pi.selfie = selfie
-        pi.rg = rg
-        pi.status = 'PE'
-        pi.save()
-        realizar_kyc(request.user)
-        messages.add_message(request, constants.SUCCESS, f'Contrato assinado com sucesso, sua proposta foi enviada a empresa.')
-        return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
+        # Valida se os arquivos foram enviados
+        if not selfie:
+            messages.add_message(request, constants.WARNING, 'Por favor, envie a selfie com o documento.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
+        
+        if not rg:
+            messages.add_message(request, constants.WARNING, 'Por favor, envie o documento de identidade.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
+        
+        # Valida se aceitou os termos
+        if not aceite:
+            messages.add_message(request, constants.WARNING, 'Você precisa aceitar os termos do contrato.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
+        
+        # Valida tamanho dos arquivos (máx 5MB)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if selfie.size > max_size:
+            messages.add_message(request, constants.WARNING, 'A selfie deve ter no máximo 5MB.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
+        
+        if rg.size > max_size:
+            messages.add_message(request, constants.WARNING, 'O documento deve ter no máximo 5MB.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
+        
+        try:
+            # Salva os arquivos
+            pi.selfie = selfie
+            pi.rg = rg
+            pi.status = 'PE'  # Proposta Enviada
+            pi.save()
+            
+            # Realiza verificação KYC
+            realizar_kyc(request.user)
+            
+            messages.add_message(request, constants.SUCCESS, 
+                'Contrato assinado com sucesso! Sua proposta foi enviada para análise da empresa.')
+            return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
+            
+        except Exception as e:
+            print(f"[ERRO ASSINATURA] {type(e).__name__}: {str(e)}")
+            messages.add_message(request, constants.ERROR, 'Erro ao processar assinatura. Tente novamente.')
+            return render(request, 'assinar_contrato.html', {'pi': pi})
 
 
 def realizar_analise_ia(request, id):
