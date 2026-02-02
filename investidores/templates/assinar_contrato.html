@@ -92,14 +92,98 @@
             </ol>
 
         </div>
-        <form action="{% url 'assinar_contrato' pi.id %}" enctype='multipart/form-data' method="POST"
-            style="margin-top: 20px;"> {% csrf_token %}
-            <input type="file" name="selfie" class="form-control" style="width: 40%">
-            <br>
-            <input type="file" name="rg" class="form-control" style="width: 40%">
-            <br>
-            <input type="submit" class="btn btn-indigo-normal" value="Assinar contrato">
-        </form>
+
+        <!-- Seção de Documentos para Assinatura -->
+        <div
+            style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+
+            <div style="margin-bottom: 25px;">
+                <h4 style="color: #fff; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
+                    <span
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 8px 12px; border-radius: 8px; font-size: 14px;">📋</span>
+                    Documentos para Verificação
+                </h4>
+                <p style="color: rgba(255,255,255,0.6); margin: 0; font-size: 14px;">
+                    Para garantir a segurança da transação, precisamos verificar sua identidade.
+                </p>
+            </div>
+
+            <form action="{% url 'assinar_contrato' pi.id %}" enctype='multipart/form-data' method="POST">
+                {% csrf_token %}
+
+                <!-- Campo 1: Selfie com Documento -->
+                <div style="margin-bottom: 20px;">
+                    <label for="selfie"
+                        style="display: block; color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 15px;">
+                        <span style="color: #667eea; margin-right: 8px;">1.</span>
+                        Selfie segurando o Documento de Identidade
+                    </label>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 10px;">
+                        📸 Tire uma foto sua segurando o RG ou CNH ao lado do rosto, com todas as informações visíveis.
+                    </p>
+                    <input type="file" name="selfie" id="selfie" accept=".pdf,.jpg,.jpeg,.png" class="form-control"
+                        style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;"
+                        required>
+                    <small style="color: rgba(255,255,255,0.4); font-size: 12px; display: block; margin-top: 6px;">
+                        📎 Formatos aceitos: JPG, PNG ou PDF (Máx. 5MB)
+                    </small>
+                </div>
+
+                <!-- Campo 2: Documento de Identidade -->
+                <div style="margin-bottom: 25px;">
+                    <label for="rg"
+                        style="display: block; color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 15px;">
+                        <span style="color: #667eea; margin-right: 8px;">2.</span>
+                        Documento de Identidade (Frente e Verso)
+                    </label>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 10px;">
+                        🪪 Envie uma foto ou scan do RG ou CNH (frente e verso no mesmo arquivo, se possível).
+                    </p>
+                    <input type="file" name="rg" id="rg" accept=".pdf,.jpg,.jpeg,.png" class="form-control"
+                        style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;"
+                        required>
+                    <small style="color: rgba(255,255,255,0.4); font-size: 12px; display: block; margin-top: 6px;">
+                        📎 Formatos aceitos: JPG, PNG ou PDF (Máx. 5MB)
+                    </small>
+                </div>
+
+                <!-- Aviso de Segurança -->
+                <div
+                    style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <p
+                        style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0; display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 18px;">🔒</span>
+                        <span>
+                            <strong style="color: #667eea;">Seus dados estão seguros.</strong><br>
+                            Os documentos são criptografados e utilizados apenas para verificação de identidade conforme
+                            a LGPD.
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Checkbox de Aceite -->
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: rgba(255,255,255,0.8); font-size: 14px;">
+                        <input type="checkbox" name="aceite" required style="margin-top: 3px; accent-color: #667eea;">
+                        <span>
+                            Li e concordo com todas as cláusulas do <strong>Contrato de Mútuo Conversível</strong>
+                            e com os <a href="#" style="color: #667eea;">Termos de Uso</a> da plataforma.
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Botão de Envio -->
+                <button type="submit" class="btn btn-indigo-normal"
+                    style="width: 100%; padding: 14px; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+                    ✍️ Assinar Contrato e Enviar Proposta
+                </button>
+
+                <p style="text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 15px;">
+                    Ao clicar, você está assinando digitalmente este contrato conforme MP 2.200-2/2001.
+                </p>
+            </form>
+        </div>
     </div>
     <br><br>
     {% endblock 'body' %}
