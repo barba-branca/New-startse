@@ -32,6 +32,10 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1 .azurewebsites.net').split()
 
+# Configurações para Azure / Proxies
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
 # Segurança para formulários em produção
 CSRF_TRUSTED_ORIGINS = [
     'https://*.azurewebsites.net',
