@@ -1173,12 +1173,128 @@
                 transition: none !important;
             }
         }
+
+        /* B3 Ticker Bar */
+        .ticker-wrap {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 35px;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1001;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker {
+            display: flex;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 40px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .ticker-item .symbol {
+            font-weight: 700;
+            margin-right: 8px;
+            color: var(--text-primary);
+        }
+
+        .ticker-item .price {
+            margin-right: 8px;
+        }
+
+        .ticker-item .change {
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ticker-item .change.up {
+            color: var(--emerald);
+        }
+
+        .ticker-item .change.down {
+            color: #f87171;
+        }
+
+        @keyframes ticker {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-100%, 0, 0);
+            }
+        }
+
+        /* Adjust navbar for ticker */
+        .navbar {
+            top: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .ticker-wrap {
+                height: 30px;
+            }
+
+            .navbar {
+                top: 30px;
+            }
+
+            .ticker-item {
+                padding: 0 20px;
+                font-size: 11px;
+            }
+        }
     </style>
     {% endblock 'head' %}
 </head>
 
 <body>
     {% block 'body' %}
+
+    <!-- ========== B3 TICKER ========== -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            {% for item in b3_data %}
+            <div class="ticker-item">
+                <span class="symbol">{{ item.symbol }}</span>
+                <span class="price">R$ {{ item.price }}</span>
+                <span class="change {% if item.positive %}up{% else %}down{% endif %}">
+                    <i class="fas fa-caret-{% if item.positive %}up{% else %}down{% endif %}"></i>
+                    {{ item.pct_change }}%
+                </span>
+                <span style="margin-left: 8px; color: var(--text-muted); font-size: 10px;">(Cap.: {{ item.market_cap
+                    }})</span>
+            </div>
+            {% endfor %}
+            <!-- Double for seamless loop if needed, but animation handles it -->
+            {% for item in b3_data %}
+            <div class="ticker-item">
+                <span class="symbol">{{ item.symbol }}</span>
+                <span class="price">R$ {{ item.price }}</span>
+                <span class="change {% if item.positive %}up{% else %}down{% endif %}">
+                    <i class="fas fa-caret-{% if item.positive %}up{% else %}down{% endif %}"></i>
+                    {{ item.pct_change }}%
+                </span>
+                <span style="margin-left: 8px; color: var(--text-muted); font-size: 10px;">(Cap.: {{ item.market_cap
+                    }})</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
     <!-- ========== NAVBAR ========== -->
     <nav class="navbar">
