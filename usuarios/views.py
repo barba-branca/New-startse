@@ -12,9 +12,14 @@ from django.views.decorators.csrf import csrf_exempt
 def cadastro(request):
     if request.method == "GET":
         google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        login_uri = request.build_absolute_uri('/usuarios/google-login/')
+        # Força HTTPS se estiver na Azure (produção)
+        if 'azurewebsites.net' in login_uri:
+            login_uri = login_uri.replace('http://', 'https://')
+            
         context = {
             'google_client_id': google_id,
-            'google_login_url': request.build_absolute_uri('/usuarios/google-login/')
+            'google_login_url': login_uri
         }
         return render(request, 'cadastro.html', context)
     
@@ -101,9 +106,14 @@ def google_login(request):
 def logar(request):
     if request.method == "GET":
         google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        login_uri = request.build_absolute_uri('/usuarios/google-login/')
+        # Força HTTPS se estiver na Azure (produção)
+        if 'azurewebsites.net' in login_uri:
+            login_uri = login_uri.replace('http://', 'https://')
+
         context = {
             'google_client_id': google_id,
-            'google_login_url': request.build_absolute_uri('/usuarios/google-login/')
+            'google_login_url': login_uri
         }
         return render(request, 'logar.html', context)
     
