@@ -8,10 +8,19 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from django.contrib import auth
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+def get_google_id():
+    """Retorna o ID do Google com fallback para evitar o erro 'invalid_client'"""
+    gid = getattr(settings, 'GOOGLE_CLIENT_ID', None) or os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+    # Se o ID for None ou a string "None", usa o ID fixo como última alternativa
+    if not gid or str(gid).strip() == "None" or str(gid).strip() == "":
+        return '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
+    return str(gid).strip()
 
 def cadastro(request):
     if request.method == "GET":
-        google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        google_id = get_google_id()
         login_uri = request.build_absolute_uri('/usuarios/google-login/')
         # Força HTTPS se estiver na Azure (produção)
         if 'azurewebsites.net' in login_uri:
@@ -68,7 +77,7 @@ def google_login(request):
         data = response.json()
         
         # Validar o Client ID (opcional mas recomendado)
-        expected_client_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        expected_client_id = get_google_id()
         if data.get('aud') != expected_client_id:
              messages.add_message(request, constants.ERROR, 'Tentativa de login inválida: Client ID incorreto')
              return redirect('/usuarios/logar')
@@ -105,7 +114,7 @@ def google_login(request):
         
 def logar(request):
     if request.method == "GET":
-        google_id = os.getenv('GMAIL_API_KEY') or os.getenv('GOOGLE_CLIENT_ID')
+        google_id = get_google_id()
         login_uri = request.build_absolute_uri('/usuarios/google-login/')
         # Força HTTPS se estiver na Azure (produção)
         if 'azurewebsites.net' in login_uri:
