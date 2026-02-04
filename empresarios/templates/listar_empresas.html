@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load l10n %}
 {% block 'head' %}
 
 <link rel="stylesheet" href="{% static 'empresarios/css/listar_empresas.css' %}">
@@ -65,7 +66,7 @@
                     <div class="progress"
                         style="height: 12px; border-radius: 10px; background-color: rgba(255,255,255,0.1);">
                         <div class="progress-bar bg-success" role="progressbar"
-                            style="width: {{empresa.percentual_captado}}%; border-radius: 10px; box-shadow: 0 0 15px rgba(25, 135, 84, 0.5);"
+                            style="--progresso: {{empresa.percentual_captado|default:0|unlocalize}}%; width: var(--progresso); border-radius: 10px; box-shadow: 0 0 15px rgba(25, 135, 84, 0.5);"
                             aria-valuenow="{{empresa.percentual_captado}}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex justify-content-between mt-2" style="font-size: 0.85rem;">
