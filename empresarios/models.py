@@ -48,6 +48,8 @@ class Empresas(models.Model):
     @property
     def percentual_captado(self):
         total = self.total_captado
+        if self.valor == 0:
+            return 0
         return int((total / self.valor) * 100)
 
     @property
