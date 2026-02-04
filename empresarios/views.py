@@ -143,10 +143,10 @@ def listar_empresas(request):
 
         return render(request, 'listar_empresas.html', {'empresas': empresas, 'nome_empresa': nome_empresa})
     except Exception as e:
-        # Log the error and return a message or redirect
-        print(f"Erro em listar_empresas: {e}")
-        messages.add_message(request, constants.ERROR, 'Ocorreu um erro ao carregar suas empresas.')
-        return render(request, 'listar_empresas.html', {'empresas': [], 'nome_empresa': ''})
+        import traceback
+        error_msg = f"Erro em listar_empresas: {str(e)}\n\n{traceback.format_exc()}"
+        print(error_msg)
+        return HttpResponse(f"<pre>{error_msg}</pre>", content_type="text/plain", status=500)
     
 def empresa(request, id):
     empresa = Empresas.objects.get(id=id)
