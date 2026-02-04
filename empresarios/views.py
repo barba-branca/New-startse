@@ -130,23 +130,72 @@ def cadastrar_empresa(request):
         messages.add_message(request, constants.SUCCESS, 'Empresa criada com sucesso')
         return redirect('/empresarios/cadastrar_empresa')
 
+import logging
+import traceback
+import sys
+from django.contrib.auth.decorators import login_required
+
+logger = logging.getLogger(__name__)
+
+@login_required(login_url='/usuarios/logar')
 def listar_empresas(request):
-    if not request.user.is_authenticated:
-        return redirect('/usuarios/logar')
-    
     try:
-        nome_empresa = request.GET.get('empresa')
-        empresas = Empresas.objects.filter(user=request.user)
-
-        if nome_empresa:
-            empresas = empresas.filter(nome__icontains=nome_empresa)
-
-        return render(request, 'listar_empresas.html', {'empresas': empresas, 'nome_empresa': nome_empresa})
+        # Log de diagnóstico
+        logger.info(f"User: {request.user.id}, Authenticated: {request.user.is_authenticated}")
+        
+        nome_empresa = request.GET.get('empresa', '')
+        
+        # Testa a query primeiro
+        try:
+            empresas = Empresas.objects.filter(user=request.user)
+            logger.info(f"Empresas encontradas: {empresas.count()}")
+            
+            if nome_empresa:
+                empresas = empresas.filter(nome__icontains=nome_empresa)
+                logger.info(f"Após filtro por nome: {empresas.count()}")
+        except Exception as db_error:
+            logger.error(f"Erro no banco de dados: {db_error}")
+            return HttpResponse(
+                f"<h1>Erro no banco de dados</h1><pre>{traceback.format_exc()}</pre>",
+                status=500
+            )
+        
+        # Testa renderização com o template
+        context = {
+            'empresas': empresas,
+            'nome_empresa': nome_empresa,
+        }
+        
+        return render(request, 'listar_empresas.html', context)
+        
     except Exception as e:
-        import traceback
-        error_msg = f"Erro em listar_empresas: {str(e)}\n\n{traceback.format_exc()}"
-        print(error_msg)
-        return HttpResponse(f"<pre>{error_msg}</pre>", content_type="text/plain", status=500)
+        # Log completo
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        error_details = {
+            'tipo': str(exc_type),
+            'mensagem': str(e),
+            'traceback': traceback.format_exc(),
+            'user_id': request.user.id if request.user.is_authenticated else 'Anônimo',
+        }
+        
+        logger.error(f"Erro fatal em listar_empresas: {error_details}")
+        
+        # Retorna HTML simples (não use render aqui!)
+        return HttpResponse(
+            f"""
+            <html>
+            <head><title>Erro 500</title></head>
+            <body>
+                <h1>Erro no servidor</h1>
+                <h2>Tipo: {error_details['tipo']}</h2>
+                <p><strong>Mensagem:</strong> {error_details['mensagem']}</p>
+                <pre>{error_details['traceback']}</pre>
+            </body>
+            </html>
+            """,
+            content_type="text/html",
+            status=500
+        )
     
 def empresa(request, id):
     empresa = Empresas.objects.get(id=id)

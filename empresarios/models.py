@@ -43,31 +43,49 @@ class Empresas(models.Model):
     @property
     def total_captado(self):
         try:
+            # Import DENTRO do método para evitar circular import
             from investidores.models import PropostaInvestimento
-            total = PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('valor'))['valor__sum']
-            return total if total is not None else 0
-        except:
+            total = PropostaInvestimento.objects.filter(
+                empresa=self, 
+                status='PA'
+            ).aggregate(total=models.Sum('valor'))['total']
+            return total or 0
+        except Exception as e:
+            # Log o erro específico
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erro em total_captado para empresa {self.id}: {e}")
             return 0
 
     @property
     def percentual_captado(self):
-        total = self.total_captado
-        if not self.valor or self.valor == 0:
+        try:
+            total = self.total_captado
+            if not self.valor or self.valor == 0:
+                return 0
+            return int((float(total) / float(self.valor)) * 100)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Erro em percentual_captado: {e}")
             return 0
-        return int((total / self.valor) * 100)
 
     @property
     def qtd_investidores(self):
-        from investidores.models import PropostaInvestimento
-        return PropostaInvestimento.objects.filter(empresa=self, status='PA').values('investidor').distinct().count()
+        try:
+            from investidores.models import PropostaInvestimento
+            return PropostaInvestimento.objects.filter(empresa=self, status='PA').values('investidor').distinct().count()
+        except:
+            return 0
 
     @property
     def percentual_vendido(self):
         try:
             from investidores.models import PropostaInvestimento
-            vendido = PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('percentual'))['percentual__sum']
-            return vendido if vendido is not None else 0
-        except:
+            vendido = PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(total=models.Sum('percentual'))['total']
+            return vendido or 0
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Erro em percentual_vendido: {e}")
             return 0
     
     @property
@@ -77,20 +95,28 @@ class Empresas(models.Model):
     
     @property
     def status(self):
-        if self.percentual_captado >= 100:
-            return mark_safe('<span class="badge bg-success">Captação concluída</span>')
-        
-        if self.data_final_captacao and date.today() > self.data_final_captacao:
-            return mark_safe('<span class="badge bg-secondary">Captação finalizada</span>')
-                
-        return mark_safe('<span class="badge bg-success">Em captação</span>')
+        try:
+            if self.percentual_captado >= 100:
+                return mark_safe('<span class="badge bg-success">Captação concluída</span>')
+            
+            if self.data_final_captacao and date.today() > self.data_final_captacao:
+                return mark_safe('<span class="badge bg-secondary">Captação finalizada</span>')
+                    
+            return mark_safe('<span class="badge bg-success">Em captação</span>')
+        except:
+            return mark_safe('<span class="badge bg-warning">Erro no status</span>')
     
     @property
     def valuation(self):
-        if not self.percentual_equity or self.percentual_equity == 0:
+        try:
+            if not self.percentual_equity or self.percentual_equity == 0:
+                return 0
+            valor = float(self.valor) if self.valor else 0
+            return round((100 * valor) / float(self.percentual_equity), 2)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Erro em valuation: {e}")
             return 0
-        valor = self.valor if self.valor is not None else 0
-        return float (f'{(100 * valor) / self.percentual_equity:.2f}')
     
 class Documento(models.Model):
     empresa = models.ForeignKey(Empresas, on_delete=models.DO_NOTHING)
