@@ -222,7 +222,15 @@ AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'd
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 
 # Isso diz ao Django que ele está atrás de um proxy seguro (Azure)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', 'False') == 'True'
+if os.getenv('WEBSITE_HOSTNAME'):
+    DEBUG = True # DEBUG TEMPORÁRIO PARA DIAGNÓSTICO
+    ALLOWED_HOSTS = ['*']
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    USE_X_FORWARDED_HOST = True
+else:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', 'False') == 'True'
