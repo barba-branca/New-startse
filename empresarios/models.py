@@ -42,13 +42,17 @@ class Empresas(models.Model):
     
     @property
     def total_captado(self):
-        from investidores.models import PropostaInvestimento
-        return PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('valor'))['valor__sum'] or 0
+        try:
+            from investidores.models import PropostaInvestimento
+            total = PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('valor'))['valor__sum']
+            return total if total is not None else 0
+        except:
+            return 0
 
     @property
     def percentual_captado(self):
         total = self.total_captado
-        if self.valor == 0:
+        if not self.valor or self.valor == 0:
             return 0
         return int((total / self.valor) * 100)
 
@@ -59,26 +63,34 @@ class Empresas(models.Model):
 
     @property
     def percentual_vendido(self):
-        from investidores.models import PropostaInvestimento
-        return PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('percentual'))['percentual__sum'] or 0
+        try:
+            from investidores.models import PropostaInvestimento
+            vendido = PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('percentual'))['percentual__sum']
+            return vendido if vendido is not None else 0
+        except:
+            return 0
     
     @property
     def percentual_a_vender(self):
-        return self.percentual_equity - self.percentual_vendido
+        equity = self.percentual_equity if self.percentual_equity is not None else 0
+        return equity - self.percentual_vendido
     
     @property
     def status(self):
         if self.percentual_captado >= 100:
             return mark_safe('<span class="badge bg-success">Captação concluída</span>')
         
-        if date.today() > self.data_final_captacao:
+        if self.data_final_captacao and date.today() > self.data_final_captacao:
             return mark_safe('<span class="badge bg-secondary">Captação finalizada</span>')
                 
         return mark_safe('<span class="badge bg-success">Em captação</span>')
     
     @property
     def valuation(self):
-        return float (f'{(100 * self.valor) / self.percentual_equity:.2f}')
+        if not self.percentual_equity or self.percentual_equity == 0:
+            return 0
+        valor = self.valor if self.valor is not None else 0
+        return float (f'{(100 * valor) / self.percentual_equity:.2f}')
     
 class Documento(models.Model):
     empresa = models.ForeignKey(Empresas, on_delete=models.DO_NOTHING)

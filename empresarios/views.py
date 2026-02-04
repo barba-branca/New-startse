@@ -131,9 +131,10 @@ def cadastrar_empresa(request):
         return redirect('/empresarios/cadastrar_empresa')
 
 def listar_empresas(request):
-    if  not request.user.is_authenticated:
+    if not request.user.is_authenticated:
         return redirect('/usuarios/logar')
-    if request.method == "GET":
+    
+    try:
         nome_empresa = request.GET.get('empresa')
         empresas = Empresas.objects.filter(user=request.user)
 
@@ -141,6 +142,11 @@ def listar_empresas(request):
             empresas = empresas.filter(nome__icontains=nome_empresa)
 
         return render(request, 'listar_empresas.html', {'empresas': empresas, 'nome_empresa': nome_empresa})
+    except Exception as e:
+        # Log the error and return a message or redirect
+        print(f"Erro em listar_empresas: {e}")
+        messages.add_message(request, constants.ERROR, 'Ocorreu um erro ao carregar suas empresas.')
+        return render(request, 'listar_empresas.html', {'empresas': [], 'nome_empresa': ''})
     
 def empresa(request, id):
     empresa = Empresas.objects.get(id=id)
