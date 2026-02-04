@@ -219,7 +219,8 @@ AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'd
 # Trigger redeploy: Google OAuth configuration update
 # Google OAuth
 # ============================================================================
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or os.environ.get('GMAIL_API_KEY') or '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
 # Isso diz ao Django que ele está atrás de um proxy seguro (Azure)
 if os.getenv('WEBSITE_HOSTNAME'):
