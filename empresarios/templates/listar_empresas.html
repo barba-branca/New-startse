@@ -18,8 +18,7 @@
             <div class="col-md-4">
                 <label class="mb-2">Empresa</label>
                 <input type="text" name="empresa" class="form-control"
-                    placeholder="Busque por uma empresa em específico" {% if nome_empresa %}value="{{nome_empresa}}" {%
-                    endif %}>
+                    placeholder="Busque por uma empresa em específico" {% if nome_empresa %}value="{{nome_empresa}}"{% endif %}>
             </div>
             <div class="col-md-2">
                 <input type="submit" value="Filtrar" class="btn btn-outline-primary w-100">
