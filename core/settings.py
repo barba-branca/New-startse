@@ -216,7 +216,7 @@ AZURE_STORAGE_ACCOUNT_KEY = os.environ.get('AZURE_STORAGE_ACCOUNT_KEY', '')
 AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'dataroom')
 
 # ============================================================================
-# Trigger redeploy: Google OAuth configuration update
+# Trigger redeploy: Fix dropdown visibility and template localization
 # Google OAuth
 # ============================================================================
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or os.environ.get('GMAIL_API_KEY') or '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
