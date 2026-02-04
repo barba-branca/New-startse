@@ -41,7 +41,34 @@ class Empresas(models.Model):
         return f'{self.user.username} | {self.nome}'
     
     @property
+    def total_captado(self):
+        from investidores.models import PropostaInvestimento
+        return PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('valor'))['valor__sum'] or 0
+
+    @property
+    def percentual_captado(self):
+        total = self.total_captado
+        return int((total / self.valor) * 100)
+
+    @property
+    def qtd_investidores(self):
+        from investidores.models import PropostaInvestimento
+        return PropostaInvestimento.objects.filter(empresa=self, status='PA').values('investidor').distinct().count()
+
+    @property
+    def percentual_vendido(self):
+        from investidores.models import PropostaInvestimento
+        return PropostaInvestimento.objects.filter(empresa=self, status='PA').aggregate(models.Sum('percentual'))['percentual__sum'] or 0
+    
+    @property
+    def percentual_a_vender(self):
+        return self.percentual_equity - self.percentual_vendido
+    
+    @property
     def status(self):
+        if self.percentual_captado >= 100:
+            return mark_safe('<span class="badge bg-success">Captação concluída</span>')
+        
         if date.today() > self.data_final_captacao:
             return mark_safe('<span class="badge bg-secondary">Captação finalizada</span>')
                 

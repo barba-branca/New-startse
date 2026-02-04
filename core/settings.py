@@ -181,3 +181,9 @@ AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'd
 # Google OAuth
 # ============================================================================
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+
+# Isso diz ao Django que ele está atrás de um proxy seguro (Azure)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', 'False') == 'True'
