@@ -569,7 +569,8 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Valor da Captação (R$) <span class="required">*</span></label>
-                        <input type="number" name="valor" id="valor" placeholder="500000" min="10000" required>
+                        <input type="number" name="valor" id="id_valor_captacao" placeholder="500000" min="10000"
+                            required>
                         <small>Mínimo R$ 10.000</small>
                     </div>
 
@@ -598,9 +599,19 @@
                             </div>
                         </div>
                         <div>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 12px;">TAXA DE INTERMEDIAÇÃO</div>
+                            <div id="taxaIntermediacao" style="color: white; font-size: 20px; font-weight: 700;">R$ 0,00
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 12px;">VALOR LÍQUIDO</div>
+                            <div id="valorLiquido" style="color: white; font-size: 20px; font-weight: 700;">R$ 0,00
+                            </div>
+                        </div>
+                        <!-- <div>
                             <div style="color: rgba(255,255,255,0.5); font-size: 12px;">TICKET MÉDIO</div>
                             <div id="ticketCalc" style="color: white; font-size: 20px; font-weight: 700;">R$ 0,00</div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
@@ -723,21 +734,41 @@
 
     // Cálculo de valuation
     function calcularValuation() {
-        const valor = parseFloat(document.getElementById('valor').value) || 0;
-        const equity = parseFloat(document.getElementById('percentual_equity').value) || 0;
+        const valorInput = document.getElementById('id_valor_captacao'); // Using new ID
+        const equityInput = document.getElementById('percentual_equity');
+
+        const valor = parseFloat(valorInput ? valorInput.value : 0) || 0;
+        const equity = parseFloat(equityInput ? equityInput.value : 0) || 0;
+
+        if (valor > 0) {
+            // Calculate 10% brokerage
+            const taxa = valor * 0.10;
+            const liquido = valor - taxa;
+
+            document.getElementById('taxaIntermediacao').textContent =
+                'R$ ' + taxa.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            document.getElementById('valorLiquido').textContent =
+                'R$ ' + liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
         if (valor > 0 && equity > 0) {
             const valuation = (valor * 100) / equity;
-            const ticket = valor / 10; // Ticket médio assumindo 10 investidores
 
             document.getElementById('valuationCalc').textContent =
                 'R$ ' + valuation.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('ticketCalc').textContent =
-                'R$ ' + ticket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     }
 
-    document.getElementById('valor').addEventListener('input', calcularValuation);
+    // Attach event listener to new ID
+    const valorInput = document.getElementById('id_valor_captacao');
+    if (valorInput) {
+        valorInput.addEventListener('input', calcularValuation);
+    }
+
+    // Also keep listener on old ID just in case, or removed if strictly replacing. 
+    // But since I changed the ID on the input, I must update the listener.
+    document.getElementById('percentual_equity').addEventListener('input', calcularValuation);
     document.getElementById('percentual_equity').addEventListener('input', calcularValuation);
 
     // Data mínima (amanhã)

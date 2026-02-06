@@ -34,6 +34,8 @@ class Empresas(models.Model):
     area = models.CharField(max_length=3, choices=area_choices)
     publico_alvo = models.CharField(max_length=3)
     valor = models.DecimalField(max_digits=9, decimal_places=2) # Valor total a ser vendido
+    taxa_intermediacao = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    valor_liquido = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     pitch = models.FileField(upload_to='pitchs')
     logo = models.FileField(upload_to='logo')
 

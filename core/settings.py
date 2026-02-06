@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'empresarios',
     'investidores',
     'landingPage',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -235,3 +236,52 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
     USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', 'False') == 'True'
+
+
+# ============================================================================
+# Google OAuth2 Authentication - SOCIAL AUTH
+# ============================================================================
+
+# Backends de autenticação
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Configuração do Google OAuth2
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_CLIENT_ID', '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+
+# ⚠️ CRÍTICO PARA AZURE/HTTPS ⚠️
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+# URLs de redirecionamento
+LOGIN_URL = '/usuarios/logar/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/usuarios/logar/'
+
+# Escopos do Google (opcional, mas recomendado)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
+
+# Pipeline personalizado (opcional)
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+# Configurações adicionais
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/usuarios/logar/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
+

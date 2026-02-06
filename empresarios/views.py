@@ -100,6 +100,8 @@ def cadastrar_empresa(request):
                 area=area,
                 publico_alvo=publico_alvo,
                 valor=valor_decimal,
+                taxa_intermediacao=valor_decimal * 0.10,
+                valor_liquido=valor_decimal - (valor_decimal * 0.10),
                 pitch=pitch,
                 logo=logo
             )
