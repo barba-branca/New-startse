@@ -251,6 +251,10 @@ AUTHENTICATION_BACKENDS = (
 # Configuração do Google OAuth2
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_CLIENT_ID', '')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = os.getenv(
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI',
+    'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/social-auth/complete/google-oauth2/'
+)
 
 # ⚠️ CRÍTICO PARA AZURE/HTTPS ⚠️
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
