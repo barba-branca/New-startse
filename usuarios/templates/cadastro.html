@@ -45,37 +45,29 @@
 
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 25px 0;">
 
+                {% comment %} COMENTADO: conexões Gmail desativadas
                 <div class="centralizar">
                     <p class="texto" style="margin-bottom: 20px;">Ou cadastre-se com sua conta Google:</p>
-
                     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
                     <div id="g_id_onload" data-client_id="{{ google_client_id }}"
                         data-login_uri="{{ google_login_url }}" data-auto_prompt="false">
                     </div>
-
-                    <!-- Botão oficial do Google que garante o funcionamento do popup -->
                     <div style="display: flex; justify-content: center; width: 100%;">
                         <div id="google_btn_render"></div>
                     </div>
                 </div>
-
                 <style>
-                    /* Ajuste para o botão do Google ficar centralizado e bonito */
                     #google_btn_render {
                         margin-top: 10px;
                         transition: transform 0.2s;
                     }
-
                     #google_btn_render:hover {
                         transform: scale(1.02);
                     }
                 </style>
-
                 <script>
                     window.onload = function () {
                         if (typeof google !== 'undefined') {
-                            // Renderiza o botão oficial para garantir que o popup abra sem bloqueios
                             google.accounts.id.renderButton(
                                 document.getElementById("google_btn_render"),
                                 {
@@ -86,14 +78,13 @@
                                     shape: "rectangular"
                                 }
                             );
-
-                            // Tenta mostrar o selector inicial se possível
                             google.accounts.id.prompt();
                         } else {
                             setTimeout(window.onload, 500);
                         }
                     };
                 </script>
+                {% endcomment %}
             </div>
         </div>
     </div>

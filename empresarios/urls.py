@@ -12,5 +12,5 @@ urlpatterns = [
     path('add_metrica/<int:id>', views.add_metrica, name="add_metrica"),
     path('gerenciar_proposta/<int:id>', views.gerenciar_proposta, name="gerenciar_proposta"),
     path('analise_ia_empresario/<int:id>', views.analise_ia_empresario, name="analise_ia_empresario"),
-    path('social-auth/', include('social_django.urls', namespace='social')),
+    # path('social-auth/', include('social_django.urls', namespace='social')),  # COMENTADO: conexões Gmail desativadas
 ]

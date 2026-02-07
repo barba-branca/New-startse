@@ -221,10 +221,10 @@ AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'd
 
 # ============================================================================
 # Trigger redeploy: Fix dropdown visibility and template localization
-# Google OAuth
+# Google OAuth - COMENTADO (conexões com Gmail desativadas)
 # ============================================================================
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or os.environ.get('GMAIL_API_KEY') or '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+# GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or os.environ.get('GMAIL_API_KEY') or '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
+# GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
 # Isso diz ao Django que ele está atrás de um proxy seguro (Azure)
 if os.getenv('WEBSITE_HOSTNAME'):
@@ -242,25 +242,25 @@ else:
 
 
 # ============================================================================
-# Google OAuth2 Authentication - SOCIAL AUTH
+# Google OAuth2 Authentication - SOCIAL AUTH - COMENTADO (conexões com Gmail desativadas)
 # ============================================================================
 
 # Backends de autenticação
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
+    # 'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 # Configuração do Google OAuth2
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_CLIENT_ID', '')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = os.getenv(
-    'SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI',
-    'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/social-auth/complete/google-oauth2/'
-)
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_CLIENT_ID', '')
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+# SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = os.getenv(
+#     'SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI',
+#     'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/social-auth/complete/google-oauth2/'
+# )
 
 # ⚠️ CRÍTICO PARA AZURE/HTTPS ⚠️
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+# SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 # URLs de redirecionamento
 LOGIN_URL = '/usuarios/logar/'
@@ -268,29 +268,29 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/usuarios/logar/'
 
 # Escopos do Google (opcional, mas recomendado)
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile',
-]
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+#     'https://www.googleapis.com/auth/userinfo.email',
+#     'https://www.googleapis.com/auth/userinfo.profile',
+# ]
 
 # Pipeline personalizado (opcional)
-SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_auth.social_details',
-    'social_core.pipeline.social_auth.social_uid',
-    'social_core.pipeline.social_auth.auth_allowed',
-    'social_core.pipeline.social_auth.social_user',
-    'social_core.pipeline.user.get_username',
-    'social_core.pipeline.user.create_user',
-    'social_core.pipeline.social_auth.associate_user',
-    'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
-)
+# SOCIAL_AUTH_PIPELINE = (
+#     'social_core.pipeline.social_auth.social_details',
+#     'social_core.pipeline.social_auth.social_uid',
+#     'social_core.pipeline.social_auth.auth_allowed',
+#     'social_core.pipeline.social_auth.social_user',
+#     'social_core.pipeline.user.get_username',
+#     'social_core.pipeline.user.create_user',
+#     'social_core.pipeline.social_auth.associate_user',
+#     'social_core.pipeline.social_auth.load_extra_data',
+#     'social_core.pipeline.user.user_details',
+# )
 
 # Configurações adicionais
-SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/usuarios/logar/'
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
+# SOCIAL_AUTH_URL_NAMESPACE = 'social'
+# SOCIAL_AUTH_LOGIN_ERROR_URL = '/usuarios/logar/'
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+# SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 
 
 # ============================================================================

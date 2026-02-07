@@ -37,24 +37,22 @@
 
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 25px 0;">
 
+                {% comment %} COMENTADO: conexões Gmail desativadas
                 <div class="centralizar">
                     <p class="texto" style="margin-bottom: 20px;">Ou acesse com sua conta Google:</p>
-
-                    <!-- Botão de Login com Google (Server-side OAuth) -->
                     <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger w-100"
                         style="background-color: #db4437; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
                         <i class="fab fa-google"></i> Login com Google
                     </a>
                 </div>
-
                 <style>
-                    /* Ajuste para o botão do Google ficar centralizado e bonito */
                     .btn-danger:hover {
                         background-color: #c53929 !important;
                         transform: scale(1.02);
                         transition: transform 0.2s;
                     }
                 </style>
+                {% endcomment %}
             </div>
         </div>
     </div>
