@@ -1,5 +1,7 @@
 import yfinance as yf
 import cachetools.func
+import mercadopago
+from django.conf import settings
 
 @cachetools.func.ttl_cache(maxsize=128, ttl=600)  # Cache por 10 minutos
 def get_b3_data():
@@ -52,3 +54,41 @@ def get_b3_data():
             print(f"Erro ao buscar dados de {ticker}: {e}")
             
     return data
+
+def create_checkout_preference(user, plan_name, price):
+    """
+    Cria uma preferência de pagamento no Mercado Pago.
+    """
+    if not settings.MERCADO_PAGO_ACCESS_TOKEN:
+        print("MERCADO_PAGO_ACCESS_TOKEN não configurado")
+        return None
+
+    sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
+    
+    preference_data = {
+        "items": [
+            {
+                "title": f"Plano {plan_name} - New StartSE",
+                "quantity": 1,
+                "unit_price": float(price),
+                "currency_id": "BRL"
+            }
+        ],
+        "payer": {
+            "name": user.first_name,
+            "surname": user.last_name,
+            "email": user.email,
+        },
+        "back_urls": {
+            "success": "https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/empresarios/cadastrar_empresa/",
+            "failure": "https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/?status=failure",
+            "pending": "https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net/?status=pending"
+        },
+        "auto_return": "approved",
+    }
+    
+    preference_response = sdk.preference().create(preference_data)
+    
+    if "response" in preference_response:
+        return preference_response["response"]["init_point"]
+    return None

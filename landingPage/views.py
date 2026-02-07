@@ -1,6 +1,7 @@
 import os
-from django.shortcuts import render
-from .utils import get_b3_data
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .utils import get_b3_data, create_checkout_preference
 
 def landing_page(request):
     b3_data = get_b3_data()
@@ -22,3 +23,30 @@ def login_view(request):
         'google_login_url': login_uri
     }
     return render(request, 'logar.html', context)
+
+@login_required(login_url='/usuarios/logar/')
+def checkout(request, plan_id):
+    """
+    Processa o checkout do plano selecionado.
+    """
+    plans = {
+        'profissional': {'name': 'Profissional', 'price': 97.00},
+        'corporativo': {'name': 'Corporativo', 'price': 297.00}
+    }
+    
+    selected_plan = plans.get(plan_id)
+    
+    if not selected_plan:
+        return redirect('landingPage')
+        
+    checkout_url = create_checkout_preference(
+        request.user, 
+        selected_plan['name'], 
+        selected_plan['price']
+    )
+    
+    if checkout_url:
+        return redirect(checkout_url)
+    
+    # Se falhar, redireciona de volta com erro (pode melhorar com messages)
+    return redirect('landingPage')
