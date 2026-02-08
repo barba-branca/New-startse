@@ -22,6 +22,9 @@
                 <br>
                 <form action="{% url 'logar' %}" method="POST">
                     {% csrf_token %}
+                    {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    {% endif %}
                     <label>Username</label>
                     <input type="text" class="form-control input-pers" name="username"
                         placeholder="Digite seu username">
