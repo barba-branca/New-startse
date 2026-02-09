@@ -56,3 +56,49 @@ def checkout(request, plan_id):
 
     messages.add_message(request, constants.ERROR, erro or "Erro ao processar pagamento.")
     return redirect('landingPage')
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponse
+import json
+import mercadopago
+
+@csrf_exempt
+def webhook_mercadopago(request):
+    """
+    Recebe notificações (IPN) do Mercado Pago.
+    """
+    if request.method == 'POST':
+        topic = request.GET.get('topic') or request.GET.get('type')
+        id = request.GET.get('id') or request.GET.get('data.id')
+
+        if not topic or not id:
+            # Tenta pegar do corpo se não vier na URL
+            try:
+                body = json.loads(request.body)
+                topic = body.get('type')
+                id = body.get('data', {}).get('id')
+            except:
+                pass
+
+        if topic == 'payment':
+            sdk = mercadopago.SDK(os.getenv('MERCADO_PAGO_ACCESS_TOKEN'))
+            payment_info = sdk.payment().get(id)
+            
+            if payment_info['status'] == 200:
+                payment = payment_info['response']
+                status = payment.get('status')
+                external_reference = payment.get('external_reference') # Pode usar para identificar o user/pedido
+                
+                # LÓGICA PARA LIBERAR O PLANO
+                if status == 'approved':
+                    # TODO: Atualizar status do usuário no banco de dados
+                    # Ex: user = User.objects.get(id=external_reference)
+                    # user.plano = 'pago'
+                    # user.save()
+                    print(f"Pagamento APROVADO: {id}")
+                else:
+                    print(f"Pagamento {status}: {id}")
+            
+            return HttpResponse(status=200)
+            
+    return HttpResponse(status=200)
