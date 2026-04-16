@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'investidores',
     'landingPage',
     'social_django',
+    'otc',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.multitenancy.TenantMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'

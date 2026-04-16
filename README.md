@@ -1,167 +1,103 @@
-# **START-SE: Plataforma de Crowdfunding para Startups**
+# 🚀 START-SE: Infraestrutura White Label OTC
 
-A **START-SE** é uma plataforma inovadora de crowdfunding desenvolvida com Django, projetada para conectar empreendedores e investidores. O objetivo principal é oferecer um ambiente que facilita o encontro entre startups em busca de financiamento e investidores interessados em novas oportunidades.
-
----
-
-## **1. Identificação da Dor**
-
-**Problema identificado**:  
-Empreendedores enfrentam grandes desafios ao iniciar suas startups, especialmente para obter financiamento inicial. Encontrar investidores ou fontes de ajuda financeira pode ser um processo demorado, incerto e desgastante, dificultando o desenvolvimento e a sustentação do negócio.
+A **START-SE** evoluiu de uma plataforma de crowdfunding para uma **infraestrutura White Label de ponta para mesas de negociação OTC (Over-The-Counter)**. Projetada para alta performance, ela combina o poder do Django com uma arquitetura de microsserviços limpa (Clean Architecture), garantindo escalabilidade e isolamento total entre diferentes operadoras (Desks).
 
 ---
 
-## **2. Proposta de Solução**
+## 🌟 Visão Geral
 
-**Solução oferecida pela START-SE**:  
-A **START-SE** é uma plataforma de crowdfunding criada para atender essa necessidade. Ela conecta investidores interessados em novas oportunidades a empreendedores que buscam financiamento para suas startups. A plataforma atua como um ponto de encontro que facilita as interações e transações entre essas partes.
-
----
-
-## **3. Funcionamento da Plataforma**
-
-**Como a START-SE funciona**:  
-A START-SE é estruturada como uma "casa de leilões" digital:  
-
-- **Para Investidores**:  
-  Os investidores podem avaliar startups cadastradas e participar de leilões de ofertas, apresentando propostas de investimento.  
- 
-- **Para Empreendedores**:  
-  Os empreendedores analisam as propostas recebidas e decidem se aceitam ou não as ofertas. Isso cria uma relação dinâmica e competitiva, garantindo que ambos os lados obtenham os melhores resultados possíveis.
-
-A plataforma utiliza processos simplificados para registro, análise de oportunidades e transações financeiras, garantindo acessibilidade e transparência.
+A plataforma permite que donos de mesas (Tenants) operem suas próprias marcas de negociação OTC com:
+- **Isolamento de Dados Multi-tenant**: Garantia de privacidade e segurança entre mesas de negociação.
+- **Motor de Preços RFQ (Request for Quote)**: Cotações em tempo real com travas de preço (TTL) e spreads dinâmicos.
+- **Integração com IA Autônoma (S.A.K.A)**: Agentes inteligentes que automatizam análise de documentos e suporte ao investidor.
 
 ---
 
-## **4. Análise da Concorrência**
+## 🏗️ Arquitetura do Sistema
 
-A START-SE se diferencia das plataformas tradicionais de crowdfunding ao adicionar um componente inovador: **inteligência artificial**. Ainda assim, é importante entender como outras plataformas operam:  
+O projeto utiliza uma abordagem híbrida moderna:
 
-### Exemplos de concorrentes no mercado de crowdfunding:  
-- **Kickstarter** (2009):  
-  Globalmente reconhecida, voltada para projetos criativos e inovadores, onde o financiamento é liberado apenas se a meta for atingida.  
-- **Indiegogo** (2008):  
-  Oferece maior flexibilidade, permitindo que campanhas recebam financiamento mesmo sem atingir a meta, com foco em tecnologia e produtos inovadores.  
-- **Benfeitoria** (2011):  
-  Popular no Brasil, atende iniciativas culturais, sociais e empresariais, com diferenciais em projetos colaborativos.  
-- **Catarse** (2011):  
-  Também focada no Brasil, apoia projetos criativos e culturais, promovendo engajamento comunitário.  
+1.  **Monólito Central (Django)**: Gerencia usuários, Landing Pages e integrações legadas.
+2.  **OTC Core Microservice**: Um serviço agnóstico construído seguindo **Clean Architecture** e **SOLID**, focado exclusivamente no motor de negociação e resiliência financeira.
 
-Cada uma dessas plataformas tem objetivos e públicos específicos, mas carecem de personalização avançada ou suporte consultivo direto, que são os diferenciais da START-SE.
+### Camadas do Microserviço:
+- **Domain**: Entidades e regras de negócio puras.
+- **Application**: Casos de uso orquestrados (RFQ, Execução de Ordens).
+- **Infrastructure**: Adaptadores robustos (Django ORM, Yahoo Finance, Circuit Breaker).
+- **Interface**: Entrypoints amigáveis a **MCP (Model Context Protocol)** e APIs REST.
 
 ---
 
-## **5. Diferencial da START-SE**
+## 🛠️ Tecnologias Principais
 
-**Diferencial principal: Integração de IA (Inteligência Artificial)**  
-
-A START-SE se destaca das plataformas existentes ao incorporar uma **IA interativa** que ajuda tanto investidores quanto empreendedores a tomar decisões mais informadas. Nenhuma outra plataforma de crowdfunding no Brasil oferece esse tipo de funcionalidade.
-
-**Funcionalidades da IA**:  
-1. **Para Investidores**:  
-   - Sugestões sobre segmentos promissores com base no capital disponível.  
-   - Recomendação de startups em áreas de interesse.  
-   - Orientações sobre como diversificar e mitigar riscos.  
-   - Interação em linguagem natural, como uma conversa fluida.  
-
-2. **Para Empreendedores**:  
-   - Estimativa do capital necessário para iniciar e manter o negócio.  
-   - Análise de risco personalizada para evitar falência.  
-   - Sugestões sobre como otimizar a captação de recursos.  
-   - Conversas naturais e intuitivas com a IA.
+- **Backend**: Django 5.1 & Python 3.14+
+- **Arquitetura**: Clean Architecture / Microsserviços
+- **Integrações de Preço**: Yahoo Finance (Integrated via Adapter)
+- **IA/Agentes**: CrewAI & Framework S.A.K.A (C.A.S.A - Sistema de Agentes Autónomos)
+- **Conformidade**: SOLID, Clean Code e Protocolo MCP
 
 ---
 
-## **6. Funcionalidades Técnicas**
+## 📚 Documentação Técnica
 
-1. **Cadastro de Empresas**
-   - Empreendedores podem cadastrar startups, incluindo documentos e métricas.
-2. **Listagem de Startups**
-   - Investidores podem visualizar as startups disponíveis para investimento.
-3. **Detalhes da Startup**
-   - Informações detalhadas sobre cada empresa, incluindo métricas e documentação.
-4. **Propostas de Investimento**
-   - Módulo para leilões de investimento (a ser implementado).
+Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
+
+- 📑 **[Guia White Label OTC](/docs/OTC_WHITELABEL.md)**: Arquitetura e isolamento lógico.
+- ⚙️ **[Engenharia do Microserviço](/docs/MICROSERVICE_OTC.md)**: Detalhes de Clean Architecture e SOLID.
+- 🧪 **[Relatório de Testes](/docs/TESTS_OTC.md)**: Estratégia de testes e resiliência (Circuit Breaker).
+- 🔑 **[Gestão de Chaves](/docs/chaves.md)**: Configurações de API e tokens.
 
 ---
 
-## **7. Instalação**
+## 🚀 Instalação e Setup
 
-Siga os passos abaixo para configurar o ambiente e executar o projeto:
+> [!WARNING]
+> **Atenção ao Ambiente**: Atualmente o projeto recomenda o uso do Python 3.14 (localizado em `C:/Python314/python.exe` no ambiente de desenvolvimento).
 
-### **Requisitos**
-- Python 3.10 ou superior
-- Pipenv (gerenciador de ambiente virtual)
-- Banco de dados configurado (ex.: SQLite ou PostgreSQL)
-
-### **Passos**
-1. Clone este repositório:
+### **Passos Rápidos**
+1. **Clone o Repositório**:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   cd seu-repositorio
+   git clone https://github.com/seu-usuario/new-startse.git
    ```
 
-2. Instale as dependências:
+2. **Configuração de Ambiente**:
+   Recomendamos a criação de um ambiente virtual para rodar os novos microsserviços:
    ```bash
-   pipenv install
+   /C/Python314/python.exe -m venv .venv
+   source .venv/Scripts/activate
    ```
 
-3. Ative o ambiente virtual:
+3. **Migrações de Banco de Dados**:
    ```bash
-   pipenv shell
-   ```
-
-4. Configure o banco de dados em `core/settings.py`.
-
-5. Aplique as migrações:
-   ```bash
+   python manage.py makemigrations otc
    python manage.py migrate
    ```
 
-6. Inicie o servidor:
+4. **Executando os Testes**:
    ```bash
-   python manage.py runserver
-   ```
-
-7. Acesse o sistema no navegador:
-   ```
-   http://127.0.0.1:8000/
+   pytest otc-core-service/tests
    ```
 
 ---
 
-## **8. Roadmap**
+## 🗺️ Roadmap de Evolução
 
-- [x] Cadastro de empresas
-- [x] Listagem de startups
-- [ ] Implementação do módulo de investidores
-- [ ] Funcionalidade de busca avançada
-- [ ] Integração com meios de pagamento
-- [ ] Integração de IA para análises e sugestões
-
----
-
-## **9. Como Contribuir**
-
-1. Faça um fork deste repositório.
-2. Crie uma branch para sua feature:
-   ```bash
-   git checkout -b feature/nome-da-feature
-   ```
-3. Faça commit das suas alterações:
-   ```bash
-   git commit -m 'Adicionando nova feature'
-   ```
-4. Faça push para sua branch:
-   ```bash
-   git push origin feature/nome-da-feature
-   ```
-5. Abra um Pull Request.
+- [x] Transição para Infraestrutura OTC
+- [x] Implementação de Multi-tenancy Core
+- [x] Design de Microsserviço OTC Core (SOLID)
+- [x] Suíte de Testes e Circuit Breaker
+- [ ] Interface UI para Negociação RFQ
+- [ ] Dashboards Avançados por Tenant
+- [ ] Liquidação em Blockchain (Smart Contracts)
 
 ---
 
-## **10. Licença**
+## 🤝 Como Contribuir
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretrizes sobre como enviar Pull Requests seguindo nossos padrões de Clean Code.
 
 ---
+
+## 📜 Licença
+
+Este projeto é privado e de uso exclusivo para a infraestrutura **START-SE**. Todos os direitos reservados.
