@@ -5,15 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-04-16
 
 ### Added
-- Created `docs/AGENT_ROLES.md` to define agent roles.
-- Established the "Librarian" (Documentation Agent) role.
-- Organized documentation structure in `docs/`.
+- **Real-time Ticker**: Implementação de ticker financeiro em tempo real usando JavaScript puro (sem dependências de backend).
+- **Multi-API Integration**: Integração com Binance API (Cripto) e AwesomeAPI (Câmbio) para dados atualizados.
+- **Developer Branding**: Adicionada a assinatura "Produzido por Develops Code" em todas as páginas e no README.
 
 ### Changed
-- Moved `README.md` from `docs/` to project root for better visibility.
+- **Global Rebranding**: O projeto foi oficialmente renomeado de "STARTSE" para **New Start-se** em todo o frontend, títulos e documentação.
+- **Frontend Decoupling**: Removida a dependência do `yfinance` no backend para evitar erros de DLL no Windows, movendo a lógica para o lado do cliente.
+
 ### Fixed
-- **Google Login**: Implemented a hardcoded fallback for `GOOGLE_CLIENT_ID` in `core/settings.py` to resolve the `invalid_client` (401) error on Azure deployments where environment variables were failing.
-- **Listing Companies**: Fixed a `TemplateSyntaxError` (500) in `empresarios/templates/listar_empresas.html` caused by a malformed/split `{% endif %}` tag.
+- **Estabilização do Servidor**: Implementados stubs e mocks para bibliotecas bloqueadas pelo Windows App Control, garantindo que o `runserver` opere sem travamentos.

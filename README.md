@@ -1,6 +1,6 @@
-# 🚀 START-SE: Infraestrutura White Label OTC
+# 🚀 New Start-se: Infraestrutura White Label OTC
 
-A **START-SE** evoluiu de uma plataforma de crowdfunding para uma **infraestrutura White Label de ponta para mesas de negociação OTC (Over-The-Counter)**. Projetada para alta performance, ela combina o poder do Django com uma arquitetura de microsserviços limpa (Clean Architecture), garantindo escalabilidade e isolamento total entre diferentes operadoras (Desks).
+A **New Start-se** evoluiu de uma plataforma de crowdfunding para uma **infraestrutura White Label de ponta para mesas de negociação OTC (Over-The-Counter)**. Projetada para alta performance, ela combina o poder do Django com uma arquitetura de microsserviços limpa (Clean Architecture), garantindo escalabilidade e isolamento total entre diferentes operadoras (Desks).
 
 ---
 
@@ -31,8 +31,8 @@ O projeto utiliza uma abordagem híbrida moderna:
 ## 🛠️ Tecnologias Principais
 
 - **Backend**: Django 5.1 & Python 3.14+
+- **Frontend Real-time**: Ticker financeiro dinâmico (Binance & AwesomeAPI)
 - **Arquitetura**: Clean Architecture / Microsserviços
-- **Integrações de Preço**: Yahoo Finance (Integrated via Adapter)
 - **IA/Agentes**: CrewAI & Framework S.A.K.A (C.A.S.A - Sistema de Agentes Autónomos)
 - **Conformidade**: SOLID, Clean Code e Protocolo MCP
 
@@ -100,4 +100,7 @@ Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretr
 
 ## 📜 Licença
 
-Este projeto é privado e de uso exclusivo para a infraestrutura **START-SE**. Todos os direitos reservados.
+Este projeto é privado e de uso exclusivo para a infraestrutura **New Start-se**. Todos os direitos reservados.
+
+---
+🚀 **Produzido por [Develops Code](https://developscode.com.br)**

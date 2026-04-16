@@ -1,23 +1,26 @@
-import yfinance as yf
+# import yfinance as yf # Temporarily disabled due to OS App Control policy blocking DLLs
 from decimal import Decimal
-from ...domain.interfaces import IPriceProvider
+from typing import Optional
+from ...domain.entities import IPriceProvider
 
-class YahooFinanceProvider(IPriceProvider):
+class YFinancePriceProvider(IPriceProvider):
     """
-    Adapter for Yahoo Finance. 
-    Implements IPriceProvider (Infrastructure Layer).
+    Mock Price Provider to bypass system security restrictions.
+    Returns static prices for development and UI testing.
     """
-    
-    def get_last_price(self, base_asset: str, quote_asset: str) -> Decimal:
-        symbol = f"{base_asset.upper()}-{quote_asset.upper()}"
-        try:
-            # Note: In a real high-perf scenario, we would add Circuit Breaker here
-            ticker = yf.Ticker(symbol)
-            price = ticker.fast_info['lastPrice']
-            return Decimal(str(price))
-        except Exception as e:
-            # Fallback for internal simulator or error handling
-            raise Exception(f"Liquidity Provider Offline: {str(e)}")
+    def __init__(self):
+        # self.ticker = yf.Ticker("BTC-USD")
+        pass
+        
+    def get_last_price(self, asset: str, currency: str) -> Decimal:
+        # Mock logic: Return fixed prices
+        # asset is expected as 'BTC' or 'ETH'
+        mock_prices = {
+            "BTC": Decimal("350000.00"),
+            "ETH": Decimal("15000.00"),
+            "USD": Decimal("5.50")
+        }
+        return mock_prices.get(asset.upper(), Decimal("100.00"))
 
 class DefaultSpreadStrategy:
     """

@@ -13,7 +13,7 @@ def landing_page(request):
         messages.add_message(request, constants.ERROR, 'O pagamento não foi aprovado. Tente novamente ou entre em contato.')
     elif status == 'pending':
         messages.add_message(request, constants.WARNING, 'Seu pagamento está em análise. Você receberá uma confirmação em breve.')
-    return render(request, 'index.html', {'b3_data': b3_data})
+    return render(request, 'index.html')
 
 def login_view(request):
     # COMENTADO: conexões Gmail desativadas

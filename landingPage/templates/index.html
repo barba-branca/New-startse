@@ -10,7 +10,7 @@
     <meta name="keywords" content="investimento, startups, investidor anjo, crowdfunding, equity, fintech, goiania">
 
     {% block 'head' %}
-    <title>{% block 'title' %}NEW START - Investimentos em Startups{% endblock %}</title>
+    <title>{% block 'title' %}New Start-se - Investimentos em Startups{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1279,34 +1279,10 @@
     </script>
     {% endif %}
 
-    <!-- ========== B3 TICKER ========== -->
+    <!-- ========== CURRENCY TICKER ========== -->
     <div class="ticker-wrap">
-        <div class="ticker">
-            {% for item in b3_data %}
-            <div class="ticker-item">
-                <span class="symbol">{{ item.symbol }}</span>
-                <span class="price">R$ {{ item.price }}</span>
-                <span class="change {% if item.positive %}up{% else %}down{% endif %}">
-                    <i class="fas fa-caret-{% if item.positive %}up{% else %}down{% endif %}"></i>
-                    {{ item.pct_change }}%
-                </span>
-                <span style="margin-left: 8px; color: var(--text-muted); font-size: 10px;">(Cap.: {{ item.market_cap
-                    }})</span>
-            </div>
-            {% endfor %}
-            <!-- Double for seamless loop if needed, but animation handles it -->
-            {% for item in b3_data %}
-            <div class="ticker-item">
-                <span class="symbol">{{ item.symbol }}</span>
-                <span class="price">R$ {{ item.price }}</span>
-                <span class="change {% if item.positive %}up{% else %}down{% endif %}">
-                    <i class="fas fa-caret-{% if item.positive %}up{% else %}down{% endif %}"></i>
-                    {{ item.pct_change }}%
-                </span>
-                <span style="margin-left: 8px; color: var(--text-muted); font-size: 10px;">(Cap.: {{ item.market_cap
-                    }})</span>
-            </div>
-            {% endfor %}
+        <div class="ticker" id="crypto-ticker">
+            <div class="ticker-item"><span class="symbol">CARREGANDO...</span></div>
         </div>
     </div>
 
@@ -1314,7 +1290,7 @@
     <nav class="navbar">
         <div class="navbar-brand">
             <div class="logo-icon">N</div>
-            <span class="brand-text">NEW START</span>
+            <span class="brand-text">New Start-se</span>
         </div>
 
         <ul class="nav-links">
@@ -1421,7 +1397,7 @@
     <section id="features" class="section">
         <div class="section-header">
             <span class="badge">Funcionalidades</span>
-            <h2>Por que escolher a New Start?</h2>
+            <h2>Por que escolher a New Start-se?</h2>
             <p>Uma plataforma completa para conectar investidores e startups de forma segura e eficiente.</p>
         </div>
 
@@ -1642,7 +1618,7 @@
             <div class="footer-brand">
                 <div class="logo">
                     <div class="logo-icon">N</div>
-                    <span class="brand-text">NEW START</span>
+                    <span class="brand-text">New Start-se</span>
                 </div>
                 <p>Transformando o ecossistema de investimentos em startups no Brasil. Conectamos empreendedores e
                     investidores com segurança, transparência e tecnologia.</p>
@@ -1682,7 +1658,8 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© 2024 New Start. Todos os direitos reservados. CNPJ: 00.000.000/0001-00</p>
+            <p>© 2026 New Start-se. Todos os direitos reservados. CNPJ: 00.000.000/0001-00</p>
+            <p style="margin-top: 10px; opacity: 0.8;">🚀 Produzido por <a href="https://developscode.com.br" target="_blank" style="color: var(--purple-neon); font-weight: 600;">Develops Code</a></p>
         </div>
     </footer>
 
@@ -1849,19 +1826,75 @@
             });
         });
 
+        // Real-time Ticker Logic
+        async function updateTicker() {
+            const tickerEl = document.getElementById('crypto-ticker');
+            if (!tickerEl) return;
+
+            try {
+                // Fetch Crypto Prices (Binance)
+                const cryptoSymbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
+                const cryptoRes = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const allData = await cryptoRes.json();
+                
+                const selectedCrypto = allData.filter(item => cryptoSymbols.includes(item.symbol));
+                
+                // Fetch USD/BRL
+                const brlRes = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+                const brlData = await brlRes.json();
+                const usdBrl = brlData.USDBRL;
+
+                let tickerHtml = '';
+                
+                // Add USD/BRL first
+                tickerHtml += `
+                    <div class="ticker-item">
+                        <span class="symbol">USD/BRL</span>
+                        <span class="price">R$ ${parseFloat(usdBrl.bid).toFixed(2)}</span>
+                        <span class="change ${parseFloat(usdBrl.pctChange) >= 0 ? 'up' : 'down'}">
+                            <i class="fas fa-caret-${parseFloat(usdBrl.pctChange) >= 0 ? 'up' : 'down'}"></i>
+                            ${usdBrl.pctChange}%
+                        </span>
+                    </div>
+                `;
+
+                // Add Crypto
+                selectedCrypto.forEach(coin => {
+                    const symbol = coin.symbol.replace('USDT', '');
+                    const price = parseFloat(coin.lastPrice);
+                    const change = parseFloat(coin.priceChangePercent);
+                    
+                    tickerHtml += `
+                        <div class="ticker-item">
+                            <span class="symbol">${symbol}</span>
+                            <span class="price">$ ${price > 100 ? price.toLocaleString() : price.toFixed(2)}</span>
+                            <span class="change ${change >= 0 ? 'up' : 'down'}">
+                                <i class="fas fa-caret-${change >= 0 ? 'up' : 'down'}"></i>
+                                ${change.toFixed(2)}%
+                            </span>
+                        </div>
+                    `;
+                });
+
+                // Duplicate for seamless scroll
+                tickerEl.innerHTML = tickerHtml + tickerHtml;
+            } catch (err) {
+                console.error('Ticker Error:', err);
+            }
+        }
+
+        updateTicker();
+        setInterval(updateTicker, 60000); // Update every minute
+
         // Adicionar animação CSS
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
             }
+            .ticker-item .change.up { color: #10b981; }
+            .ticker-item .change.down { color: #ef4444; }
         `;
         document.head.appendChild(style);
     </script>

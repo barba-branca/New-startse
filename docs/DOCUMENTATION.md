@@ -1,7 +1,7 @@
-# DOCUMENTAÇÃO TÉCNICA: START-SE
+# DOCUMENTAÇÃO TÉCNICA: New Start-se
 
 ## 1. Visão Geral
-A **START-SE** é uma plataforma de crowdfunding e investment-matching projetada para o ecossistema de startups brasileiro. Ela atua como uma ponte digital entre empreendedores em busca de capital e investidores procurando oportunidades de alto crescimento. O diferencial da plataforma reside na integração de Inteligência Artificial para análise de risco, due diligence e auxílio na tomada de decisão.
+A **New Start-se** é uma plataforma de crowdfunding e investment-matching projetada para o ecossistema de startups brasileiro. Ela atua como uma ponte digital entre empreendedores em busca de capital e investidores procurando oportunidades de alto crescimento. O diferencial da plataforma reside na integração de Inteligência Artificial para análise de risco, due diligence e auxílio na tomada de decisão.
 
 ---
 
@@ -38,7 +38,7 @@ Focado em segurança e transparência:
 - **Assinatura Digital**: Integração via API com **ZapSign/Clicksign** para formalização jurídica de contratos de Mútuo Conversível e SAFE.
 
 ### 3.3. Landing Page & Monetização
-- **Dados B3**: Consumo de APIs para exibir o cenário atual do mercado financeiro.
+- **Real-time Ticker**: Implementação em JavaScript que consome APIs da Binance (Cripto) e AwesomeAPI (Câmbio) para exibir cotações em tempo real sem dependências de backend.
 - **Checkout Mercado Pago**: Integração para planos de assinatura (Profissional/Corporativo), com sistema de Webhook para liberação automática de recursos.
 
 ---
