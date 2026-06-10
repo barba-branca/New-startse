@@ -40,8 +40,31 @@ def cadastrar_empresa(request):
         pitch = request.FILES.get('pitch')
         logo = request.FILES.get('logo')
 
-        if not nome or not cnpj or not site or not descricao or not data_final or not percentual_equity or not valor or not pitch or not logo:
-            messages.add_message(request, constants.ERROR, 'Preencha todos os campos.')
+        missing = []
+        for key, val in {
+            'nome': nome,
+            'cnpj': cnpj,
+            'site': site,
+            'tempo_existencia': tempo_existencia,
+            'descricao': descricao,
+            'area': area,
+            'publico_alvo': publico_alvo,
+            'estagio': estagio,
+            'data_final': data_final,
+            'percentual_equity': percentual_equity,
+            'valor': valor,
+            'pitch': pitch,
+            'logo': logo,
+        }.items():
+            if val is None or val == '':
+                missing.append(key)
+
+        if missing:
+            messages.add_message(
+                request,
+                constants.ERROR,
+                'Preencha todos os campos. Faltando: ' + ', '.join(missing)
+            )
             return redirect('/empresarios/cadastrar_empresa')
 
         try:

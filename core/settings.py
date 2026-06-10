@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-temp-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1 .azurewebsites.net').split()
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1 .azurewebsites.net .vercel.app').split()
 
 # Configurações para Azure / Proxies
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -39,7 +39,8 @@ USE_X_FORWARDED_HOST = True
 # Segurança para formulários em produção
 CSRF_TRUSTED_ORIGINS = [
     'https://*.azurewebsites.net',
-    'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net'
+    'https://new-start-se-e9ctbxanc2hufze3.canadacentral-01.azurewebsites.net',
+    'https://*.vercel.app'
 ]
 
 
@@ -102,7 +103,8 @@ DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600,
-        ssl_require=False  # Altere para True se necessário em produção com SSL forçado
+        conn_health_checks=True,
+        ssl_require=os.getenv('DB_SSL_REQUIRE', 'False') == 'True'
     )
 }
 

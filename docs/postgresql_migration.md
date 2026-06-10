@@ -1,51 +1,53 @@
-# Migração para PostgreSQL e Deploy no Azure
+# Guia de Migração para PostgreSQL
 
-Este documento descreve os passos necessários para configurar a aplicação para usar PostgreSQL, especialmente em ambiente de produção (Azure).
+Este documento explica como migrar seu banco de dados de SQLite para PostgreSQL na plataforma **New Start-se**.
 
-## Motivação
-O uso do SQLite em produção (Azure App Service) causa problemas de persistência e sincronização de schema (`sqlite3.OperationalError: no such column`), pois o sistema de arquivos pode ser efêmero ou não persistir correta e atomicamente entre deploys/restarts. O PostgreSQL é o banco de dados recomendado para produção.
+## 1. Configuração do Ambiente
 
-## Alterações Realizadas
+Certifique-se de que o PostgreSQL está instalado e rodando (localmente ou via serviço como Neon.tech).
 
-1.  **Dependências**: Adicionada a biblioteca `dj-database-url` e `psycopg2-binary` (já existente) no `requirements.txt`.
-2.  **Configuração (`settings.py`)**:
-    O `settings.py` foi alterado para usar `dj_database_url` para ler a configuração do banco de dados a partir da variável de ambiente `DATABASE_URL`.
+### No arquivo `.env`:
+Atualize sua `DATABASE_URL` seguindo o exemplo abaixo:
+```env
+# Exemplo Local
+DATABASE_URL=postgres://usuario:senha@localhost:5432/nome_do_banco
 
-    ```python
-    import dj_database_url
-
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-            conn_max_age=600,
-            ssl_require=False 
-        )
-    }
-    ```
-    Isso mantém o SQLite como fallback para desenvolvimento local caso a variável não esteja definida.
-
-3.  **Ambiente (`.env`)**:
-    Adicionado suporte/exemplo para `DATABASE_URL`.
-
-## Instruções de Configuração (Obrigatório para Produção)
-
-Para que a aplicação funcione corretamente no Azure e execute as migrações (criando as tabelas e colunas necessárias), você deve configurar a variável de ambiente `DATABASE_URL`.
-
-### No Azure App Service:
-
-1.  Acesse o **Azure Portal**.
-2.  Vá para o seu **App Service**.
-3.  No menu lateral, clique em **Settings** > **Environment variables**.
-4.  Adicione uma nova variável:
-    *   **Name**: `DATABASE_URL`
-    *   **Value**: `postgres://usuario:senha@host:porta/nome_do_banco`
-        *   Exemplo: `postgres://startse_admin:MinhaSenhaSegura123@psql-startse-server.postgres.database.azure.com:5432/startse_db`
-5.  Salve e reinicie a aplicação.
-
-### Verificação
-
-Após configurar e reiniciar, o script `startup.sh` executará automaticamente:
-```bash
-python manage.py migrate --noinput
+# Exemplo Neon.tech (Recomendado para Vercel)
+DATABASE_URL=postgres://user:pass@ep-hostname.us-east-2.aws.neon.tech/neondb?sslmode=require
+DB_SSL_REQUIRE=True
 ```
-Isso aplicará todas as migrações pendentes no banco PostgreSQL conectado, resolvendo erros como `no such column`.
+
+## 2. Processo de Migração
+
+### Opção A: Inicialização Limpa (Recomendada)
+Se você não precisa dos dados atuais do SQLite:
+1. Altere a `DATABASE_URL` no `.env`.
+2. Delete todos os arquivos na pasta `otc/migrations/` (exceto `__init__.py`).
+3. Execute:
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+### Opção B: Migração de Dados Existentes
+Para mover dados do SQLite para o Postgres:
+1. **Exportar dados do SQLite**:
+   ```bash
+   python manage.py dumpdata --exclude auth.permission --exclude contenttypes > data.json
+   ```
+2. **Alterar para Postgres** no `.env`.
+3. **Criar as tabelas**:
+   ```bash
+   python manage.py migrate
+   ```
+4. **Importar dados**:
+   ```bash
+   python manage.py loaddata data.json
+   ```
+
+## 3. Considerações para Vercel
+Ao subir para a Vercel, você **DEVE** cadastrar as variáveis `DATABASE_URL` e `DB_SSL_REQUIRE` no painel de configurações para que a conexão funcione corretamente.
+
+---
+**Guia técnico de infraestrutura.**

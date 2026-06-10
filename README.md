@@ -92,6 +92,25 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 
 ---
 
+## ☁️ Deploy na Vercel
+
+A **New Start-se** está pronta para ser implantada na Vercel.
+
+### **Pré-requisitos**
+1. **Banco de Dados**: Como a Vercel é stateless, o SQLite não funcionará para persistência. Utilize um banco **PostgreSQL** (Ex: Neon.tech).
+2. **Variáveis de Ambiente**: Configure as seguintes variáveis no painel da Vercel:
+   - `DJANGO_SECRET_KEY`: Uma chave aleatória segura.
+   - `DATABASE_URL`: URL de conexão do seu PostgreSQL.
+   - `DEBUG`: `False` (em produção).
+   - `ZAPSIGN_API_TOKEN`, `MERCADO_PAGO_ACCESS_TOKEN`, etc.
+
+### **Como subir**
+1. Conecte seu repositório GitHub à Vercel.
+2. A Vercel detectará o `vercel.json` e o `requirements.txt` automaticamente.
+3. O comando de build executará `python manage.py collectstatic` (se configurado) ou utilizará o **WhiteNoise** já presente no projeto.
+
+---
+
 ## 🤝 Como Contribuir
 
 Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretrizes sobre como enviar Pull Requests seguindo nossos padrões de Clean Code.
