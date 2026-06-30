@@ -6,6 +6,8 @@ from django.shortcuts import render
 urlpatterns = [
     # Views existentes
     path('sugestao/', views.sugestao, name="sugestao"),
+    path('busca_avancada/', views.busca_avancada, name="busca_avancada"),
+    path('painel/', views.painel_investidor, name="painel_investidor"),
     path('ver_empresa/<int:id>', views.ver_empresa, name="ver_empresa"),
     path('realizar_proposta/<int:id>', views.realizar_proposta, name="realizar_proposta"),
     path("assinar_contrato/<int:id>", views.assinar_contrato, name="assinar_contrato"),

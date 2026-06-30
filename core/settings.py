@@ -230,14 +230,17 @@ AZURE_STORAGE_CONTAINER_NAME = os.environ.get('AZURE_STORAGE_CONTAINER_NAME', 'd
 # GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or os.environ.get('GMAIL_API_KEY') or '387105332982-m1sqi0sla8sf1rr6mnae0n0rpodm9vjc.apps.googleusercontent.com'
 # GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
-# Isso diz ao Django que ele está atrás de um proxy seguro (Azure)
-if os.getenv('WEBSITE_HOSTNAME'):
-    DEBUG = True # DEBUG TEMPORÁRIO PARA DIAGNÓSTICO
+# Isso diz ao Django que ele está atrás de um proxy seguro (Azure ou GCP Cloud Run)
+if os.getenv('WEBSITE_HOSTNAME') or os.getenv('K_SERVICE'):
+    DEBUG = os.getenv('DEBUG', 'False') == 'True'
     ALLOWED_HOSTS = ['*']
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     USE_X_FORWARDED_HOST = True
+    # Para GCP Cloud Run, o origin confiável é dinâmico ou definido via env
+    if os.getenv('GC_PROD_URL'):
+        CSRF_TRUSTED_ORIGINS.append(os.getenv('GC_PROD_URL'))
 else:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = False

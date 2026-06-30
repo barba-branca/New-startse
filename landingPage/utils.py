@@ -33,6 +33,10 @@ def create_checkout_preference(request, user, plan_name, price):
         else:
             base_url = request.build_absolute_uri("/").rstrip("/")
 
+    # Mercado Pago exige URLs HTTPS para retorno
+    if base_url.startswith("http://"):
+        base_url = base_url.replace("http://", "https://")
+
     success_url = f"{base_url}/empresarios/cadastrar_empresa/"
     failure_url = f"{base_url}/?status=failure"
     pending_url = f"{base_url}/?status=pending"

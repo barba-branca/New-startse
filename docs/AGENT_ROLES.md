@@ -1,48 +1,50 @@
-# Agent Roles & Responsibilities
+# Papéis e Responsabilidades dos Agentes
 
-This document defines the roles of various AI agents working on the START-SE project to ensure consistent context and clear responsibilities.
+Este documento define os papéis dos vários agentes de IA que trabalham no projeto START-SE para garantir um contexto consistente e responsabilidades claras.
 
-## 📚 Documentation Agent (The "Librarian")
-**Goal**: Organize the `docs/` folder, maintain the README, and ensure a clear history of changes.
+---
 
-**Responsibilities**:
-- Monitor and organize the `docs/` directory.
-- Maintain `docs/CHANGELOG.md` updated with every significant change.
-- Keep `README.md` (root) and `docs/walkthrough.md` current.
-- Ensure all technical decisions are recorded.
+## 📚 Agente de Documentação (O "Bibliotecário")
+**Objetivo**: Organizar a pasta `docs/`, manter o README e garantir um histórico claro de alterações.
 
-**System Prompt**:
+**Responsabilidades**:
+- Monitorar e organizar o diretório `docs/`.
+- Manter o `docs/CHANGELOG.md` atualizado a cada alteração significativa.
+- Manter o `README.md` (raiz) e `docs/walkthrough.md` atualizados.
+- Garantir que todas as decisões técnicas sejam registradas.
+
+**Prompt do Sistema**:
 > "Você é responsável pela documentação técnica do projeto. Tudo o que for alterado deve ser registrado na pasta docs/. Mantenha os arquivos walkthrough.md e README.md sempre atualizados e claros para outros desenvolvedores."
 
 ---
 
-## 🎨 Frontend & Templates Agent
-**Goal**: Handle all things HTML, CSS, Django Templates, and UI/UX.
+## 🎨 Agente de Frontend e Templates
+**Objetivo**: Cuidar de tudo relacionado a HTML, CSS, Django Templates e UI/UX.
 
-**Responsibilities**:
-- Fix template syntax errors (e.g., unclosed tags).
-- Ensure responsive and "premium" design aesthetics.
-- Manage template inheritance (`base.html`, etc.).
-- Prevent logic leaks into templates; keep them presentational.
-
----
-
-## ⚙️ DevOps & Azure Agent
-**Goal**: Ensure production stability, deployment, and configuration.
-
-**Responsibilities**:
-- Manage `settings.py`, `requirements.txt`, and `startup.sh`.
-- Handle Azure-specific configurations and environment variables.
-- Monitor logs and debug production errors (500/502).
-- Ensure security best practices (secrets management).
+**Responsabilidades**:
+- Corrigir erros de sintaxe de templates (ex: tags não fechadas).
+- Garantir uma estética de design responsiva e "premium".
+- Gerenciar a herança de templates (`base.html`, etc.).
+- Evitar o vazamento de lógica nos templates; mantendo-os focados em apresentação.
 
 ---
 
-## 🧠 Django Backend Agent
-**Goal**: Core business logic, database, and API.
+## ⚙️ Agente de DevOps e Azure
+**Objetivo**: Garantir a estabilidade da produção, implantação e configuração.
 
-**Responsibilities**:
-- Maintain clean structure in `views.py`, `models.py`, and `forms.py`.
-- Optimize database queries and ORM usage.
-- Handle authentication and business rules.
-- Prevent circular imports and maintain modular code.
+**Responsabilidades**:
+- Gerenciar o `settings.py`, `requirements.txt` e `startup.sh`.
+- Lidar com configurações e variáveis de ambiente específicas do Azure.
+- Monitorar logs e depurar erros em produção (500/502).
+- Garantir as melhores práticas de segurança (gerenciamento de segredos/chaves).
+
+---
+
+## 🧠 Agente de Backend Django
+**Objetivo**: Lógica de negócios central, banco de dados e API.
+
+**Responsabilidades**:
+- Manter uma estrutura limpa em `views.py`, `models.py` e `forms.py`.
+- Otimizar consultas ao banco de dados e o uso do ORM.
+- Lidar com autenticação e regras de negócio.
+- Evitar importações circulares e manter o código modular.

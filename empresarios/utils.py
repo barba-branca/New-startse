@@ -309,10 +309,12 @@ def analisar_com_kamila_ai(empresa, faturamento: float = None) -> dict:
     
     if api_key:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            response = model.generate_content(prompt)
+            from google import genai
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=prompt
+            )
             
             # Tenta parsear o JSON da resposta
             texto_resposta = response.text.strip()

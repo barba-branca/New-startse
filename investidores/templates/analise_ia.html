@@ -1,7 +1,31 @@
 {% extends "base.html" %}
 {% load static %}
 {% block 'head' %}
+<title>Análise de IA | {{empresa.nome}} | START-SE</title>
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'empresarios/css/empresa.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+    #analysis-rendered h2 {
+        font-size: 1.4rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.8rem;
+        color: #92D5EB;
+        font-weight: 600;
+    }
+    #analysis-rendered p, #analysis-rendered li {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        font-size: 15px;
+    }
+    #analysis-rendered ul {
+        margin-bottom: 1.5rem;
+        padding-left: 20px;
+    }
+    #analysis-rendered li {
+        margin-bottom: 0.5rem;
+    }
+</style>
 {% endblock 'head' %}
 {% block 'body' %}
 {% include "partials/barra_navegacao.html" %}
@@ -10,15 +34,34 @@
     <div class="row">
         <div class="col-md-12">
             <h3>Análise de IA para: {{empresa.nome}}</h3>
-            <hr>
-            <div class="card">
-                <div class="card-body">
-                    {{analysis|linebreaks}}
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <div class="card dark-color" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px;">
+                <!-- Conteúdo bruto em markdown escondido -->
+                <div id="analysis-content" style="display: none;">{{analysis}}</div>
+                <!-- Conteúdo renderizado em HTML -->
+                <div class="card-body" id="analysis-rendered">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Carregando análise...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <br>
-            <a href="{% url 'ver_empresa' empresa.id %}" class="btn btn-secondary">Voltar</a>
+            <a href="{% url 'ver_empresa' empresa.id %}" class="btn btn-indigo-normal">Voltar</a>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const rawContent = document.getElementById("analysis-content").textContent;
+        try {
+            document.getElementById("analysis-rendered").innerHTML = marked.parse(rawContent);
+        } catch (e) {
+            console.error("Erro ao renderizar markdown:", e);
+            document.getElementById("analysis-rendered").innerHTML = rawContent.replace(/\n/g, '<br>');
+        }
+    });
+</script>
 {% endblock 'body' %}

@@ -82,6 +82,7 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 
 ## 🗺️ Roadmap de Evolução
 
+<<<<<<< HEAD
 - [x] Transição para Infraestrutura OTC
 - [x] Implementação de Multi-tenancy Core
 - [x] Design de Microsserviço OTC Core (SOLID)
@@ -93,6 +94,28 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 ---
 
 ## ☁️ Deploy na Vercel
+=======
+- [x] Cadastro de empresas
+- [x] Listagem de startups
+- [x] Implementação do módulo de investidores
+- [x] Funcionalidade de busca avançada
+- [x] Integração com meios de pagamento (Mercado Pago)
+- [x] Integração de IA para análises e sugestões
+
+---
+
+## **9. Documentação Adicional**
+
+Para guias de instalação detalhados, alterações recentes e notas técnicas, consulte os documentos na pasta `docs/`:
+- [Guia de Alterações Recentes (Walkthrough)](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/walkthrough.md): Passo a passo das correções de layout e responsividade do menu mobile, cards de tecnologia, alinhamento dos planos e integração com o Mercado Pago.
+- [Ajustes de Responsividade Mobile](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/fix_mobile_responsiveness.md): Detalhes técnicos sobre a responsividade das páginas de autenticação e da landing page.
+- [Correção do Redirecionamento do Mercado Pago](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/fix_mercadopago_redirect.md): Informações sobre a correção de URLs HTTPS necessárias para o checkout e instruções de teste mobile.
+- [Migração para PostgreSQL e Azure](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/postgresql_migration.md): Passos para configuração do banco de dados em produção.
+
+---
+
+## **10. Como Contribuir**
+>>>>>>> 775917e (feat(investidores): add advanced search, investor dashboard, and AI-powered suggestions)
 
 A **New Start-se** está pronta para ser implantada na Vercel.
 
@@ -111,7 +134,11 @@ A **New Start-se** está pronta para ser implantada na Vercel.
 
 ---
 
+<<<<<<< HEAD
 ## 🤝 Como Contribuir
+=======
+## **11. Licença**
+>>>>>>> 775917e (feat(investidores): add advanced search, investor dashboard, and AI-powered suggestions)
 
 Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretrizes sobre como enviar Pull Requests seguindo nossos padrões de Clean Code.
 

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+<title>Painel do Investidor | START-SE</title>
+<link rel="stylesheet" href="{% static 'empresarios/css/listar_empresas.css' %}">
+<link rel="stylesheet" href="{% static 'empresarios/css/empresa.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'investidores/css/investidores.css' %}">
+
+<style>
+    .metric-card {
+        background: #0d0c16;
+        border: 1px solid #232145;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        border-color: #4f46e5;
+    }
+
+    .dashboard-section {
+        background: #0d0c16;
+        border: 1px solid #1f1d36;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-custom {
+        color: white !important;
+        vertical-align: middle;
+    }
+
+    .table-custom th {
+        background-color: #161424 !important;
+        color: #818cf8 !important;
+        border-bottom: 2px solid #232145 !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table-custom td {
+        background-color: #0d0c16 !important;
+        border-bottom: 1px solid #1f1d36 !important;
+        padding: 18px 12px;
+    }
+
+    .badge-status {
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    .text-indigo {
+        color: #818cf8;
+    }
+</style>
+{% endblock 'head' %}
+
+{% block 'body' %}
+{% include "partials/barra_navegacao.html" %}
+<br><br>
+
+<div class="container mb-5">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2>Painel do Investidor</h2>
+            <p class="text-muted">Bem-vindo, <strong>{{ request.user.username }}</strong>. Acompanhe a saúde de seus aportes e propostas.</p>
+        </div>
+        <div>
+            <a href="{% url 'busca_avancada' %}" class="btn btn-indigo px-4 py-2">Procurar Oportunidades</a>
+        </div>
+    </div>
+
+    <!-- Cards de Métricas -->
+    <div class="row g-4 mb-5">
+        <!-- Total Alocado -->
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Total Alocado</div>
+                <h3 class="fw-bold text-white mb-1">R$ {{ total_investido|floatformat:2 }}</h3>
+                <div class="text-success" style="font-size: 0.85rem;">
+                    Aportes confirmados
+                </div>
+            </div>
+        </div>
+
+        <!-- Propostas em Análise -->
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Propostas Pendentes</div>
+                <h3 class="fw-bold text-white mb-1">{{ propostas_pendentes }}</h3>
+                <div class="text-warning" style="font-size: 0.85rem;">
+                    Aguardando análise/assinatura
+                </div>
+            </div>
+        </div>
+
+        <!-- Startups Apoiadas -->
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Startups Apoiadas</div>
+                <h3 class="fw-bold text-white mb-1">{{ startups_apoiadas }}</h3>
+                <div class="text-info" style="font-size: 0.85rem;">
+                    Empresas no portfólio
+                </div>
+            </div>
+        </div>
+
+        <!-- KYC Status -->
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <div class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Verificação Cadastral</div>
+                {% if kyc %}
+                    {% if kyc.status_verificado %}
+                        <h4 class="fw-bold text-success mb-1">KYC Verificado</h4>
+                        <div class="text-white-50" style="font-size: 0.85rem;">
+                            Score de Fraude: {{ kyc.score_fraude }}%
+                        </div>
+                    {% else %}
+                        <h4 class="fw-bold text-warning mb-1">Pendente</h4>
+                        <div class="text-white-50" style="font-size: 0.85rem;">
+                            Sua documentação está em análise
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <h4 class="fw-bold text-danger mb-1">Não Iniciado</h4>
+                    <div class="text-white-50" style="font-size: 0.85rem;">
+                        Acesse uma empresa para assinar contrato e iniciar
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Propostas -->
+    <div class="dashboard-section mb-5">
+        <h4 class="fw-bold mb-4">Minhas Propostas de Investimento</h4>
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Startup</th>
+                        <th>Valor Ofertado</th>
+                        <th>Equity Solicitado</th>
+                        <th>Valuation Implicado</th>
+                        <th>Status da Proposta</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proposta in propostas %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ proposta.empresa.logo.url }}" alt="Logo {{ proposta.empresa.nome }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-white">{{ proposta.empresa.nome }}</h6>
+                                    <span class="text-muted" style="font-size: 0.8rem;">{{ proposta.empresa.get_area_display }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fw-bold">R$ {{ proposta.valor|floatformat:2 }}</td>
+                        <td>{{ proposta.percentual }}%</td>
+                        <td>R$ {{ proposta.valuation|floatformat:2 }}</td>
+                        <td>
+                            {% if proposta.status == 'AS' %}
+                                <span class="badge bg-warning text-dark badge-status">Aguardando Assinatura</span>
+                            {% elif proposta.status == 'PE' %}
+                                <span class="badge bg-info text-white badge-status">Enviada para Análise</span>
+                            {% elif proposta.status == 'PA' %}
+                                <span class="badge bg-success text-white badge-status">Aprovada</span>
+                            {% elif proposta.status == 'PR' %}
+                                <span class="badge bg-danger text-white badge-status">Recusada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if proposta.status == 'AS' %}
+                                <a href="{% url 'assinar_contrato' proposta.id %}" class="btn btn-indigo-normal btn-sm px-3 py-1">Assinar Contrato</a>
+                            {% else %}
+                                <a href="{% url 'ver_empresa' proposta.empresa.id %}" class="btn btn-secondary btn-sm px-3 py-1">Ver Detalhes</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            Você ainda não realizou nenhuma proposta de investimento. 
+                            <a href="{% url 'busca_avancada' %}" class="text-indigo">Encontre startups agora.</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Seção de Contratos -->
+    <div class="dashboard-section">
+        <h4 class="fw-bold mb-4">Meus Contratos Digitais</h4>
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Startup</th>
+                        <th>Tipo do Contrato</th>
+                        <th>Data de Emissão</th>
+                        <th>Status do Contrato</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contrato in contratos %}
+                    <tr>
+                        <td class="fw-bold text-white">{{ contrato.proposta.empresa.nome }}</td>
+                        <td>{{ contrato.get_tipo_contrato_display }}</td>
+                        <td class="text-white-50">{{ contrato.criado_em|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if contrato.status == 'SIGNED' %}
+                                <span class="badge bg-success text-white badge-status">Totalmente Assinado</span>
+                            {% elif contrato.status == 'SENT' %}
+                                <span class="badge bg-info text-white badge-status">Aguardando Assinatura</span>
+                            {% elif contrato.status == 'PARTIAL' %}
+                                <span class="badge bg-warning text-dark badge-status">Parcialmente Assinado</span>
+                            {% else %}
+                                <span class="badge bg-secondary text-white badge-status">{{ contrato.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if contrato.documento_assinado %}
+                                <a href="{{ contrato.documento_assinado.url }}" class="btn btn-secondary btn-sm" download>
+                                    Baixar PDF
+                                </a>
+                            {% else %}
+                                <span class="text-muted" style="font-size: 0.9rem;">Indisponível</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            Nenhum contrato digital gerado até o momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock 'body' %}

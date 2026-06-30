@@ -10,7 +10,7 @@ import os
 import traceback
 # ============================================================================
 # OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
-import google.generativeai as genai
+from google import genai
 # ============================================================================
 from .utils import realizar_due_diligence, validar_cnpj_api
 
@@ -364,11 +364,13 @@ Responda em português brasileiro de forma clara e profissional."""
     api_key = os.environ.get("GEMINI_API_KEY")
     
     if api_key:
-        # USA GOOGLE GEMINI
+        # USA GOOGLE GEMINI (MODERNO)
         try:
-            genai.configure(api_key=api_key)
-            model_gemini = genai.GenerativeModel("gemini-1.5-flash")
-            response = model_gemini.generate_content(prompt)
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=prompt
+            )
             analysis = response.text
         except Exception as e:
             analysis = f"Erro ao gerar análise com Gemini: {str(e)}"

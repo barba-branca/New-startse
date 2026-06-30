@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block 'head' %}
-
+<title>Assinatura de Contrato | START-SE</title>
 <link rel="stylesheet" href="{% static 'empresarios/css/listar_empresas.css' %}">
 <link rel="stylesheet" href="{% static 'empresarios/css/empresa.css' %}">
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
-
 {% endblock 'head' %}
 
 {% block 'body' %}
@@ -162,14 +161,12 @@
                 </div>
 
                 <!-- Checkbox de Aceite -->
-                <div style="margin-bottom: 20px;">
-                    <label
-                        style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: rgba(255,255,255,0.8); font-size: 14px;">
-                        <input type="checkbox" name="aceite" required style="margin-top: 3px; accent-color: #667eea;">
-                        <span>
-                            Li e concordo com todas as cláusulas do <strong>Contrato de Mútuo Conversível</strong>
-                            e com os <a href="#" style="color: #667eea;">Termos de Uso</a> da plataforma.
-                        </span>
+                <div style="margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                    <input type="checkbox" name="aceite" id="aceite" required style="margin-top: 3px; accent-color: #667eea;">
+                    <label for="aceite"
+                        style="cursor: pointer; color: rgba(255,255,255,0.8); font-size: 14px; margin: 0;">
+                        Li e concordo com todas as cláusulas do <strong>Contrato de Mútuo Conversível</strong>
+                        e com os <a href="#" style="color: #667eea;">Termos de Uso</a> da plataforma.
                     </label>
                 </div>
 

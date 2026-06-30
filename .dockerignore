@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+.git/
+.github/
+Pipfile*
+django_errors.log
+erro_django.txt
+staticfiles/
+media/

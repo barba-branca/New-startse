@@ -2,6 +2,7 @@
 {% load static %}
 {% load l10n %}
 {% block 'head' %}
+<title>{{ empresa.nome }} | Detalhes da Startup | START-SE</title>
 <link rel="stylesheet" href="{% static 'empresarios/css/listar_empresas.css' %}">
 <link rel="stylesheet" href="{% static 'empresarios/css/empresa.css' %}">
 <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
@@ -93,16 +94,16 @@
                 <br><br>
                 <form action="{% url 'realizar_proposta' empresa.id %}" method="POST"> {% csrf_token %}
                     <div class="row">
-                        <div class="col-md">
-                            <label>Valor (R$)</label>
-                            <input type="number" name="valor" class="form-control" placeholder="Ex: 1000.00">
+                        <div class="col-md mb-3 mb-md-0">
+                            <label for="valor_proposta">Valor (R$)</label>
+                            <input type="number" name="valor" id="valor_proposta" class="form-control" placeholder="Ex: 1000.00">
                         </div>
-                        <div class="col-md">
-                            <label>Percentual (%)</label>
-                            <input type="number" name="percentual" step="0.01" class="form-control"
+                        <div class="col-md mb-3 mb-md-0">
+                            <label for="percentual_proposta">Percentual (%)</label>
+                            <input type="number" name="percentual" id="percentual_proposta" step="0.01" class="form-control"
                                 placeholder="Ex: 5.0">
                         </div>
-                        <div class="col-md d-flex align-items-end">
+                        <div class="col-md mb-3 mb-md-0 d-flex align-items-end">
                             <input type="submit" class="btn btn-indigo-normal w-100" value="Efetivar Proposta">
                         </div>
                         <div class="col-md d-flex align-items-end">
