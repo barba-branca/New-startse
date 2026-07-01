@@ -194,15 +194,22 @@ class SugestoesTestCase(TestCase):
 
     def test_sugestao_ia_fallback_sem_api_key(self):
         # Com usar_ia=on, mas sem chaves de API, deve cair no fallback heurístico sem quebrar
-        response = self.client.post(reverse('sugestao'), {
-            'tipo': 'C',
-            'area': ['ED', 'FT'],
-            'valor': '50000',
-            'usar_ia': 'on'
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['fonte_sugestao'], "Regras do Sistema")
-        self.assertEqual(len(response.context['empresas']), 1)
-        self.assertEqual(response.context['empresas'][0].nome, "Empresa Velha S.A.")
+        from unittest.mock import patch
+        import requests
+        
+        with patch('requests.post') as mock_post:
+            mock_post.side_effect = requests.exceptions.ConnectionError()
+            
+            response = self.client.post(reverse('sugestao'), {
+                'tipo': 'C',
+                'area': ['ED', 'FT'],
+                'valor': '50000',
+                'usar_ia': 'on'
+            })
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context['fonte_sugestao'], "Regras do Sistema")
+            self.assertEqual(len(response.context['empresas']), 1)
+            self.assertEqual(response.context['empresas'][0].nome, "Empresa Velha S.A.")
+
 
 

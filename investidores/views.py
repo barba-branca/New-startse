@@ -415,8 +415,22 @@ Para usar a Análise de IA, siga os passos:
 3. **O Ollama rodará automaticamente em segundo plano**
 
 Após isso, a análise funcionará automaticamente."""
+        except requests.exceptions.Timeout:
+            analysis = """⚠️ **Tempo limite esgotado (Timeout)!**
+
+O Ollama demorou mais de 2 minutos para processar a resposta. Isso geralmente ocorre se:
+1. **O processamento está sendo rodado em CPU lenta** (sem placa de vídeo dedicada).
+2. **O modelo está sendo carregado na memória pela primeira vez**.
+
+**Como resolver:**
+- **Recomendado**: Edite o arquivo `.env` na raiz do projeto e altere o `OLLAMA_MODEL` para o modelo mais leve de 1B de parâmetros que você já tem instalado:
+  ```env
+  OLLAMA_MODEL=llama3.2:1b
+  ```
+- Alternativamente, tente novamente em alguns instantes, pois a segunda execução costuma ser muito mais rápida após o modelo ser carregado na RAM."""
         except Exception as e:
             analysis = f"Erro ao gerar análise: {str(e)}"
+
 
     return render(request, 'analise_ia.html', {'analysis': analysis, 'empresa': empresa})
 
