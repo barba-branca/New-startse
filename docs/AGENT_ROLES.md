@@ -48,3 +48,7 @@ Este documento define os papéis dos vários agentes de IA que trabalham no proj
 - Otimizar consultas ao banco de dados e o uso do ORM.
 - Lidar com autenticação e regras de negócio.
 - Evitar importações circulares e manter o código modular.
+
+---
+**Documentação feita por Barba-Branca.**
+

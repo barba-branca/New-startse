@@ -66,5 +66,12 @@ class Trade(TenantBaseModel):
     # External reference for settlement
     tx_hash = models.CharField(max_length=100, blank=True, null=True)
 
+    # Stripe Payment reference
+    stripe_payment = models.ForeignKey('StripePayment', on_delete=models.SET_NULL, null=True, blank=True)
+
     def __str__(self):
         return f"Trade {self.id} | {self.quote.base_asset} | {self.total_quote}"
+
+# Import Stripe models to ensure they are registered with Django
+from .stripe_models import StripeAccount, StripePayment, PlatformFee, StripeCustomer
+

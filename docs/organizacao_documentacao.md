@@ -1,7 +1,8 @@
 # Organização da Documentação do Projeto
 
 **Data:** 03/02/2026
-**Responsável:** Assistant
+**Responsável:** Barba-Branca
+
 
 ## Objetivo
 Centralizar toda a documentação do projeto em uma única pasta para facilitar a manutenção e organização.

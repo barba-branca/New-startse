@@ -110,5 +110,9 @@ Integramos inteligência artificial no módulo de **Sugestões de Investimento**
 * **Interface Visual Atualizada (`sugestao.html`):** Adicionado um switch switchable para ativar recomendações de IA, com a exibição de uma badge de autoria ("Fonte das Sugestões: Inteligência Artificial") e contêineres de justificativas estilizados em roxo-glowing nos cards de startups.
 * **Testes unitários (`investidores/tests.py`):** Adicionados 3 novos testes cobrindo a filtragem tradicional (conservadora/despojada) e garantindo que o fallback ocorra sem erros no caso de falta de chaves ou indisponibilidade de IA.
 
+---
+**Documentação feita por Barba-Branca.**
+
+
 
 

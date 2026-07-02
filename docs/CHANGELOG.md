@@ -43,3 +43,7 @@ e este projeto segue o [Versionamento Semântico](https://semver.org/spec/v2.0.0
 
 ### Corrigido
 - **Estabilização do Servidor**: Implementados stubs e mocks para bibliotecas bloqueadas pelo Windows App Control, garantindo que o `runserver` opere sem travamentos.
+
+---
+**Documentação feita por Barba-Branca.**
+

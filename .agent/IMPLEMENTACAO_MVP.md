@@ -1,6 +1,6 @@
 # 📋 ROTEIRO DE IMPLEMENTAÇÃO - NEW START MVP
 
-**Autor:** Antigravity AI (Claude)  
+**Autor:** Barba-Branca  
 **Data:** 01/02/2026  
 **Versão:** 1.0
 

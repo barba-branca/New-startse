@@ -126,6 +126,10 @@ A **New Start-se** está pronta para ser implantada na Vercel.
    - `DATABASE_URL`: URL de conexão do seu PostgreSQL.
    - `DEBUG`: `False` (em produção).
    - `ZAPSIGN_API_TOKEN`, `MERCADO_PAGO_ACCESS_TOKEN`, etc.
+   - `STRIPE_PUBLIC_KEY`: Chave pública do Stripe (Sandbox/Produção).
+   - `STRIPE_SECRET_KEY`: Chave secreta do Stripe (Sandbox/Produção).
+   - `STRIPE_WEBHOOK_SECRET`: Segredo de validação de assinatura do webhook do Stripe.
+
 
 ### **Como subir**
 1. Conecte seu repositório GitHub à Vercel.
@@ -134,11 +138,7 @@ A **New Start-se** está pronta para ser implantada na Vercel.
 
 ---
 
-<<<<<<< HEAD
 ## 🤝 Como Contribuir
-=======
-## **11. Licença**
->>>>>>> 775917e (feat(investidores): add advanced search, investor dashboard, and AI-powered suggestions)
 
 Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretrizes sobre como enviar Pull Requests seguindo nossos padrões de Clean Code.
 
@@ -149,4 +149,5 @@ Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretr
 Este projeto é privado e de uso exclusivo para a infraestrutura **New Start-se**. Todos os direitos reservados.
 
 ---
-🚀 **Produzido por [Develops Code](https://developscode.com.br)**
+🚀 **Produzido por [Develops Code](https://developscode.com.br)**  
+✍️ **Documentação por: Barba-Branca**

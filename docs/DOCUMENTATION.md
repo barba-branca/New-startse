@@ -96,4 +96,5 @@ ollama pull llava
 - [ ] Multi-tenancy para aceleradoras de startups.
 
 ---
-**Documentação gerada automaticamente pela Antigravity AI.**
+**Documentação feita por Barba-Branca.**
+

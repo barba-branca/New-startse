@@ -39,3 +39,4 @@ cachetools==5.5.0
 social-auth-app-django==5.1.0
 mercadopago
 dj-database-url
+stripe
