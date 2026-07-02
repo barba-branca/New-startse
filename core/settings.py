@@ -300,11 +300,7 @@ LOGOUT_REDIRECT_URL = '/usuarios/logar/'
 # SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 
 
-# ============================================================================
-# MERCADO PAGO
-# ============================================================================
-MERCADO_PAGO_ACCESS_TOKEN = os.environ.get('MERCADO_PAGO_ACCESS_TOKEN', '')
-MERCADO_PAGO_PUBLIC_KEY = os.environ.get('MERCADO_PAGO_PUBLIC_KEY', '')
+
 
 # ============================================================================
 # STRIPE CONNECT

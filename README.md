@@ -82,7 +82,15 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 
 ## 🗺️ Roadmap de Evolução
 
-<<<<<<< HEAD
+### Módulo Crowdfunding & Matching:
+- [x] Cadastro de empresas
+- [x] Listagem de startups
+- [x] Implementação do módulo de investidores
+- [x] Funcionalidade de busca avançada
+- [x] Integração com meios de pagamento (Mercado Pago)
+- [x] Integração de IA para análises e sugestões
+
+### Módulo OTC & White Label:
 - [x] Transição para Infraestrutura OTC
 - [x] Implementação de Multi-tenancy Core
 - [x] Design de Microsserviço OTC Core (SOLID)
@@ -93,18 +101,7 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 
 ---
 
-## ☁️ Deploy na Vercel
-=======
-- [x] Cadastro de empresas
-- [x] Listagem de startups
-- [x] Implementação do módulo de investidores
-- [x] Funcionalidade de busca avançada
-- [x] Integração com meios de pagamento (Mercado Pago)
-- [x] Integração de IA para análises e sugestões
-
----
-
-## **9. Documentação Adicional**
+## 9. Documentação Adicional
 
 Para guias de instalação detalhados, alterações recentes e notas técnicas, consulte os documentos na pasta `docs/`:
 - [Guia de Alterações Recentes (Walkthrough)](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/walkthrough.md): Passo a passo das correções de layout e responsividade do menu mobile, cards de tecnologia, alinhamento dos planos e integração com o Mercado Pago.
@@ -114,8 +111,7 @@ Para guias de instalação detalhados, alterações recentes e notas técnicas, 
 
 ---
 
-## **10. Como Contribuir**
->>>>>>> 775917e (feat(investidores): add advanced search, investor dashboard, and AI-powered suggestions)
+## ☁️ Deploy na Vercel
 
 A **New Start-se** está pronta para ser implantada na Vercel.
 

@@ -60,35 +60,10 @@
             <p>Ao assinar esse contrato você concorda com todas as cláusulas abaixo</p>
 
 
-            <ol>
-                <li><strong>OBJETO DO CONTRATO:</strong> O presente instrumento tem por objeto o mútuo de recursos
-                    financeiros pelo INVESTIDOR à EMPRESA, com opção de conversão em participação societária, nos termos
-                    e condições aqui estabelecidos.</li>
+            <div style="max-height: 400px; overflow-y: auto; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                {{ contrato_texto|safe }}
+            </div>
 
-                <li><strong>VALOR E PRAZO:</strong> O valor do investimento será de R$ {{pi.valor|floatformat:2}},
-                    correspondendo a {{pi.percentual}}% de participação, com prazo de conversão de 24 (vinte e quatro)
-                    meses a contar da data de assinatura deste instrumento.</li>
-
-                <li><strong>CONVERSÃO:</strong> O INVESTIDOR poderá, a seu exclusivo critério, converter o valor mutuado
-                    em participação societária da EMPRESA, mediante subscrição de quotas/ações ao preço por quota/ação
-                    definido no Valuation acordado entre as partes.</li>
-
-                <li><strong>CONFIDENCIALIDADE:</strong> As partes comprometem-se a manter sigilo absoluto sobre todas as
-                    informações técnicas, comerciais, financeiras e estratégicas trocadas durante a vigência deste
-                    contrato, pelo prazo mínimo de 5 (cinco) anos.</li>
-
-                <li><strong>GOVERNANÇA:</strong> O INVESTIDOR terá direito a informações trimestrais sobre o desempenho
-                    financeiro da EMPRESA, incluindo faturamento, despesas e projeções, sem prejuízo de outros direitos
-                    que venham a ser acordados.</li>
-
-                <li><strong>RESCISÃO:</strong> O presente contrato poderá ser rescindido por qualquer das partes
-                    mediante notificação prévia de 30 (trinta) dias, resguardados os direitos já adquiridos e as
-                    obrigações já assumidas.</li>
-
-                <li><strong>FORO:</strong> Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer questões
-                    oriundas deste instrumento, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
-                </li>
-            </ol>
 
         </div>
 

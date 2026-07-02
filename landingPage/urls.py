@@ -5,5 +5,4 @@ urlpatterns = [
     path('', views.landing_page, name='landingPage'),
     path('logar/', views.login_view, name="logar"),
     path('checkout/<str:plan_id>/', views.checkout, name='checkout'),
-    path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
 ]

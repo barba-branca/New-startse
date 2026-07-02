@@ -253,6 +253,71 @@ def realizar_proposta(request, id):
         return redirect(f'/investidores/ver_empresa/{id}')
 
 
+def gerar_contrato_com_ia(pi, user):
+    """
+    Gera as cláusulas do contrato de investimento dinamicamente usando IA.
+    """
+    prompt = f"""Você é um advogado especialista em direito de startups.
+Gere um contrato resumido de Mútuo Conversível em Participação Societária com termos jurídicos válidos no Brasil para a seguinte transação:
+
+- **Investidor:** {user.first_name} {user.last_name} ({user.email})
+- **Startup Beneficiária:** {pi.empresa.nome}
+- **Valor do Mútuo:** R$ {pi.valor:,.2f}
+- **Participação Conversível:** {pi.percentual}%
+- **Estágio Atual da Empresa:** {pi.empresa.get_estagio_display()}
+
+O contrato deve conter seções em HTML (como <h4>, <p>, <ol>, <li>, <strong>) detalhando o Objeto, Valor, Conversão em Equity, Confidencialidade e Foro de São Paulo/SP. Forneça estritamente o código das cláusulas em HTML (sem blocos de código com ```html, sem as tags <html>, <head> ou <body>)."""
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    
+    if api_key:
+        try:
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=prompt
+            )
+            text = response.text
+            if "```" in text:
+                text = text.replace("```html", "").replace("```", "")
+            return text.strip()
+        except Exception as e:
+            print(f"[ERRO GEMINI CONTRATO] {str(e)}")
+            
+    # Fallback to Ollama
+    ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+    model_ollama = os.environ.get("OLLAMA_MODEL", "llama3.2")
+    try:
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": model_ollama,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=30
+        )
+        if response.status_code == 200:
+            text = response.json().get("response", "")
+            if "```" in text:
+                text = text.replace("```html", "").replace("```", "")
+            return text.strip()
+    except Exception as e:
+        print(f"[ERRO OLLAMA CONTRATO] {str(e)}")
+        
+    # Hardcoded default fallback
+    return f"""
+    <ol>
+        <li><strong>OBJETO DO CONTRATO:</strong> O presente instrumento tem por objeto o mútuo de recursos financeiros pelo INVESTIDOR à EMPRESA, com opção de conversão em participação societária, nos termos e condições aqui estabelecidos.</li>
+        <li><strong>VALOR E PRAZO:</strong> O valor do investimento será de R$ {pi.valor:,.2f}, correspondendo a {pi.percentual}% de participação, com prazo de conversão de 24 (vinte e quatro) meses a contar da data de assinatura deste instrumento.</li>
+        <li><strong>CONVERSÃO:</strong> O INVESTIDOR poderá, a seu exclusivo critério, converter o valor mutuado em participação societária da EMPRESA, mediante subscrição de quotas/ações ao preço por quota/ação definido no Valuation acordado entre as partes.</li>
+        <li><strong>CONFIDENCIALIDADE:</strong> As partes comprometem-se a manter sigilo absoluto sobre todas as informações técnicas, comerciais, financeiras e estratégicas trocadas durante a vigência deste contrato, pelo prazo mínimo de 5 (cinco) anos.</li>
+        <li><strong>GOVERNANÇA:</strong> O INVESTIDOR terá direito a informações trimestrais sobre o desempenho financeiro da EMPRESA, incluindo faturamento, despesas e projeções, sem prejuízo de outros direitos que venham a ser acordados.</li>
+        <li><strong>RESCISÃO:</strong> O presente contrato poderá ser rescindido por qualquer das partes mediante notificação prévia de 30 (trinta) dias, resguardados os direitos já adquiridos e as obrigações já assumidas.</li>
+        <li><strong>FORO:</strong> Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer questões oriundas deste instrumento, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</li>
+    </ol>
+    """
+
 def assinar_contrato(request, id):
     # Verifica autenticação
     if not request.user.is_authenticated:
@@ -276,7 +341,8 @@ def assinar_contrato(request, id):
         return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
             
     if request.method == 'GET':
-        return render(request, 'assinar_contrato.html', {'pi': pi})
+        contrato_texto = gerar_contrato_com_ia(pi, request.user)
+        return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
     
     elif request.method == 'POST':
         selfie = request.FILES.get('selfie')
@@ -286,26 +352,31 @@ def assinar_contrato(request, id):
         # Valida se os arquivos foram enviados
         if not selfie:
             messages.add_message(request, constants.WARNING, 'Por favor, envie a selfie com o documento.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
         if not rg:
             messages.add_message(request, constants.WARNING, 'Por favor, envie o documento de identidade.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
         # Valida se aceitou os termos
         if not aceite:
             messages.add_message(request, constants.WARNING, 'Você precisa aceitar os termos do contrato.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
         # Valida tamanho dos arquivos (máx 5MB)
         max_size = 5 * 1024 * 1024  # 5MB
         if selfie.size > max_size:
             messages.add_message(request, constants.WARNING, 'A selfie deve ter no máximo 5MB.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
         if rg.size > max_size:
             messages.add_message(request, constants.WARNING, 'O documento deve ter no máximo 5MB.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
         try:
             # Salva os arquivos
@@ -324,7 +395,8 @@ def assinar_contrato(request, id):
         except Exception as e:
             print(f"[ERRO ASSINATURA] {type(e).__name__}: {str(e)}")
             messages.add_message(request, constants.ERROR, 'Erro ao processar assinatura. Tente novamente.')
-            return render(request, 'assinar_contrato.html', {'pi': pi})
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
 
 
 def realizar_analise_ia(request, id):

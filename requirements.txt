@@ -37,6 +37,5 @@ psycopg2-binary==2.9.10
 yfinance==0.2.52
 cachetools==5.5.0
 social-auth-app-django==5.1.0
-mercadopago
 dj-database-url
 stripe
