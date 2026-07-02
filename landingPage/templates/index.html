@@ -1457,65 +1457,30 @@
             <p>Escolha o plano ideal para começar sua jornada de investimentos em startups.</p>
         </div>
 
-        <div class="pricing-grid">
-            <!-- Plano Básico -->
-            <div class="pricing-card">
-                <h3>Básico</h3>
-                <div class="price">Grátis</div>
-                <p class="price-desc">Para quem quer conhecer a plataforma</p>
+        <div class="pricing-grid" style="display: flex; justify-content: center; gap: 30px; max-width: 900px; margin: 0 auto;">
+            <!-- Plano Único: Teste Grátis 7 Dias -->
+            <div class="pricing-card popular" style="max-width: 450px; width: 100%; border: 2px solid #667eea; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);">
+                <div class="popular-badge">⭐ Promocional</div>
+                <h3>Plano Pro Trial</h3>
+                <div class="price">Grátis<span> / 7 dias</span></div>
+                <p class="price-desc">Acesso total a todas as funcionalidades premium da plataforma</p>
 
                 <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Cadastro de 1 startup</li>
-                    <li><i class="fas fa-check"></i> Visualização de empresas</li>
-                    <li><i class="fas fa-check"></i> Análise básica por IA</li>
-                    <li><i class="fas fa-check"></i> Dashboard simplificado</li>
-                </ul>
-
-                <a href="{% url 'cadastro' %}" class="btn btn-outline" style="display: block; text-align: center;">
-                    Começar Grátis
-                </a>
-            </div>
-
-            <!-- Plano Profissional (Popular) -->
-            <div class="pricing-card popular">
-                <div class="popular-badge">⭐ Mais Popular</div>
-                <h3>Profissional</h3>
-                <div class="price">R$ 97<span>/mês</span></div>
-                <p class="price-desc">Para investidores ativos</p>
-
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Startups ilimitadas</li>
-                    <li><i class="fas fa-check"></i> Participação em leilões</li>
-                    <li><i class="fas fa-check"></i> Análise avançada por IA</li>
-                    <li><i class="fas fa-check"></i> Acesso ao Data Room</li>
+                    <li><i class="fas fa-check"></i> Startups e pitches ilimitados</li>
+                    <li><i class="fas fa-check"></i> Consultoria e análise avançada por IA</li>
+                    <li><i class="fas fa-check"></i> Acesso completo ao Data Room Seguro</li>
                     <li><i class="fas fa-check"></i> Contratos digitais ilimitados</li>
-                    <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                    <li><i class="fas fa-check"></i> Suporte prioritário 24/7</li>
                 </ul>
 
-                <a href="{% url 'checkout' 'profissional' %}" class="btn btn-primary"
-                    style="display: block; text-align: center;">
-                    Assinar Agora
+                <a href="{% url 'checkout' 'trial_7d' %}" class="btn btn-primary"
+                    style="display: block; text-align: center; margin-top: 20px;">
+                    Ativar 7 Dias Grátis
                 </a>
-            </div>
-
-            <!-- Plano Corporativo -->
-            <div class="pricing-card">
-                <h3>Corporativo</h3>
-                <div class="price">R$ 297<span>/mês</span></div>
-                <p class="price-desc">Para fundos e family offices</p>
-
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Tudo do Profissional</li>
-                    <li><i class="fas fa-check"></i> Dashboard personalizado</li>
-                    <li><i class="fas fa-check"></i> API de integração</li>
-                    <li><i class="fas fa-check"></i> Relatórios customizados</li>
-                    <li><i class="fas fa-check"></i> Gerente de conta dedicado</li>
-                </ul>
-
-                <a href="{% url 'checkout' 'corporativo' %}" class="btn btn-outline"
-                    style="display: block; text-align: center;">
-                    Assinar Corporativo
-                </a>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: rgba(255,255,255,0.5); text-align: center;">
+                    🔒 Processado via <strong>Stripe Split Payments</strong> para divisão segura e instantânea de taxas de mesas de negociação.
+                </div>
             </div>
         </div>
     </section>

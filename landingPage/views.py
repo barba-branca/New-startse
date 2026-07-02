@@ -32,9 +32,10 @@ def login_view(request):
 @login_required(login_url='/usuarios/logar/')
 def checkout(request, plan_id):
     """
-    Processa o checkout do plano selecionado (Gratuito durante a fase Beta).
+    Processa o checkout do plano selecionado (Gratuito / Trial).
     """
     plans = {
+        'trial_7d': {'name': 'Pro Trial (7 Dias)'},
         'profissional': {'name': 'Profissional'},
         'corporativo': {'name': 'Corporativo'}
     }
@@ -44,6 +45,6 @@ def checkout(request, plan_id):
     if not selected_plan:
         return redirect('landingPage')
         
-    messages.add_message(request, constants.SUCCESS, f"Seu plano {selected_plan['name']} foi ativado gratuitamente durante a fase Beta!")
+    messages.add_message(request, constants.SUCCESS, f"Seu plano {selected_plan['name']} com tudo incluso foi ativado gratuitamente por 7 dias!")
     return redirect('/investidores/painel/')
 
