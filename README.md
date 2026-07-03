@@ -1,40 +1,36 @@
-# 🚀 New Start-se: Infraestrutura White Label OTC
+# 🚀 New Start-se: Plataforma de Equity Crowdfunding & Matching
 
-A **New Start-se** evoluiu de uma plataforma de crowdfunding para uma **infraestrutura White Label de ponta para mesas de negociação OTC (Over-The-Counter)**. Projetada para alta performance, ela combina o poder do Django com uma arquitetura de microsserviços limpa (Clean Architecture), garantindo escalabilidade e isolamento total entre diferentes operadoras (Desks).
+A **New Start-se** é uma **plataforma de ponta para Equity Crowdfunding e Matching de Startups**. Projetada para conectar investidores anjo a startups promissoras em busca de captação de recursos, ela combina o poder do Django com uma arquitetura de microsserviços limpa, garantindo alta performance, segurança e escalabilidade.
 
 ---
 
 ## 🌟 Visão Geral
 
-A plataforma permite que donos de mesas (Tenants) operem suas próprias marcas de negociação OTC com:
-- **Isolamento de Dados Multi-tenant**: Garantia de privacidade e segurança entre mesas de negociação.
-- **Motor de Preços RFQ (Request for Quote)**: Cotações em tempo real com travas de preço (TTL) e spreads dinâmicos.
-- **Integração com IA Autônoma (S.A.K.A)**: Agentes inteligentes que automatizam análise de documentos e suporte ao investidor.
+A plataforma permite:
+- **Cadastro e Listagem de Startups**: Fluxo robusto de cadastro de empresas e captação de recursos.
+- **Painel do Investidor**: Portfólio, propostas pendentes, contratos e status de KYC.
+- **Sugestões por IA (Kamila)**: Recomendações e análise de viabilidade personalizadas com inteligência artificial para auxiliar investidores.
+- **Integração de Pagamentos**: Assinaturas de planos e checkout via Stripe.
+- **Segregação de Perfis & Segurança**: Cadastro segregado com validação de CNPJ automatizada (Receita Federal) para Investidores PJ e Empresários/Startups, restringindo acessos a painéis inadequados através de controle de rotas.
 
 ---
 
 ## 🏗️ Arquitetura do Sistema
 
-O projeto utiliza uma abordagem híbrida moderna:
-
-1.  **Monólito Central (Django)**: Gerencia usuários, Landing Pages e integrações legadas.
-2.  **OTC Core Microservice**: Um serviço agnóstico construído seguindo **Clean Architecture** e **SOLID**, focado exclusivamente no motor de negociação e resiliência financeira.
-
-### Camadas do Microserviço:
-- **Domain**: Entidades e regras de negócio puras.
-- **Application**: Casos de uso orquestrados (RFQ, Execução de Ordens).
-- **Infrastructure**: Adaptadores robustos (Django ORM, Yahoo Finance, Circuit Breaker).
-- **Interface**: Entrypoints amigáveis a **MCP (Model Context Protocol)** e APIs REST.
+O projeto utiliza o **Monólito Central (Django)** de forma modular, com as responsabilidades e regras de negócios divididas entre apps específicos:
+- **usuarios**: Cadastro, login, perfis e controle de acessos.
+- **empresarios**: Cadastro de empresas, publicação de rodadas de captação de recursos e acompanhamento de propostas de investimento.
+- **investidores**: Busca avançada de startups, marketplace de investimentos, assinatura de contratos e sugestões assistidas por IA.
+- **landingPage**: Páginas promocionais, FAQ, e controle de planos/checkout do site.
 
 ---
 
 ## 🛠️ Tecnologias Principais
 
-- **Backend**: Django 5.1 & Python 3.14+
-- **Frontend Real-time**: Ticker financeiro dinâmico (Binance & AwesomeAPI)
-- **Arquitetura**: Clean Architecture / Microsserviços
-- **IA/Agentes**: CrewAI & Framework S.A.K.A (C.A.S.A - Sistema de Agentes Autónomos)
-- **Conformidade**: SOLID, Clean Code e Protocolo MCP
+- **Backend**: Django 5.1 & Python 3.12+
+- **Banco de Dados**: SQLite em desenvolvimento / PostgreSQL em produção
+- **IA/Agentes**: Integração com Google Gemini para justificativas de investimentos
+- **Gateways**: Integração de Pagamento Stripe e Assinatura Digital via ZapSign
 
 ---
 
@@ -42,17 +38,11 @@ O projeto utiliza uma abordagem híbrida moderna:
 
 Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 
-- 📑 **[Guia White Label OTC](/docs/OTC_WHITELABEL.md)**: Arquitetura e isolamento lógico.
-- ⚙️ **[Engenharia do Microserviço](/docs/MICROSERVICE_OTC.md)**: Detalhes de Clean Architecture e SOLID.
-- 🧪 **[Relatório de Testes](/docs/TESTS_OTC.md)**: Estratégia de testes e resiliência (Circuit Breaker).
 - 🔑 **[Gestão de Chaves](/docs/chaves.md)**: Configurações de API e tokens.
 
 ---
 
 ## 🚀 Instalação e Setup
-
-> [!WARNING]
-> **Atenção ao Ambiente**: Atualmente o projeto recomenda o uso do Python 3.14 (localizado em `C:/Python314/python.exe` no ambiente de desenvolvimento).
 
 ### **Passos Rápidos**
 1. **Clone o Repositório**:
@@ -61,21 +51,26 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
    ```
 
 2. **Configuração de Ambiente**:
-   Recomendamos a criação de um ambiente virtual para rodar os novos microsserviços:
+   Recomendamos a criação de um ambiente virtual:
    ```bash
-   /C/Python314/python.exe -m venv .venv
-   source .venv/Scripts/activate
+   python -m venv venv
+   source venv/Scripts/activate  # Windows (PowerShell: .\venv\Scripts\Activate.ps1)
    ```
 
-3. **Migrações de Banco de Dados**:
+3. **Instalação das Dependências**:
    ```bash
-   python manage.py makemigrations otc
+   pip install -r requirements.txt
+   ```
+
+4. **Migrações de Banco de Dados**:
+   ```bash
+   python manage.py makemigrations
    python manage.py migrate
    ```
 
-4. **Executando os Testes**:
+5. **Executando o Servidor**:
    ```bash
-   pytest otc-core-service/tests
+   python manage.py runserver
    ```
 
 ---
@@ -87,27 +82,33 @@ Para detalhes aprofundados, consulte nossa pasta **[`docs/`](/docs)**:
 - [x] Listagem de startups
 - [x] Implementação do módulo de investidores
 - [x] Funcionalidade de busca avançada
-- [x] Integração com meios de pagamento (Mercado Pago)
+- [x] Integração com meios de pagamento (Stripe)
 - [x] Integração de IA para análises e sugestões
-
-### Módulo OTC & White Label:
-- [x] Transição para Infraestrutura OTC
-- [x] Implementação de Multi-tenancy Core
-- [x] Design de Microsserviço OTC Core (SOLID)
-- [x] Suíte de Testes e Circuit Breaker
-- [ ] Interface UI para Negociação RFQ
-- [ ] Dashboards Avançados por Tenant
-- [ ] Liquidação em Blockchain (Smart Contracts)
+- [x] Separação de Perfis (Investidor vs. Empresário)
+- [x] Validação de CNPJ automatizada (Brasil API/Receita Federal) no cadastro
+- [ ] Melhorias no painel administrativo de campanhas
 
 ---
 
 ## 9. Documentação Adicional
 
 Para guias de instalação detalhados, alterações recentes e notas técnicas, consulte os documentos na pasta `docs/`:
-- [Guia de Alterações Recentes (Walkthrough)](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/walkthrough.md): Passo a passo das correções de layout e responsividade do menu mobile, cards de tecnologia, alinhamento dos planos e integração com o Mercado Pago.
+- [Guia de Alterações Recentes (Walkthrough)](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/walkthrough.md): Passo a passo das correções de layout e responsividade, busca avançada, painel do investidor, sugestões por IA e o processo de **remoção completa do módulo OTC**.
+- [Configuração e Integração com Stripe](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/stripe_integration.md): Detalhes sobre a configuração das chaves e webhooks do Stripe.
+- [Separação de Perfis & Validação CNPJ](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/user_profile_separation.md): Estrutura do PerfilUsuario, cadastro segregado e decorators de acesso.
+- [KYC Inteligente & Contratos por IA](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/kyc_and_contract_ai.md): Processamento multimodal anti-fraude de selfies/RG e redação de contratos por IA com timestamps.
 - [Ajustes de Responsividade Mobile](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/fix_mobile_responsiveness.md): Detalhes técnicos sobre a responsividade das páginas de autenticação e da landing page.
-- [Correção do Redirecionamento do Mercado Pago](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/fix_mercadopago_redirect.md): Informações sobre a correção de URLs HTTPS necessárias para o checkout e instruções de teste mobile.
 - [Migração para PostgreSQL e Azure](file:///c:/Users/Kaue_Martins/Desktop/New-startse-main/docs/postgresql_migration.md): Passos para configuração do banco de dados em produção.
+
+---
+
+## 🔄 Refatoração Recente: Remoção do Módulo OTC
+
+Para manter a plataforma focada em sua proposta de valor original e evitar complexidade desnecessária no monólito, foi realizada uma refatoração estrutural completa para remover o módulo **OTC White Label**:
+* **Middleware e Roteamento**: Exclusão do controle de multi-tenancy (`core/multitenancy.py`) e remoção das rotas `/otc/` em `urls.py`.
+* **Remoção de Código e Serviços**: Eliminação dos diretórios do app Django `otc/` e do microsserviço `otc-core-service/`.
+* **Simplificação do Ambiente**: Limpeza das dependências de terceiros (`stripe` e `yfinance`) no arquivo `requirements.txt`.
+* **Consolidação**: A suíte de testes do monólito (`usuarios`, `empresarios` e `investidores`) foi executada com sucesso garantindo estabilidade pós-remoção.
 
 ---
 
@@ -121,16 +122,12 @@ A **New Start-se** está pronta para ser implantada na Vercel.
    - `DJANGO_SECRET_KEY`: Uma chave aleatória segura.
    - `DATABASE_URL`: URL de conexão do seu PostgreSQL.
    - `DEBUG`: `False` (em produção).
-   - `ZAPSIGN_API_TOKEN`, `MERCADO_PAGO_ACCESS_TOKEN`, etc.
-   - `STRIPE_PUBLIC_KEY`: Chave pública do Stripe (Sandbox/Produção).
-   - `STRIPE_SECRET_KEY`: Chave secreta do Stripe (Sandbox/Produção).
-   - `STRIPE_WEBHOOK_SECRET`: Segredo de validação de assinatura do webhook do Stripe.
-
+   - `ZAPSIGN_API_TOKEN`, `STRIPE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, etc.
 
 ### **Como subir**
 1. Conecte seu repositório GitHub à Vercel.
 2. A Vercel detectará o `vercel.json` e o `requirements.txt` automaticamente.
-3. O comando de build executará `python manage.py collectstatic` (se configurado) ou utilizará o **WhiteNoise** já presente no projeto.
+3. O comando de build executará `python manage.py collectstatic` ou utilizará o **WhiteNoise** já presente no projeto.
 
 ---
 

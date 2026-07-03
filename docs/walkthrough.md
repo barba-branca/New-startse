@@ -110,6 +110,26 @@ Integramos inteligência artificial no módulo de **Sugestões de Investimento**
 * **Interface Visual Atualizada (`sugestao.html`):** Adicionado um switch switchable para ativar recomendações de IA, com a exibição de uma badge de autoria ("Fonte das Sugestões: Inteligência Artificial") e contêineres de justificativas estilizados em roxo-glowing nos cards de startups.
 * **Testes unitários (`investidores/tests.py`):** Adicionados 3 novos testes cobrindo a filtragem tradicional (conservadora/despojada) e garantindo que o fallback ocorra sem erros no caso de falta de chaves ou indisponibilidade de IA.
 
+## 7. Remoção do Módulo OTC White Label
+
+Realizamos a limpeza estrutural completa para remover a infraestrutura de mesa de negociação OTC (Over-The-Counter) e focar a plataforma integralmente em Equity Crowdfunding.
+
+### Detalhes da Remoção
+* **Configuração Core (`settings.py` e `urls.py`)**: Removido o app `'otc'` de `INSTALLED_APPS`, a rota `/otc/` e o middleware `TenantMiddleware`.
+* **Código de Multitenancy**: Excluído o middleware `core/multitenancy.py` que realizava o isolamento dinâmico de inquilinos.
+* **Componentes Físicos**: Excluídos por completo os diretórios `otc/` (app Django) e `otc-core-service/` (microsserviço de cotação/RFQ).
+* **Testes e Documentação**: Deletado o script `scripts/test_stripe_integration.py` e todos os arquivos markdown da pasta `docs/` que tratavam sobre OTC e Stripe Connect.
+* **Dependências (`requirements.txt`)**: Removidas as bibliotecas `stripe` e `yfinance`.
+
+## 8. Correção de ValueError na Página de Sugestões de Investimento
+
+Corrigimos um erro `ValueError: could not convert string to float: ''` que ocorria quando o investidor clicava no botão "Receber Sugestões" com o valor de investimento vazio, inválido ou formatado no padrão brasileiro (com vírgulas e pontos).
+
+### Solução
+* **Tratamento de Dados (`investidores/views.py`)**: Atualizada a view `sugestao` para interceptar valores vazios, inválidos ou menores/iguais a zero de forma segura. Adicionado suporte a conversões de formatos numéricos brasileiros (ex: `1.000,00` para `1000.00`).
+* **Visualização de Erros (`sugestao.html`)**: Adicionado o bloco de mensagens do Django para notificar o investidor amigavelmente na própria página (ex: *"O valor do investimento deve ser maior que zero."*).
+* **Testes Unitários**: Criados 4 novos casos de testes em `investidores/tests.py` para cobrir cada cenário de validação (valores vazios, strings não numéricas, valores não positivos e strings no formato monetário brasileiro).
+
 ---
 **Documentação feita por Barba-Branca.**
 

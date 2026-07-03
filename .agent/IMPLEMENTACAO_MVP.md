@@ -260,4 +260,3 @@ def webhook_assinatura(request):
 
 ---
 
-**Total estimado:** 6 horas de desenvolvimento

@@ -1457,30 +1457,53 @@
             <p>Escolha o plano ideal para começar sua jornada de investimentos em startups.</p>
         </div>
 
-        <div class="pricing-grid" style="display: flex; justify-content: center; gap: 30px; max-width: 900px; margin: 0 auto;">
-            <!-- Plano Único: Teste Grátis 7 Dias -->
-            <div class="pricing-card popular" style="max-width: 450px; width: 100%; border: 2px solid #667eea; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);">
-                <div class="popular-badge">⭐ Promocional</div>
+        <div class="pricing-grid" style="display: flex; justify-content: center; align-items: stretch; gap: 30px; max-width: 1200px; margin: 0 auto; flex-wrap: wrap;">
+            <!-- Card 1: Pro Trial -->
+            <div class="pricing-card" style="flex: 1; min-width: 300px; max-width: 380px; border: 1px solid var(--border-subtle); background: var(--bg-card); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; position: relative;">
                 <h3>Plano Pro Trial</h3>
-                <div class="price">Grátis<span> / 7 dias</span></div>
-                <p class="price-desc">Acesso total a todas as funcionalidades premium da plataforma</p>
-
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Startups e pitches ilimitados</li>
-                    <li><i class="fas fa-check"></i> Consultoria e análise avançada por IA</li>
-                    <li><i class="fas fa-check"></i> Acesso completo ao Data Room Seguro</li>
-                    <li><i class="fas fa-check"></i> Contratos digitais ilimitados</li>
-                    <li><i class="fas fa-check"></i> Suporte prioritário 24/7</li>
+                <div class="price" style="font-size: 2.5rem; font-weight: 800; margin: 20px 0; color: var(--text-primary);">R$ 0<span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;"> / 7 dias</span></div>
+                <p class="price-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Perfeito para conhecer a plataforma e iniciar sua jornada de investimentos.</p>
+                <ul class="pricing-features" style="list-style: none; margin-bottom: 30px; font-size: 0.9rem; flex-grow: 1;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Visualizar Startups</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Limite de 2 propostas/mês</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Documentos padrões</li>
                 </ul>
-
-                <a href="{% url 'checkout' 'trial_7d' %}" class="btn btn-primary"
-                    style="display: block; text-align: center; margin-top: 20px;">
-                    Ativar 7 Dias Grátis
+                <a href="{% url 'checkout' 'trial_7d' %}" class="btn btn-secondary" style="display: block; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); padding: 12px; border-radius: 8px; font-weight: 600; color: white; transition: all 0.3s; margin-top: auto;">
+                    Ativar Trial
                 </a>
-                
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: rgba(255,255,255,0.5); text-align: center;">
-                    🔒 Processado via <strong>Stripe Split Payments</strong> para divisão segura e instantânea de taxas de mesas de negociação.
-                </div>
+            </div>
+
+            <!-- Card 2: Profissional -->
+            <div class="pricing-card popular" style="flex: 1; min-width: 300px; max-width: 380px; border: 2px solid var(--purple-neon); background: var(--bg-card); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(168, 85, 247, 0.15);">
+                <div class="popular-badge" style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--purple-neon); color: black; font-weight: 700; font-size: 0.8rem; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Mais Popular</div>
+                <h3>Plano Profissional</h3>
+                <div class="price" style="font-size: 2.5rem; font-weight: 800; margin: 20px 0; color: var(--text-primary);">R$ 99<span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;"> / mês</span></div>
+                <p class="price-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Ideal para investidores ativos que buscam inteligência artificial e análises profundas.</p>
+                <ul class="pricing-features" style="list-style: none; margin-bottom: 30px; font-size: 0.9rem; flex-grow: 1;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Propostas ilimitadas</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Análise e sugestões completas por IA</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Acesso ao Data Room seguro</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Suporte prioritário</li>
+                </ul>
+                <a href="{% url 'checkout' 'profissional' %}" class="btn btn-primary" style="display: block; text-align: center; background: var(--gradient-purple); padding: 12px; border-radius: 8px; font-weight: 600; color: white; transition: all 0.3s; box-shadow: 0 4px 15px var(--purple-glow); margin-top: auto;">
+                    Assinar Agora
+                </a>
+            </div>
+
+            <!-- Card 3: Corporativo -->
+            <div class="pricing-card" style="flex: 1; min-width: 300px; max-width: 380px; border: 1px solid var(--border-subtle); background: var(--bg-card); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; position: relative;">
+                <h3>Plano Corporativo</h3>
+                <div class="price" style="font-size: 2.5rem; font-weight: 800; margin: 20px 0; color: var(--text-primary);">R$ 299<span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;"> / mês</span></div>
+                <p class="price-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Para fundos, syndicates e grandes escritórios de investimento anjo.</p>
+                <ul class="pricing-features" style="list-style: none; margin-bottom: 30px; font-size: 0.9rem; flex-grow: 1;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Múltiplos membros de equipe</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Relatórios de due diligence personalizados</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> API dedicada & Integrador ZapSign</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-check" style="color: var(--emerald);"></i> Gerente de contas exclusivo</li>
+                </ul>
+                <a href="{% url 'checkout' 'corporativo' %}" class="btn btn-secondary" style="display: block; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); padding: 12px; border-radius: 8px; font-weight: 600; color: white; transition: all 0.3s; margin-top: auto;">
+                    Assinar Corporativo
+                </a>
             </div>
         </div>
     </section>

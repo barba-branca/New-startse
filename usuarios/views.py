@@ -33,7 +33,13 @@ def cadastro(request):
         username = request.POST.get('username')
         senha = request.POST.get('senha')
         confirmar_senha = request.POST.get('confirmar_senha')
+        role = request.POST.get('role')
+        cnpj = request.POST.get('cnpj')
 
+        # Valida campos obrigatórios
+        if not username or not senha or not confirmar_senha or not role or not cnpj:
+            messages.add_message(request, constants.ERROR, 'Preencha todos os campos obrigatórios')
+            return redirect('/usuarios/cadastro')
 
         if senha != confirmar_senha:
             messages.add_message(request, constants.ERROR, 'As senhas não coincidem')
@@ -43,16 +49,48 @@ def cadastro(request):
             messages.add_message(request, constants.ERROR, 'A senha precisa ter pelo menos 6 digitos')
             return redirect('/usuarios/cadastro')
 
-        users = User.objects.filter(username=username)
-        if users.exists():
-            messages.add_message(request, constants.ERROR, 'Já existe um usuario com esse username')
+        # Verifica se username já existe
+        if User.objects.filter(username=username).exists():
+            messages.add_message(request, constants.ERROR, 'Já existe um usuário com esse username')
             return redirect('/usuarios/cadastro')
-       
+
+        # Valida CNPJ usando a API de utilidades
+        from empresarios.utils import validar_cnpj_api
+        from .models import PerfilUsuario
+        import re
+        
+        # Limpa o CNPJ de pontuações
+        cnpj_limpo = re.sub(r'\D', '', cnpj)
+        
+        # Verifica se o CNPJ já está cadastrado no sistema
+        if PerfilUsuario.objects.filter(cnpj=cnpj_limpo).exists():
+            messages.add_message(request, constants.ERROR, 'Este CNPJ já está cadastrado em outra conta')
+            return redirect('/usuarios/cadastro')
+
+        cnpj_valido = validar_cnpj_api(cnpj_limpo)
+        if not cnpj_valido.get('valido', False):
+            messages.add_message(request, constants.ERROR, f"Erro no CNPJ: {cnpj_valido.get('erro', 'CNPJ inválido')}")
+            return redirect('/usuarios/cadastro')
+
+        razao_social = cnpj_valido.get('razao_social', 'Razão Social Não Informada')
+
+        # Cria o usuário Django
+        email = username if '@' in str(username) else f"{username}@newstartse.com.br"
         user = User.objects.create_user(
             username=username,
+            email=email,
             password=senha
         )
-            
+        
+        # Cria o PerfilUsuario correspondente
+        PerfilUsuario.objects.create(
+            user=user,
+            role=role,
+            cnpj=cnpj_limpo,
+            razao_social=razao_social
+        )
+        
+        messages.add_message(request, constants.SUCCESS, f'Cadastro de "{razao_social}" realizado com sucesso! Faça login.')
         return redirect('/usuarios/logar')
             
 

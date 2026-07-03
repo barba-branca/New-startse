@@ -33,16 +33,16 @@ class Empresas(models.Model):
     estagio = models.CharField(max_length=4, choices=estagio_choices, default='I')
     area = models.CharField(max_length=3, choices=area_choices)
     publico_alvo = models.CharField(max_length=3)
-    valor = models.DecimalField(max_digits=9, decimal_places=2) # Valor total a ser vendido
+    valor = models.DecimalField(max_digits=15, decimal_places=2) # Valor total a ser vendido
     taxa_intermediacao = models.DecimalField(
-        max_digits=10, 
+        max_digits=15, 
         decimal_places=2, 
         default=0,
         verbose_name="Taxa de Intermediação"
     )
     
     valor_liquido = models.DecimalField(
-        max_digits=10, 
+        max_digits=15, 
         decimal_places=2, 
         default=0,
         verbose_name="Valor Líquido"

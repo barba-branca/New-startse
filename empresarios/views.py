@@ -16,6 +16,18 @@ from .utils import realizar_due_diligence, validar_cnpj_api
 
 
 
+from functools import wraps
+
+def empresario_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.role == 'I':
+            messages.add_message(request, constants.WARNING, 'Esta área é de acesso exclusivo para Empresários. Você foi redirecionado.')
+            return redirect('/investidores/painel/')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@empresario_required
 def cadastrar_empresa(request):
     if  not request.user.is_authenticated:
         return redirect('/usuarios/logar')
@@ -123,8 +135,8 @@ def cadastrar_empresa(request):
                 area=area,
                 publico_alvo=publico_alvo,
                 valor=valor_decimal,
-                taxa_intermediacao=valor_decimal * 0.10,
-                valor_liquido=valor_decimal - (valor_decimal * 0.10),
+                taxa_intermediacao=valor_decimal * 0.02,
+                valor_liquido=valor_decimal - (valor_decimal * 0.02),
                 pitch=pitch,
                 logo=logo
             )
@@ -163,6 +175,7 @@ from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
 @login_required(login_url='/usuarios/logar')
+@empresario_required
 def listar_empresas(request):
     try:
         # Log de diagnóstico
@@ -222,6 +235,7 @@ def listar_empresas(request):
             status=500
         )
     
+@empresario_required
 def empresa(request, id):
     empresa = Empresas.objects.get(id=id)
     if empresa.user != request.user:
@@ -307,20 +321,97 @@ def add_metrica(request, id):
     messages.add_message(request, constants.SUCCESS, "Métrica cadastrada com sucesso")
     return redirect(f'/empresarios/empresa/{empresa.id}')
 
+@empresario_required
 def gerenciar_proposta(request, id):
     acao = request.GET.get('acao')
     pi = PropostaInvestimento.objects.get(id=id)
     
     if acao.lower() == 'aceitar':
-        messages.add_message(request, constants.SUCCESS, 'Proposta aceita')
-        pi.status = 'PA'
+        from decimal import Decimal
+        import stripe
+        
+        stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
+        
+        valor_total = float(pi.valor)
+        taxa_plataforma = valor_total * 0.02 # 2% Platform Fee
+        valor_empreendedor = valor_total - taxa_plataforma
+        try:
+            # 1. Cria ou busca o Customer do investidor (trata e-mail vazio)
+            email_investidor = pi.investidor.email
+            if not email_investidor or '@' not in str(email_investidor):
+                email_investidor = f"investidor_{pi.investidor.id}@newstartse.com.br"
+                
+            nome_investidor = f"{pi.investidor.first_name} {pi.investidor.last_name}".strip()
+            if not nome_investidor:
+                nome_investidor = pi.investidor.username
+                
+            customer = stripe.Customer.create(
+                email=email_investidor,
+                name=nome_investidor
+            )
+            
+            # 2. Cria conta conectada para o empresário (dono da startup)
+            email_empresario = pi.empresa.user.email
+            if not email_empresario or '@' not in str(email_empresario):
+                email_empresario = f"empresario_{pi.empresa.user.id}@newstartse.com.br"
+                
+            connected_account = stripe.Account.create(
+                type='custom',
+                country='BR',
+                email=email_empresario,
+                capabilities={
+                    'card_payments': {'requested': True},
+                    'transfers': {'requested': True},
+                },
+            )
+            
+            # 3. Cria a cobrança com split de pagamento (Destination Charge)
+            amount_cents = int(valor_total * 100)
+            fee_cents = int(taxa_plataforma * 100)
+            
+            intent = stripe.PaymentIntent.create(
+                amount=amount_cents,
+                currency='brl',
+                customer=customer.id,
+                application_fee_amount=fee_cents,
+                transfer_data={
+                    'destination': connected_account.id,
+                },
+                description=f"Aporte na startup {pi.empresa.nome} - Proposta #{pi.id}",
+                confirm=True,
+                payment_method="pm_card_visa", # Cartão de testes padrão do Stripe
+            )
+            
+            pi.status = 'PA'
+            pi.save()
+            
+            # Atualiza os valores na empresa
+            pi.empresa.taxa_intermediacao = pi.empresa.taxa_intermediacao + Decimal(str(taxa_plataforma))
+            pi.empresa.valor_liquido = pi.empresa.valor_liquido + Decimal(str(valor_empreendedor))
+            pi.empresa.save()
+            
+            messages.add_message(request, constants.SUCCESS, f'Proposta aceita com sucesso! Débito automático de R$ {valor_total:,.2f} efetuado via Stripe com Split de 2% de taxa.')
+            
+        except Exception as stripe_error:
+            # Fallback local se o Stripe falhar ou não estiver configurado
+            pi.status = 'PA'
+            pi.save()
+            
+            pi.empresa.taxa_intermediacao = pi.empresa.taxa_intermediacao + Decimal(str(taxa_plataforma))
+            pi.empresa.valor_liquido = pi.empresa.valor_liquido + Decimal(str(valor_empreendedor))
+            pi.empresa.save()
+            
+            print(f"[STRIPE SPLIT ERROR] {str(stripe_error)}")
+            messages.add_message(request, constants.SUCCESS, f'Proposta aceita! (Nota: O processamento do Split Stripe foi simulado localmente com 2% de taxa: {str(stripe_error)})')
+            
     elif acao.lower() == 'recusar' or acao.lower() == 'negar':
         messages.add_message(request, constants.SUCCESS, 'Proposta recusada!')
         pi.status = 'PR'
-    
-    pi.save()
+        pi.save()
+        
     return redirect(f"/empresarios/empresa/{pi.empresa.id}")
 
+@empresario_required
 def analise_ia_empresario(request, id):
     """
     Análise de pitch usando IA

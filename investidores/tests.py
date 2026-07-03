@@ -211,5 +211,47 @@ class SugestoesTestCase(TestCase):
             self.assertEqual(len(response.context['empresas']), 1)
             self.assertEqual(response.context['empresas'][0].nome, "Empresa Velha S.A.")
 
+    def test_sugestao_valor_vazio(self):
+        response = self.client.post(reverse('sugestao'), {
+            'tipo': 'C',
+            'area': ['ED', 'FT'],
+            'valor': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        # Deve mostrar mensagem de erro
+        messages = list(response.context['messages'])
+        self.assertTrue(any('Por favor, insira um valor para o investimento.' in str(m) for m in messages))
+
+    def test_sugestao_valor_invalido(self):
+        response = self.client.post(reverse('sugestao'), {
+            'tipo': 'C',
+            'area': ['ED', 'FT'],
+            'valor': 'abc'
+        })
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context['messages'])
+        self.assertTrue(any('Por favor, insira um valor numérico válido.' in str(m) for m in messages))
+
+    def test_sugestao_valor_negativo_ou_zero(self):
+        response = self.client.post(reverse('sugestao'), {
+            'tipo': 'C',
+            'area': ['ED', 'FT'],
+            'valor': '-100'
+        })
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context['messages'])
+        self.assertTrue(any('O valor do investimento deve ser maior que zero.' in str(m) for m in messages))
+
+    def test_sugestao_valor_formatado_brasileiro(self):
+        # "10.000,00" deve ser limpo para 10000.00 e retornar a empresa velha s.a. (valuation = 1.000.000, 10.000 >= 1% (10.000))
+        response = self.client.post(reverse('sugestao'), {
+            'tipo': 'C',
+            'area': ['ED', 'FT'],
+            'valor': '10.000,00'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['empresas']), 1)
+        self.assertEqual(response.context['empresas'][0].nome, "Empresa Velha S.A.")
+
 
 

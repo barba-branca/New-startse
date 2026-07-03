@@ -52,6 +52,17 @@
 {% include "partials/barra_navegacao.html" %}
 <br><br>
 <div class="container mb-5">
+    {% if messages %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            {% for message in messages %}
+            <div class="alert {{ message.tags }}" role="alert" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     <div class="centralizar">
         <h2>Receba sugestões de empresas</h2>
         <p class="text-muted">Analisamos seu perfil e indicamos as melhores opções de investimento</p>

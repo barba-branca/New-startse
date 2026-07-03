@@ -9,7 +9,6 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),  # Inclui as URLs do app 'usuarios'
     path('empresarios/', include('empresarios.urls')),  # Rota para o app 'empresarios'
     path('investidores/', include('investidores.urls')),  # Rota para o app 'investidores'
-    path('otc/', include('otc.urls')),
     # path('social-auth/', include('social_django.urls', namespace='social')),  # COMENTADO: conexões Gmail desativadas
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Serve arquivos de mídia em desenvolvimento
 

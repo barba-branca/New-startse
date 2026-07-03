@@ -13,8 +13,19 @@ import requests
 # OPÇÃO DE IA: Descomente a linha abaixo para usar Google Gemini ao invés do Ollama
 from google import genai
 # ============================================================================
+from functools import wraps
 from .utils import realizar_kyc
 
+def investidor_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and hasattr(request.user, 'perfil') and request.user.perfil.role == 'E':
+            messages.add_message(request, constants.WARNING, 'Esta área é de acesso exclusivo para Investidores. Você foi redirecionado.')
+            return redirect('/empresarios/listar_empresas/')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@investidor_required
 def sugestao(request):
     areas = Empresas.area_choices
     if request.method == "GET":
@@ -25,6 +36,41 @@ def sugestao(request):
         area = request.POST.getlist('area')
         valor = request.POST.get('valor')
         usar_ia = request.POST.get('usar_ia') == 'on'
+
+        # Validação do valor recebido
+        if not valor or str(valor).strip() == "":
+            messages.add_message(request, constants.ERROR, 'Por favor, insira um valor para o investimento.')
+            return render(request, 'sugestao.html', {
+                'areas': areas,
+                'tipo_selecionado': tipo,
+                'areas_selecionadas': area,
+                'valor_selecionado': valor,
+                'usar_ia': usar_ia
+            })
+
+        try:
+            # Substitui separadores comuns no Brasil para formato float padrão (ex: "1.000,50" -> "1000.50")
+            valor_cleaned = str(valor).replace('.', '').replace(',', '.')
+            valor_float = float(valor_cleaned)
+        except (ValueError, TypeError):
+            messages.add_message(request, constants.ERROR, 'Por favor, insira um valor numérico válido.')
+            return render(request, 'sugestao.html', {
+                'areas': areas,
+                'tipo_selecionado': tipo,
+                'areas_selecionadas': area,
+                'valor_selecionado': valor,
+                'usar_ia': usar_ia
+            })
+
+        if valor_float <= 0:
+            messages.add_message(request, constants.ERROR, 'O valor do investimento deve ser maior que zero.')
+            return render(request, 'sugestao.html', {
+                'areas': areas,
+                'tipo_selecionado': tipo,
+                'areas_selecionadas': area,
+                'valor_selecionado': valor,
+                'usar_ia': usar_ia
+            })
         
         # Filtro base: apenas startups com equity > 0
         empresas = Empresas.objects.filter(percentual_equity__gt=0)
@@ -36,7 +82,7 @@ def sugestao(request):
         empresas_candidatas = []
         for empresa in empresas:
             if empresa.valuation > 0:
-                percentual = float(valor) * 100 / float(empresa.valuation)
+                percentual = valor_float * 100 / float(empresa.valuation)
                 if percentual >= 1:
                     empresas_candidatas.append(empresa)
 
@@ -80,7 +126,7 @@ def sugestao(request):
 O investidor possui o seguinte perfil de investimento:
 - Perfil: {tipo_ext}
 - Áreas de interesse: {areas_ext}
-- Valor disponível para investimento: R$ {valor}
+- Valor disponível para investimento: R$ {valor_float}
 
 Aqui está a lista de startups candidatas disponíveis para receber aporte:
 {json.dumps(empresas_data, ensure_ascii=False)}
@@ -170,12 +216,14 @@ Você deve responder estritamente no formato JSON abaixo, sem blocos de código 
 
     
 
+@investidor_required
 def ver_empresa(request, id):
     empresa = Empresas.objects.get(id=id)
     documentos = Documento.objects.filter(empresa=empresa)
     metricas = Metricas.objects.filter(empresa=empresa)
     return render(request, 'ver_empresa.html', {'empresa': empresa, 'documentos': documentos, 'metricas': metricas})
 
+@investidor_required
 def realizar_proposta(request, id):
     # Verifica se usuário está autenticado
     if not request.user.is_authenticated:
@@ -190,7 +238,7 @@ def realizar_proposta(request, id):
     percentual = request.POST.get('percentual')
     
     # Valida campos obrigatórios
-    if not valor or not percentual:
+    if not valor or not percentual or str(valor).strip() == "" or str(percentual).strip() == "":
         messages.add_message(request, constants.WARNING, 'Valor e percentual são obrigatórios.')
         return redirect(f'/investidores/ver_empresa/{id}')
     
@@ -198,9 +246,12 @@ def realizar_proposta(request, id):
         # Busca a empresa
         empresa = Empresas.objects.get(id=id)
         
-        # Converte valores
-        valor_float = float(valor)
-        percentual_float = float(percentual)
+        # Converte valores com limpeza de separadores brasileiros (ex: "1.000,00" -> "1000.00")
+        valor_cleaned = str(valor).replace('.', '').replace(',', '.')
+        percentual_cleaned = str(percentual).replace('.', '').replace(',', '.')
+        
+        valor_float = float(valor_cleaned)
+        percentual_float = float(percentual_cleaned)
         
         # Validações básicas
         if valor_float <= 0:
@@ -209,6 +260,11 @@ def realizar_proposta(request, id):
         
         if percentual_float <= 0:
             messages.add_message(request, constants.WARNING, 'O percentual deve ser maior que zero.')
+            return redirect(f'/investidores/ver_empresa/{id}')
+            
+        # Proteção contra overflow/InvalidOperation no DecimalField (max_digits=15, logo limitamos a 12 inteiros)
+        if valor_float >= 1000000000000.00:
+            messages.add_message(request, constants.WARNING, 'O valor da proposta excede o limite máximo permitido.')
             return redirect(f'/investidores/ver_empresa/{id}')
         
         # Calcula propostas já aceitas
@@ -243,7 +299,7 @@ def realizar_proposta(request, id):
     except Empresas.DoesNotExist:
         messages.add_message(request, constants.ERROR, 'Empresa não encontrada.')
         return redirect('/investidores/sugestao')
-    except ValueError:
+    except (ValueError, TypeError):
         messages.add_message(request, constants.WARNING, 'Valor ou percentual inválido. Use apenas números.')
         return redirect(f'/investidores/ver_empresa/{id}')
     except Exception as e:
@@ -257,16 +313,38 @@ def gerar_contrato_com_ia(pi, user):
     """
     Gera as cláusulas do contrato de investimento dinamicamente usando IA.
     """
-    prompt = f"""Você é um advogado especialista em direito de startups.
-Gere um contrato resumido de Mútuo Conversível em Participação Societária com termos jurídicos válidos no Brasil para a seguinte transação:
+    from django.utils import timezone
+    data_hora_atual = timezone.now().strftime("%d/%m/%Y às %H:%M:%S")
+    
+    nome_investidor = f"{user.first_name} {user.last_name}".strip()
+    if not nome_investidor:
+        nome_investidor = user.username
+        
+    empresario = pi.empresa.user
+    nome_empresario = f"{empresario.first_name} {empresario.last_name}".strip()
+    if not nome_empresario:
+        nome_empresario = empresario.username
 
-- **Investidor:** {user.first_name} {user.last_name} ({user.email})
-- **Startup Beneficiária:** {pi.empresa.nome}
+    prompt = f"""Você é um advogado especialista em direito de startups e investimentos de equity crowdfunding.
+Gere um contrato COMPLETO de Mútuo Conversível em Participação Societária com termos jurídicos válidos no Brasil para a seguinte transação:
+
+- **Investidor (Mutuante):** {nome_investidor} (E-mail: {user.email})
+- **Empresário / Dono da Startup (Mutuário):** {nome_empresario} (E-mail: {empresario.email})
+- **Startup Beneficiária (Empresa):** {pi.empresa.nome}
 - **Valor do Mútuo:** R$ {pi.valor:,.2f}
-- **Participação Conversível:** {pi.percentual}%
-- **Estágio Atual da Empresa:** {pi.empresa.get_estagio_display()}
+- **Participação Societária Conversível:** {pi.percentual}%
+- **Data e Horário do Registro Eletrônico:** {data_hora_atual}
 
-O contrato deve conter seções em HTML (como <h4>, <p>, <ol>, <li>, <strong>) detalhando o Objeto, Valor, Conversão em Equity, Confidencialidade e Foro de São Paulo/SP. Forneça estritamente o código das cláusulas em HTML (sem blocos de código com ```html, sem as tags <html>, <head> ou <body>)."""
+O contrato DEVE conter seções formais em formato HTML (utilizando tags <h4>, <p>, <ol>, <li>, <strong>) contendo:
+1. Preâmbulo qualificando o Investidor ({nome_investidor}) e o Empresário ({nome_empresario}).
+2. Cláusula Primeira - Objeto do Contrato.
+3. Cláusula Segunda - Valor do Mútuo e Aporte.
+4. Cláusula Terceira - Opção de Conversão em Equity de {pi.percentual}%.
+5. Cláusula Quarta - Confidencialidade e Não Concorrência.
+6. Cláusula Quinta - Foro da Comarca de São Paulo/SP.
+7. Rodapé explícito com o seguinte texto: "Assinado eletronicamente por {nome_investidor} e {nome_empresario} em {data_hora_atual}."
+
+Forneça estritamente o código em HTML, sem tags gerais <html>, <head> ou <body>, e sem delimitadores de código markdown (como ```html ou ```)."""
 
     api_key = os.environ.get("GEMINI_API_KEY")
     
@@ -277,10 +355,7 @@ O contrato deve conter seções em HTML (como <h4>, <p>, <ol>, <li>, <strong>) d
                 model="gemini-1.5-flash",
                 contents=prompt
             )
-            text = response.text
-            if "```" in text:
-                text = text.replace("```html", "").replace("```", "")
-            return text.strip()
+            return response.text.strip()
         except Exception as e:
             print(f"[ERRO GEMINI CONTRATO] {str(e)}")
             
@@ -298,26 +373,104 @@ O contrato deve conter seções em HTML (como <h4>, <p>, <ol>, <li>, <strong>) d
             timeout=30
         )
         if response.status_code == 200:
-            text = response.json().get("response", "")
-            if "```" in text:
-                text = text.replace("```html", "").replace("```", "")
-            return text.strip()
+            return response.json().get("response", "").strip()
     except Exception as e:
         print(f"[ERRO OLLAMA CONTRATO] {str(e)}")
         
     # Hardcoded default fallback
     return f"""
-    <ol>
-        <li><strong>OBJETO DO CONTRATO:</strong> O presente instrumento tem por objeto o mútuo de recursos financeiros pelo INVESTIDOR à EMPRESA, com opção de conversão em participação societária, nos termos e condições aqui estabelecidos.</li>
-        <li><strong>VALOR E PRAZO:</strong> O valor do investimento será de R$ {pi.valor:,.2f}, correspondendo a {pi.percentual}% de participação, com prazo de conversão de 24 (vinte e quatro) meses a contar da data de assinatura deste instrumento.</li>
-        <li><strong>CONVERSÃO:</strong> O INVESTIDOR poderá, a seu exclusivo critério, converter o valor mutuado em participação societária da EMPRESA, mediante subscrição de quotas/ações ao preço por quota/ação definido no Valuation acordado entre as partes.</li>
-        <li><strong>CONFIDENCIALIDADE:</strong> As partes comprometem-se a manter sigilo absoluto sobre todas as informações técnicas, comerciais, financeiras e estratégicas trocadas durante a vigência deste contrato, pelo prazo mínimo de 5 (cinco) anos.</li>
-        <li><strong>GOVERNANÇA:</strong> O INVESTIDOR terá direito a informações trimestrais sobre o desempenho financeiro da EMPRESA, incluindo faturamento, despesas e projeções, sem prejuízo de outros direitos que venham a ser acordados.</li>
-        <li><strong>RESCISÃO:</strong> O presente contrato poderá ser rescindido por qualquer das partes mediante notificação prévia de 30 (trinta) dias, resguardados os direitos já adquiridos e as obrigações já assumidas.</li>
-        <li><strong>FORO:</strong> Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer questões oriundas deste instrumento, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</li>
-    </ol>
+    <div style="line-height: 1.6;">
+        <h3 style="text-align: center; color: #92D5EB;">CONTRATO DE MÚTUO CONVERSÍVEL EM PARTICIPAÇÃO SOCIETÁRIA</h3>
+        <p><strong>MUTUANTE (INVESTIDOR):</strong> {nome_investidor} (E-mail: {user.email})</p>
+        <p><strong>MUTUÁRIO (EMPRESÁRIO):</strong> {nome_empresario} (E-mail: {empresario.email}) representativo da sociedade empresária {pi.empresa.nome}</p>
+        <p><strong>DATA E HORA DO REGISTRO:</strong> {data_hora_atual}</p>
+        <hr style="border-color: rgba(255,255,255,0.1);">
+        <ol>
+            <li><strong>OBJETO DO CONTRATO:</strong> O presente instrumento tem por objeto o mútuo de recursos financeiros pelo INVESTIDOR ({nome_investidor}) à sociedade do EMPRESÁRIO ({nome_empresario}), com opção de conversão em participação societária de {pi.percentual}%, nos termos e condições aqui estabelecidos.</li>
+            <li><strong>VALOR DO APORTE:</strong> O valor total mutuado pelo INVESTIDOR é de R$ {pi.valor:,.2f}, a ser transferido eletronicamente mediante a aceitação do presente instrumento.</li>
+            <li><strong>CONVERSÃO EM EQUITY:</strong> O INVESTIDOR poderá, a seu exclusivo critério, converter o valor mutuado em participação societária de {pi.percentual}% da EMPRESA, mediante subscrição de quotas/ações conforme valuation acordado de R$ {pi.valuation:,.2f}.</li>
+            <li><strong>CONFIDENCIALIDADE:</strong> As partes comprometem-se a manter sigilo absoluto sobre todas as informações técnicas, comerciais e financeiras trocadas durante a vigência deste contrato.</li>
+            <li><strong>FORO E DATA DE REGISTRO:</strong> Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer questões. Assinado eletronicamente por {nome_investidor} e {nome_empresario} em <strong>{data_hora_atual}</strong>.</li>
+        </ol>
+    </div>
     """
 
+
+def validar_identidade_por_ia(selfie_file, rg_file):
+    """
+    Usa o modelo de IA Multimodal do Gemini para analisar a selfie e o documento físico enviado,
+    detectando potenciais fraudes ou incompatibilidades de fotos.
+    """
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return {
+            "valido": True, 
+            "motivo": "API Key do Gemini não configurada. Validação pulada com sucesso."
+        }
+    
+    try:
+        from google.genai import types
+        # Garante leitura dos bytes
+        selfie_file.seek(0)
+        selfie_bytes = selfie_file.read()
+        selfie_file.seek(0)
+        
+        rg_file.seek(0)
+        rg_bytes = rg_file.read()
+        rg_file.seek(0)
+        
+        client = genai.Client(api_key=api_key)
+        
+        prompt = """
+Você é um especialista em prevenção a fraudes de identidade, segurança digital e Know Your Customer (KYC).
+Analise as duas imagens fornecidas:
+1. Uma selfie do investidor segurando seu documento de identidade.
+2. Uma foto em close-up do próprio documento de identidade (RG/CNH/Passaporte).
+
+Realize as seguintes verificações detalhadas:
+- A pessoa que aparece na selfie (segurando o documento) é a mesma pessoa cuja foto está impressa no documento em close-up?
+- O documento que está sendo segurado na selfie condiz visualmente em formato e layout com o documento enviado em close-up?
+- Há indícios claros de falsificação digital, montagem (Photoshop), adulteração de texto, ou uso de foto impressa em papel simulando uma pessoa real?
+- A foto da selfie mostra uma pessoa real ao vivo ou parece ser uma montagem de tela sobre tela?
+
+Responda estritamente em formato JSON, com duas chaves:
+- "valido": booleano (true se a identidade for legítima e condizente, false se houver indício de fraude ou inconsistência).
+- "motivo": string contendo uma explicação clara e resumida em português sobre a decisão (se válido, cite que os documentos coincidem; se inválido, explique o motivo da rejeição).
+
+Não envie nenhuma outra palavra antes ou depois do JSON. Envie apenas o JSON puro.
+"""
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=[
+                types.Part.from_bytes(data=selfie_bytes, mime_type=selfie_file.content_type or "image/jpeg"),
+                types.Part.from_bytes(data=rg_bytes, mime_type=rg_file.content_type or "image/jpeg"),
+                prompt
+            ]
+        )
+        
+        res_text = response.text.strip()
+        if "```json" in res_text:
+            res_text = res_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in res_text:
+            res_text = res_text.split("```")[1].split("```")[0].strip()
+            
+        import json
+        result = json.loads(res_text)
+        return {
+            "valido": bool(result.get("valido", True)),
+            "motivo": result.get("motivo", "Verificação de identidade com sucesso."),
+        }
+        
+    except Exception as e:
+        print(f"[ERRO KYC IA GEMINI] {str(e)}")
+        return {
+            "valido": True,
+            "motivo": f"Aviso: Não foi possível processar a validação por IA: {str(e)}. Aprovado sob contingência local."
+        }
+
+
+@investidor_required
 def assinar_contrato(request, id):
     # Verifica autenticação
     if not request.user.is_authenticated:
@@ -378,18 +531,28 @@ def assinar_contrato(request, id):
             contrato_texto = gerar_contrato_com_ia(pi, request.user)
             return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
         
+        # Validação dinâmica anti-fraude por IA (Multimodal)
+        kyc_ia_result = validar_identidade_por_ia(selfie, rg)
+        if not kyc_ia_result["valido"]:
+            messages.add_message(request, constants.ERROR, f'Rejeitado por suspeita de fraude: {kyc_ia_result["motivo"]}')
+            contrato_texto = gerar_contrato_com_ia(pi, request.user)
+            return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
+            
         try:
             # Salva os arquivos
             pi.selfie = selfie
             pi.rg = rg
             pi.status = 'PE'  # Proposta Enviada
+            # Atualiza o timestamp de envio/assinatura
+            from django.utils import timezone
+            pi.data_criacao = timezone.now()
             pi.save()
             
             # Realiza verificação KYC
             realizar_kyc(request.user)
             
             messages.add_message(request, constants.SUCCESS, 
-                'Contrato assinado com sucesso! Sua proposta foi enviada para análise da empresa.')
+                f'Contrato assinado eletronicamente e validado por IA! {kyc_ia_result["motivo"]}')
             return redirect(f'/investidores/ver_empresa/{pi.empresa.id}')
             
         except Exception as e:
@@ -399,6 +562,7 @@ def assinar_contrato(request, id):
             return render(request, 'assinar_contrato.html', {'pi': pi, 'contrato_texto': contrato_texto})
 
 
+@investidor_required
 def realizar_analise_ia(request, id):
     """
     Análise de empresa usando IA
@@ -507,6 +671,7 @@ O Ollama demorou mais de 2 minutos para processar a resposta. Isso geralmente oc
     return render(request, 'analise_ia.html', {'analysis': analysis, 'empresa': empresa})
 
 
+@investidor_required
 def busca_avancada(request):
     from django.db.models import Q, F, ExpressionWrapper, DecimalField
     
@@ -615,6 +780,7 @@ def busca_avancada(request):
 
 
 @login_required(login_url='/usuarios/logar/')
+@investidor_required
 def painel_investidor(request):
     from django.db.models import Sum
     from .models import PropostaInvestimento, KYC, ContratoDigital

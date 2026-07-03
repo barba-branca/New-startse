@@ -741,8 +741,8 @@
         const equity = parseFloat(equityInput ? equityInput.value : 0) || 0;
 
         if (valor > 0) {
-            // Calculate 10% brokerage
-            const taxa = valor * 0.10;
+            // Calculate 2% brokerage
+            const taxa = valor * 0.02;
             const liquido = valor - taxa;
 
             document.getElementById('taxaIntermediacao').textContent =

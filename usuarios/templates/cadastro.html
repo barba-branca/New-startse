@@ -29,7 +29,17 @@
                     <input type="hidden" name="csrf_token" value="">
                     <label>Username</label>
                     <input type="text" class="form-control input-pers" name="username"
-                        placeholder="Digite seu username">
+                        placeholder="Digite seu username" required>
+                    <br>
+                    <label>Tipo de Conta</label>
+                    <select class="form-control input-pers" name="role" required style="color: white; background: #1a1a25;">
+                        <option value="I" selected>Investidor (PJ)</option>
+                        <option value="E">Empresário (Startup)</option>
+                    </select>
+                    <br>
+                    <label>CNPJ</label>
+                    <input type="text" class="form-control input-pers" name="cnpj" id="cnpj_mask"
+                        placeholder="00.000.000/0000-00" required>
                     <br>
                     <label>Senha</label>
                     <input type="password" class="form-control input-pers" name="senha" placeholder="Digite sua senha">
