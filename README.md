@@ -142,5 +142,5 @@ Consulte o arquivo **[CONTRIBUTING.md](CONTRIBUTING.md)** (em breve) para diretr
 Este projeto é privado e de uso exclusivo para a infraestrutura **New Start-se**. Todos os direitos reservados.
 
 ---
-🚀 **Produzido por [Develops Code](https://developscode.com.br)**  
+🚀 **Produzido por [Develops Code](https://www.developscode.com/)**  
 ✍️ **Documentação por: Barba-Branca**

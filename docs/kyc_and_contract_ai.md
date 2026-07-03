@@ -30,7 +30,7 @@ Os contratos de mútuo conversível são inteiramente gerados por IA e atualizad
   - Nome completo e e-mail do **Empresário** (dono da startup beneficiada).
   - Valor do mútuo, percentual de equity e estágio da empresa.
   - **Data e Horário do registro eletrônico da transação**.
-- **Motor de IA**: Utiliza a API do Google Gemini com fallback automático para o Ollama local (`llama3.2`) ou para o template jurídico HTML em caso de desconexão.
+- **Motor de IA & Intercalação**: Os motores de IA são intercalados dinamicamente através de um sorteio aleatório (shuffle-loop) a cada requisição de contrato, alternando o uso de prioridade entre o Google Gemini e o Ollama local (`llama3.2`). Caso o primeiro motor selecionado falhar ou estiver sem credenciais de acesso, o sistema tenta imediatamente o segundo. Se ambos falharem, o sistema renderiza o template jurídico fallback padrão em HTML.
 - **Registro Eletrônico**: O preâmbulo e o rodapé do documento gerado são marcados com a data e horário exatos em que a assinatura eletrônica foi realizada.
 
 ---

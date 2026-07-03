@@ -331,6 +331,7 @@ Gere um contrato COMPLETO de Mútuo Conversível em Participação Societária c
 - **Investidor (Mutuante):** {nome_investidor} (E-mail: {user.email})
 - **Empresário / Dono da Startup (Mutuário):** {nome_empresario} (E-mail: {empresario.email})
 - **Startup Beneficiária (Empresa):** {pi.empresa.nome}
+
 - **Valor do Mútuo:** R$ {pi.valor:,.2f}
 - **Participação Societária Conversível:** {pi.percentual}%
 - **Data e Horário do Registro Eletrônico:** {data_hora_atual}
